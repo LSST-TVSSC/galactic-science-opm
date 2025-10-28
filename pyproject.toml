@@ -1,0 +1,40 @@
+[project]
+name = "galactic-science-opm"
+version = "0.1.0"
+description = "Galactic Science OPM/TOM for LSST Transients and Variable Stars Science Colaboration"
+authors = [
+    {name="Markus Hundertmark", email="<markus.hundertmark@uni-heidelberg.de>"},
+    {name="William Lindstrom", email="<llindstrom@lco.global>"},
+]
+maintainers = [
+    {name="Markus Hundertmark", email="<markus.hundertmark@uni-heidelberg.de>"},
+    {name="William Lindstrom", email="<llindstrom@lco.global>"},
+]
+readme = "README.md"
+license = "GPL-3.0-only"
+homepage = "https://lensingtom.zah.uni-heidelberg.de/"
+# update to LSST-TVSSC GitHub org
+repository = "https://github.com/mpgh/microlensing_tomopm"
+requires-python = ">=3.10,<3.12"
+
+dependencies = [
+    "tomtoolkit>=2.27.0,<3.0.0",
+    "whitenoise>=6.11.0,<7.0.0",
+    "crispy-bootstrap4>=2024.10,<2025.0",
+    "psycopg2-binary>=2.9.10,<3.0.0",
+    "django-cors-headers>=4.9.0,<5.0.0",
+    "gunicorn>=23.0.0,<24.0.0",
+    "gevent>=25.9.1,<26.0.0",
+    "tom-alertstreams>=1.0.2,<2.0.0",
+    "tom-fink>=0.7.6,<1.0.0",
+    "tom-hermes>=0.1.10,<1.0.0",
+    "tom-registration>=1.0.2,<2.0.0",
+    "tom-tns>=0.3.2,<1.0.0",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
