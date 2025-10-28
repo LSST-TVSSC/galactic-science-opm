@@ -109,8 +109,25 @@ WSGI_APPLICATION = 'galactic_science_opm.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+# Here is how to start a dockerized postgresql container compatible with the default
+# values in the 'default' DATABASEs configuration below:
+
+# 1. create the docker image:
+# docker create --name opm-tom-postgres -e POSTGRES_DB=opm -e POSTGRES_PASSWORD=opm -e POSTGRES_USER=opm -p 5432:5432 postgres
+
+# 2. start the container from that image
+# docker start opm-tom-postgres
+
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('OPM_DB_NAME', 'opm'),
+        'USER': os.getenv('OPM_DB_USER', 'opm'),
+        'PASSWORD': os.getenv('OPM_DB_PASSWORD', 'opm'),
+        'HOST': os.getenv('OPM_DB_HOST', '127.0.0.1'),
+        'PORT': '5432',
+    },
+    'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
