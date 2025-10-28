@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'tom_catalogs',
     'tom_observations',
     'tom_dataproducts',
+    'tom_registration',
     'custom_code',
 ]
 
@@ -79,6 +80,7 @@ MIDDLEWARE = [
     'tom_common.middleware.Raise403Middleware',
     'tom_common.middleware.ExternalServiceMiddleware',
     'tom_common.middleware.AuthStrategyMiddleware',
+    'tom_registration.middleware.RedirectAuthenticatedUsersFromRegisterMiddleware',
 ]
 
 ROOT_URLCONF = 'galactic_science_opm.urls'
@@ -140,6 +142,8 @@ LOGOUT_REDIRECT_URL = '/'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
+    # we're using open registration for now, but when that changes, you'll need this:
+    # 'django.contrib.auth.backends.AllowAllUsersModelBackend',
     'guardian.backends.ObjectPermissionBackend',
 )
 
@@ -202,7 +206,9 @@ TASKS = {
     }
 }
 
+#
 # TOM Specific configuration
+#
 TARGET_TYPE = 'SIDEREAL'
 
 # Set to the full path of a custom target model to extend the BaseTarget Model with custom fields.
@@ -215,6 +221,32 @@ TARGET_TYPE = 'SIDEREAL'
 #    "Target": "custom_code.match_managers.CustomTargetMatchManager"
 # }
 MATCH_MANAGERS = {}
+
+TOM_REGISTRATION = {
+    'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.ModelBackend',
+    # we're using open registration for now, but when that changes, you'll need this:
+    # 'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
+    'REGISTRATION_REDIRECT_PATTERN': 'home',
+    'REGISTRATION_STRATEGY': 'open',  # ['open', 'approval_required']
+    'SEND_APPROVAL_EMAILS': True,  # Optional email behavior if `REGISTRATION_STRATEGY = 'approval_required'`, default is False
+    'APPROVAL_SUBJECT': f'Your {TOM_NAME} registration has been approved!',  # Optional subject line of approval email, (Default Shown)
+    'APPROVAL_MESSAGE': f'Your {TOM_NAME} registration has been approved. You can log in <a href="mytom.com/login">here</a>.'  # Optional html-enabled body for approval email, (Default Shown)
+}
+
+# NOTE to Markus et al.: when we move to 'approval_required' REGISTRATION_STRATEGY, the following configuration
+# should be uncommented and configured.
+
+# MANAGERS = [('Manager1', 'manager@my_tom.com')]  # List of managers who should receive registration emails
+# EMAIL_SUBJECT_PREFIX = f'[{TOM_NAME}]'  # Optional prefix for all approval requests to managers
+# EMAIL_HOST = 'smtp.gmail.com'   # SMTP server for sending emails (this example is for gmail)
+# EMAIL_PORT = 587  # Port for the SMTP server
+# EMAIL_HOST_USER = 'my_tom@gmail.com'  # Email address for the account sending emails
+# EMAIL_HOST_PASSWORD = '******************'  # Password for the account sending emails (app password for gmail)
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_USE_TLS = True  # this is needed for gmail, other services may vary
+# EMAIL_USE_SSL = False  # this is needed for gmail, other services may vary
+# SERVER_EMAIL = "my_tom@email.com"  # Email address used as the "from" address if EMAIL_HOST_USER is not needed
+
 
 FACILITIES = {
     'LCO': {
