@@ -1,0 +1,32 @@
+{% extends 'tom_common/base.html' %}
+{% load static targets_extras observation_extras dataproduct_extras tom_common_extras %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <h2 class="text-center">LSST TVSSC Galactic Science OPM.</h2>
+    <p class="text-center"><img src="{% static 'tom_common/img/MEDLogoBLK.jpg' %}" class="img-fluid mx-auto"></p>
+
+    Welcome to the Galactic Science OPM for the LSST TVS Science Colloboration
+    built using the <a href="https://tomtoolkit.github.io/"  target="_blank">TOM Toolkit</a>.
+    </p>
+      <li>
+        Please visit the <a href="https://lsst-tvssc.github.io/taskForces/software_task_force.html"  target="_blank" title="TVS Software Taskforce">TVS Software Taskforce</a>.
+      </li>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        Latest Comments
+      </div>
+      {% recent_comments %}
+    </div>
+    <br/>
+    <div class="card">
+      <div class="card-header">
+        Latest Targets
+      </div>
+      {% recent_targets %}
+  </div>
+</div>
+{% endblock %}
