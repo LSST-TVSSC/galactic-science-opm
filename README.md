@@ -2,7 +2,7 @@
 
 The Observation Priority Manager (OPM) for Galactice Science in the TVSSC.
 
-# Observational Planning/Priority Manager (OPM) - A Target and Observation Manager Instance for the TVS galacic science community
+# Observational Planning/Priority Manager (OPM) - A Target and Observation Manager Instance for the TVS galactic science community
 
 The OPM is an instance of the Target and Observation Manager ([TOM Toolkit](https://tom-toolkit.readthedocs.io/en/stable/)) designed to track galactic science alerts over time, ingest targets with their alert priority, display corresponding light curves, and communicate with other TOM systems connected to observatories and proposals. This repository provides a system that can be installed locally by members of the TVS galactic science community, for instance the Microlensing Subgroup, and eventually deployed in a suitable cloud environment.
 
