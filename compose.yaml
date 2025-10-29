@@ -13,6 +13,7 @@ services:
 
   galactic-science-opm:
     build: .
+#    env_file: "opm-secrets.env"
     ports:
       - "8000:80"
     depends_on:
@@ -56,6 +57,7 @@ services:
 ## 
 ## galactic-science-opm-alert-listener:
 ##     build: .
+##     env_file: "opm-secrets.env"
 ##     depends_on:
 ##       - galactic-science-opm-migrate
 ##       - galactic-science-opm-db
