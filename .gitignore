@@ -10,6 +10,7 @@ __pycache__/
 helm-chart/charts/
 *secrets*.yaml
 *secrets*.sh
+*secrets*.env
 skaffold.yaml
 
 # Distribution / packaging
