@@ -1,0 +1,70 @@
+services:
+  galactic-science-opm-migrate:
+    build: .
+    depends_on:
+      - galactic-science-opm-db
+    environment:
+      DB_HOST: galactic-science-opm-db
+      DB_NAME: galactic_science_opm
+      DB_USER: opm
+      DB_PASSWORD: opm
+    entrypoint: poetry run python manage.py migrate
+    restart: "no"
+
+  galactic-science-opm:
+    build: .
+    ports:
+      - "8000:80"
+    depends_on:
+      - galactic-science-opm-migrate
+      - galactic-science-opm-db
+    environment:
+      DB_HOST: galactic-science-opm-db
+      DB_NAME: galactic_science_opm
+      DB_USER: opm
+      DB_PASSWORD: opm
+
+  galactic-science-opm-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: opm
+      POSTGRES_PASSWORD: opm
+      POSTGRES_DB: galactic_science_opm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+## # The db_worker management command comes with the django-task INSTALLED_APP.
+## # This is for running long-running task in the background. For example, to 
+## # gather forced photometry.
+## 
+## galactic-science-opm-worker:
+##     build: .
+##     depends_on:
+##       - galactic-science-opm-migrate
+##       - galactic-science-opm-db
+##     environment:
+##       DB_HOST: galactic-science-opm-db
+##       DB_NAME: galactic_science_opm
+##       DB_USER: opm
+##       DB_PASSWORD: opm
+##     entrypoint: poetry run python manage.py db_worker -v3
+
+
+## # The readstreams management command comes from the tom_alertstreams
+## # INSTALLED_APP. This starts the configured alert stream listeners.
+## 
+## galactic-science-opm-alert-listener:
+##     build: .
+##     depends_on:
+##       - galactic-science-opm-migrate
+##       - galactic-science-opm-db
+##     environment:
+##       DB_HOST: galactic-science-opm-db
+##       DB_NAME: galactic_science_opm
+##       DB_USER: opm
+##       DB_PASSWORD: opm
+##     entrypoint: poetry run python manage.py readstreams -v3
+
+volumes:
+  postgres_data:

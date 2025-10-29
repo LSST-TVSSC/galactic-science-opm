@@ -113,19 +113,24 @@ WSGI_APPLICATION = 'galactic_science_opm.wsgi.application'
 # Here is how to start a dockerized postgresql container compatible with the default
 # values in the 'default' DATABASEs configuration below:
 
-# 1. create the docker image:
-# docker create --name opm-tom-postgres -e POSTGRES_DB=opm -e POSTGRES_PASSWORD=opm -e POSTGRES_USER=opm -p 5432:5432 postgres
+# 1. create a postgres docker image named 'opm-tom-postgres':
+# docker create --name opm-tom-postgres -e POSTGRES_DB=galactic_science_opm -e POSTGRES_PASSWORD=opm -e POSTGRES_USER=opm -p 5432:5432 postgres
 
 # 2. start the container from that image
 # docker start opm-tom-postgres
 
+# 3.(optional -- this is for completeness) If you want to shut down the dockerized postgres server started in step 2:
+# docker stop  opm-tom-postgres
+
+# Also, NOTE: the values in the configuration dictionary below are also referenced in the compose.yaml file!!
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('OPM_DB_NAME', 'opm'),
-        'USER': os.getenv('OPM_DB_USER', 'opm'),
-        'PASSWORD': os.getenv('OPM_DB_PASSWORD', 'opm'),
-        'HOST': os.getenv('OPM_DB_HOST', '127.0.0.1'),
+        'NAME': os.getenv('DB_NAME', 'galactic_science_opm'),
+        'USER': os.getenv('DB_USER', 'opm'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'opm'),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
         'PORT': '5432',
     },
     'sqlite': {
