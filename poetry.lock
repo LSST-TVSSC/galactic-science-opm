@@ -3161,6 +3161,26 @@ psycopg2-binary = ">=2.9,<3.0"
 tomtoolkit = ">=2.22,<3.0"
 
 [[package]]
+name = "tom-classifications"
+version = "0.0.0"
+description = "Reusable TOMToolkit app to support classifying incoming targets."
+optional = false
+python-versions = ">=3.9.0,<3.13"
+groups = ["main"]
+markers = "python_version <= \"3.11\""
+files = []
+develop = false
+
+[package.dependencies]
+tomtoolkit = ">=2.24.0,<3.0.0"
+
+[package.source]
+type = "git"
+url = "ssh://git@github.com/TOMToolkit/tom_classifications"
+reference = "HEAD"
+resolved_reference = "510ad821583a404d977f3397057446d751e9defc"
+
+[[package]]
 name = "tom-fink"
 version = "0.7.6"
 description = "The Fink Alert Broker Module for the TOM Toolkit. Fink is a broker currently connected to ZTF. More information on Fink at https://fink-portal.org"
@@ -3539,4 +3559,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.12"
-content-hash = "2afc0b1be66087dbd6cb0ba589c9e8df8e45814d00880c08ac190eb24a21e7a8"
+content-hash = "5676349b6caa7dfdb4466e8fbb75245ffc91a4336232d5552977136be8b63a9b"

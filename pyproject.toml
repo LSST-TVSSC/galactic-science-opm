@@ -30,6 +30,8 @@ dependencies = [
     "tom-hermes>=0.1.10,<1.0.0",
     "tom-registration>=1.0.2,<2.0.0",
     "tom-tns>=0.3.2,<1.0.0",
+    # until we do a pypi release of tom_classifications, intall from the repo
+    "tom_classifications @ git+ssh://git@github.com/TOMToolkit/tom_classifications",
 ]
 
 [build-system]

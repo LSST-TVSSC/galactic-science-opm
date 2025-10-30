@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'tom_observations',
     'tom_dataproducts',
     'tom_registration',
+    'tom_classifications',
     'custom_code',
 ]
 
