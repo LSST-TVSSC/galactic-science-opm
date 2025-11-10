@@ -398,6 +398,10 @@ HOOKS = {
     'multiple_data_products_post_save': 'tom_dataproducts.hooks.multiple_data_products_post_save',
 }
 
+TARGET_LIST_COLUMNS = [
+    "name", "type", "observations", "saved_data"
+]
+
 AUTO_THUMBNAILS = False
 
 THUMBNAIL_MAX_SIZE = (0, 0)

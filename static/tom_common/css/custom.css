@@ -13,11 +13,19 @@
     --dark: #343a40;
 }
 
+.navbar {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #000;
+  color: #fff;
+  height: 77px;
+}
+
 body {
     font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #ffffff;
+    font-weight: 777;
+    line-height: 1.2;
+    color: #fff;
     background-color: #000;
 }
 
@@ -27,6 +35,45 @@ a {
 }
 
 a:hover {
-    color: #0056b3;
+    color: #007bff;
     text-decoration: underline;
+}
+
+.card {
+  background-color: #343a40;
+  color: #fff;
+  overflow: -moz-hidden-unscrollable;
+  border-radius: 7px;
+  margin: 14px;
+}
+
+.card-header {
+  background-color: #343a40;
+}
+
+table {
+  background-color: #c3072a;
+  border: none;
+  margin: 17pt;
+  border: 2pt solid #c50d29;
+  border-radius: 7px;
+}
+
+thead {
+  color: #fff;
+  border: 2pt solid #c50d29;
+}
+
+tbody {
+  border: 2pt solid #c50d29;
+}
+
+tr {
+  border: 2pt solid #c50d29;
+}
+
+td, th {
+  border: 2pt solid #c50d29;
+  background-color: #343a40;
+  color: #fff;
 }

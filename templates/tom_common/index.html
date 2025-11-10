@@ -3,7 +3,7 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 <div class="row">
-  <div class="col-md-8">
+  <div class="col-md-7">
     <h2 class="text-center">LSST TVSSC Galactic Science OPM. </h2>
     <p class="text-center"><img src="{% static 'tom_common/img/MEDLogoBLK.jpg' %}" class="img-fluid mx-auto"></p>
 
@@ -14,15 +14,15 @@
         Please visit the <a href="https://lsst-tvssc.github.io/taskForces/software_task_force.html"  target="_blank" title="TVS Software Taskforce">TVS Software Taskforce</a>.
       </li>
   </div>
-  <div class="col-md-4">
-    <div class="card"  style="background-color: #9a9da0">
+  <div class="col-md-5">
+    <div class="card">
       <div class="card-header">
         Latest Comments
       </div>
       {% recent_comments %}
     </div>
     <br/>
-    <div class="card" style="background-color: #9a9da0">
+    <div class="card">
       <div class="card-header">
         Latest Targets
       </div>
