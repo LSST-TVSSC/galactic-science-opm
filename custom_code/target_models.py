@@ -28,9 +28,6 @@ class GalacticTarget(BaseTarget):
     base_y_mag = models.FloatField(default=0)
     err_y_mag = models.FloatField(default=0)
     target_type = models.CharField(max_length=50, default='Microlensing candidate')
-    class_alerce = models.ForeignKey(Classification, on_delete=models.SET_NULL, null=True)
-    class_anteres = models.ForeignKey(Classification, on_delete=models.SET_NULL, null=True)
-    class_fink = models.ForeignKey(Classification, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         verbose_name = "target"
