@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from tom_targets.target_models import GalacticTarget, MicrolensingModel, Classification
+from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
 from custom_code.match_managers import validators
 import numpy as np
 from astropy.coordinates import SkyCoord
@@ -20,7 +20,8 @@ class Command(BaseCommand):
             file_lines = f.readlines()
 
             # Skip the first line for the file header
-            for entry in file_lines[1:]:
+            for line in file_lines[1:]:
+                entry = line.replace('\n','').split()
                 event_name = entry[0]
                 ra = entry[1]
                 dec = entry[2]
@@ -53,8 +54,7 @@ class Command(BaseCommand):
                         s.dec.deg,
                         base_i_mag,
                         err_i_mag,
-                        'microlensing',
-                        debug=debug
+                        'microlensing'
                     )
 
                     # If the target is new, ingest other parameters
