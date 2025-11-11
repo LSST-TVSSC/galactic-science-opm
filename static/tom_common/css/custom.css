@@ -8,7 +8,7 @@
     --success: #28a745;
     --info: #17a2b8;
     --warning: #ffc107;
-    --danger: #dc3545;
+    --danger: #c50d29;
     --light: #f8f9fa;
     --dark: #343a40;
 }
@@ -17,13 +17,14 @@
   background-position: center;
   background-repeat: no-repeat;
   background-color: #000;
-  color: #fff;
+  color: #e0f2fc;
   height: 77px;
 }
 
 body {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     font-size: 1rem;
-    font-weight: 777;
+    font-weight: 800;
     line-height: 1.2;
     color: #fff;
     background-color: #000;
@@ -41,7 +42,7 @@ a:hover {
 
 .card {
   background-color: #343a40;
-  color: #fff;
+  color: #e0f2fc;
   overflow: -moz-hidden-unscrollable;
   border-radius: 7px;
   margin: 14px;
@@ -52,7 +53,7 @@ a:hover {
 }
 
 table {
-  background-color: #c3072a;
+  background-color: #c50d29;
   border: none;
   margin: 17pt;
   border: 2pt solid #c50d29;
