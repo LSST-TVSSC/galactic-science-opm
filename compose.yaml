@@ -2,7 +2,8 @@ services:
   galactic-science-opm-migrate:
     build: .
     depends_on:
-      - galactic-science-opm-db
+      galactic-science-opm-db:
+        condition: service_healthy
     environment:
       DB_HOST: galactic-science-opm-db
       DB_NAME: galactic_science_opm
@@ -17,8 +18,10 @@ services:
     ports:
       - "8000:80"
     depends_on:
-      - galactic-science-opm-migrate
-      - galactic-science-opm-db
+      galactic-science-opm-db:
+        condition: service_healthy
+      galactic-science-opm-migrate:
+        condition: service_completed_successfully
     environment:
       DB_HOST: galactic-science-opm-db
       DB_NAME: galactic_science_opm
@@ -26,13 +29,19 @@ services:
       DB_PASSWORD: opm
 
   galactic-science-opm-db:
-    image: postgres:latest
+##    image: postgres:latest
+    image: postgres:16
     environment:
       POSTGRES_USER: opm
       POSTGRES_PASSWORD: opm
       POSTGRES_DB: galactic_science_opm
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opm -d galactic_science_opm"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
 
 ## # The db_worker management command comes with the django-task INSTALLED_APP.
