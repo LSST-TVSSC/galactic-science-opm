@@ -89,6 +89,8 @@ class Classification(models.Model):
     prob_class2 = models.FloatField(default=0, null=True)
     class3 = models.CharField(max_length=50, null=True)
     prob_class3 = models.FloatField(default=0, null=True)
+    prob_master_peak = models.FloatField(default=0, null=True)
+    prob_master_current = models.FloatField(default=0, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
 class MicrolensingModel(models.Model):
