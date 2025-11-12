@@ -1,9 +1,10 @@
 {% extends 'tom_common/base.html' %}
-{% load bootstrap4 targets_extras dataproduct_extras dataservices_extras %}
+{% load bootstrap4 targets_extras dataproduct_extras dataservices_extras static%}
 {% block title %}Targets{% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-2">
+      
     <form action="" method="get" class="form">
       {% bootstrap_form filter.form %}
       {% buttons %}
@@ -14,8 +15,11 @@
         <button type="submit" formaction="{% url 'targets:export' %}" id="invisible-export-button" style="display:none"></button>
       {% endbuttons %}
     </form>
-  </div>  
-  <div class="col-md-10">
+  </div> 
+
+  <div class="col-md-10"> 
+  
+    
     <div class="row">
       {{ filter.fields }}
       <div class="col-md-11">
@@ -48,6 +52,7 @@
         <label>Merge duplicate targets</label>
         <button type="submit" class="btn btn-outline-success ml-1" name="merge">Merge</button>
       </div>
+     
       <div class="form-group d-flex flex-row align-items-baseline">
         <label>Add/Remove from grouping</label>
         <select name="grouping" class="form-control w-25 ml-1">
@@ -62,6 +67,11 @@
         <button type="submit" class="btn btn-outline-danger ml-1" name="remove">Remove</button>
       </div>
     </form>
+   <div class="row">
+        <div class="col-md-11 offset-md-11">
+        {% aladin_skymap object_list %} 
+        </div>
+    </div>
     {% target_table object_list %}
     {% bootstrap_pagination page_obj extra=request.GET.urlencode %} 
   </div>
@@ -69,12 +79,6 @@
 
 
 </div>
- <div class="container">
-    <div class="row">
-        <div class="col-md-3 offset-md-11">
-        {% aladin_skymap object_list %} 
-        </div>
-    </div>
-</div>
+
 
 {% endblock %}

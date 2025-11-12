@@ -51,13 +51,26 @@ a:hover {
   color: #fff;
 }
 
-  .btn {
-    background-color: #c50d29; 
-    color: #fff;            
-    border: 2px solid #c50d29; 
-    padding: .375rem .75rem; 
-    font-size: 1rem;
-    line-height: 1.5;
-    border-radius: .25rem;
-    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out; 
-  }
+.btn {
+    background-color: #c50d29 !important; 
+    color: #fff!important;            
+    border: 2px solid #c50d29 !important; 
+   
+}
+
+.btn-primary {
+    background-color: #c50d29 !important; 
+    color: #fff!important;            
+    border: 2px solid #c50d29 !important; 
+   
+}
+
+.btn-secondary {
+    background-color: #c50d29 !important; 
+    color: #fff!important;            
+    border: 2px solid #c50d29 !important; 
+    padding: .375rem .75rem !important; 
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    border-radius: .25rem !important;
+}

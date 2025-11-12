@@ -1,3 +1,4 @@
+{% load static %}
 <!-- embedding Aladin Lite example code found at: https://aladin.cds.unistra.fr/AladinLite/doc/  -->
 <div id="aladin-lite-div" style="width:auto; height:700px; margin:auto; margin-top: 20px;" ></div>
 
@@ -120,6 +121,14 @@
             })]);
 
         aladin.addCatalog(sunCatalog);
+
+        var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_nolodust.fits' %}";
+            var moc = A.MOCFromURL(mocFileUrl, {
+                color: '#ff0000',
+                lineWidth: 2
+            });
+
+            aladin.addMOC(moc);
 
     }); // closes A.init.then(() { ...
 
