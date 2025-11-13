@@ -14,12 +14,20 @@
 }
 
 body {
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; 
     font-size: 1rem;
     font-weight: 800;
     line-height: 1.;
     color: #fff;
     background-color: #000;
+    width:100%; 
+    height:100%;
+    padding-top: 0px;
+    margin:0px;
+}
+
+.content {
+  padding: 50px 0rem 0rem 10px;
 }
 
 a:hover {
@@ -45,6 +53,14 @@ a:hover {
 
 .dropdown-item {
   background-color: #7f837b;
+}
+
+.navbar {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #000;
+  color: #fff;
+  height: 70px;
 }
 
 .nav-link {
