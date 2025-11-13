@@ -9,10 +9,7 @@
     <dd class="col-sm-6">{{ target_name }}</dd>
   {% endfor %}
   {% for key, value in target.as_dict.items %}
-    {% if value != None and value != '' and key != 'name' %}
-      <dt class="col-sm-6" title="{% help_text target key %}">{% verbose_name target key %}</dt>
-      <dd class="col-sm-6">{{ value|truncate_value_for_display }}</dd>
-    {% endif %}
+
     {% if key == 'ra' %}
       <dt class="col-sm-6">&nbsp;</dt>
       <dd class="col-sm-6">{{ value|deg_to_sexigesimal:"hms" }}</dd>
@@ -26,6 +23,14 @@
       {% endif %}
     {% endif%}
   {% endfor %}
+<dd class="col-sm-6" style="color: #fff;">Class</dd>
+<dd class="col-sm-6" style="color: #c50d29;">Selection..</dd>
+<dd class="col-sm-12" style="color: #c50d29;">Imaging</dd>
+<dd class="col-sm-12" style="color: #c50d29;">Photometry</dd>
+<dd class="col-sm-12" style="color: #c50d29;">Spectroscopy</dd>
+<dd class="col-sm-12" style="color: #c50d29;">Classifications</dd>
+<dd class="col-sm-12" style="color: #c50d29;">Analysis</dd>
+<dd class="col-sm-12" style="color: #c50d29;">Observe/Exchange</dd>
 </dl>
 <dl class="row">
 {% for key, value in extras.items %}

@@ -32,6 +32,7 @@
     }
   });
 </script>
+
 <div class="row">
   <div class="col-md-4">
     <div id="target-info">
@@ -44,20 +45,46 @@
       {% target_unknown_statuses object %}
       {% target_buttons object %}
       {% target_data object %}
-      {% recent_photometry object limit=5 %}
       {% if object.type == 'SIDEREAL' %}
-      {% aladin_finderchart object %}
       {% endif %}
 
     </div>
   </div>
   <div class="col-md-8">
+    <div class="row">
+    <div class="col-md-8">
+        <h4>Parameters</h4>
+    </div>
+</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>t0 [JD]</th>
+                <th>tE [d]</th>
+                <th>u0</th>
+                <th>&pi;E</th>
+                <th>s</th>
+                <th>q</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{target.t0|floatformat:3}}</td>
+                <td>{{target.te|floatformat:3}}</td>
+                <td>{{target.u0|floatformat:3}}</td>
+                <td>{{target.pie|floatformat:3}}</td>
+                <td>{{target.s|floatformat:3}}</td>
+                <td>{{target.q|floatformat:3}}</td>
+
+            </tr>
+        </tbody>
+    </table>
     <ul class="nav nav-tabs" role="tablist" id="tabs">
       <li class="nav-item">
         <a class="nav-link" id="photometry-tab" href="#photometry" role="tab" data-toggle="tab">Photometry</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link active" id="observe-tab" href="#observe" role="tab" data-toggle="tab">Observe</a>
+        <a class="nav-link active" id="exchange-tab" href="#exchange" role="tab" data-toggle="tab">Exchange</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="observations-tab" href="#observations" role="tab" data-toggle="tab">Observations</a>
@@ -66,20 +93,19 @@
         <a class="nav-link" id="manage-data-tab" href="#manage-data" role="tab" data-toggle="tab">Manage Data</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="manage-groups-tab" href="#manage-groups" role="tab" data-toggle="tab">Manage Groups</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" id="spectroscopy-tab" href="#spectroscopy" role="tab" data-toggle="tab">Spectroscopy</a>
       </li>
       {% include_app_tabs %}
     </ul>
     <div class="tab-content">
-      <div class="tab-pane active" id="observe">
-        <h4>Observe</h4>
+     <div class="tab-pane active" id="photometry">
+        {% photometry_for_target target %}
+
+        </div>
+      <div class="tab-pane" id="exchange">
+        <h4>Exchange</h4>
+        <ul style="color: #c50d29;">MOP&nbsp;&nbsp;BHTOM&nbsp;&nbsp;Zooniverse</ul>
         {% observing_buttons object %}
-        <hr/>
-        {% observationtemplate_run object %}
-        <hr/>
         <h4>Plan</h4>
         {% if object.type == 'SIDEREAL' %}
           {% target_plan %}
@@ -108,10 +134,7 @@
       <div class="tab-pane" id="manage-groups">
         {% target_groups target %}
       </div>
-      <div class="tab-pane" id="photometry">
-        {% photometry_for_target target %}
-        {% get_photometry_data object %}
-        </div>
+ 
       <div class="tab-pane" id="spectroscopy">
         {% spectroscopy_for_target target %}
       </div>

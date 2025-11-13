@@ -75,6 +75,14 @@ a:hover {
 }
 
 .btn-primary {
+    background-color: #4CAF50; /* A new background color */
+    border-color: #4CAF50;     /* A matching border color */
+    color: white;             /* Text color */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Adding a shadow */
+    border-radius: 8px;       /* Making buttons slightly rounded */
+}
+
+.btn-primary {
     background-color: #c50d29 !important; 
     color: #fff!important;            
     border: 2px solid #c50d29 !important; 
