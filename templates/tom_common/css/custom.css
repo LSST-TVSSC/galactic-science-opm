@@ -3,8 +3,8 @@
  * Set defaults for custom css
  */
 :root {
-    --primary: #007bff;
-    --secondary: #6c757d;
+    --primary: #c50d29;
+    --secondary: #aaa;
     --success: #007b15;
     --info: #17a2b8;
     --warning: #ffc107;
@@ -15,7 +15,7 @@
 
 body {
     font-family: 'Verdana', sans-serif; 
-    font-size: 1rem;
+    font-size: 3rem;
     font-weight: 800;
     line-height: 1.;
     color: #fff;
@@ -25,7 +25,6 @@ body {
     padding-top: 0px;
     margin:0px;
 }
-
 .content {
   padding: 50px 0rem 0rem 10px;
 }
@@ -43,10 +42,6 @@ a:hover {
     color: #c3072a;
 }
 
-.warning {
-  color: #ff3300;
-}
-
 .dropdown-menu {
   background-color: #7f837b;
 }
@@ -61,40 +56,4 @@ a:hover {
   background-color: #000;
   color: #fff;
   height: 70px;
-}
-
-.nav-link {
-  color: #fff;
-}
-
-.btn {
-    background-color: #c50d29 !important; 
-    color: #fff!important;            
-    border: 2px solid #c50d29 !important; 
-   
-}
-
-.btn-primary {
-    background-color: #4CAF50; /* A new background color */
-    border-color: #4CAF50;     /* A matching border color */
-    color: white;             /* Text color */
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* Adding a shadow */
-    border-radius: 8px;       /* Making buttons slightly rounded */
-}
-
-.btn-primary {
-    background-color: #c50d29 !important; 
-    color: #fff!important;            
-    border: 2px solid #c50d29 !important; 
-   
-}
-
-.btn-secondary {
-    background-color: #c50d29 !important; 
-    color: #fff!important;            
-    border: 2px solid #c50d29 !important; 
-    padding: .375rem .75rem !important; 
-    font-size: 1rem !important;
-    line-height: 1.5 !important;
-    border-radius: .25rem !important;
 }

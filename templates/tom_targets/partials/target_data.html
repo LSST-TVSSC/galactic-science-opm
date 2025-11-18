@@ -17,21 +17,35 @@
     {% if key == 'dec' %}
       <dt class="col-sm-6">&nbsp;</dt>
       <dd class="col-sm-6">{{ value|deg_to_sexigesimal:"dms" }}</dd>
-      {% if target.constellation %}
-        <dt class="col-sm-6">Constellation</dt>
-        <dd class="col-sm-6">{{ target.constellation }}</dd>
-      {% endif %}
+
     {% endif%}
   {% endfor %}
-<dd class="col-sm-6" style="color: #fff;">Class</dd>
-<dd class="col-sm-6" style="color: #c50d29;">Selection..</dd>
-<dd class="col-sm-12" style="color: #c50d29;">Imaging</dd>
-<dd class="col-sm-12" style="color: #c50d29;">Photometry</dd>
-<dd class="col-sm-12" style="color: #c50d29;">Spectroscopy</dd>
-<dd class="col-sm-12" style="color: #c50d29;">Classifications</dd>
-<dd class="col-sm-12" style="color: #c50d29;">Analysis</dd>
-<dd class="col-sm-12" style="color: #c50d29;">Observe/Exchange</dd>
+  
+<dd class="col-sm-6">Class</dd>
+<dd class="col-sm-6" >{{target.target_type}}</dd>
+<dl class="col-sm-12">
+    <ul class="nav flex-column" role="tablist" id="tabs2" style="background-color: #c50d29; color: #fff;">
+      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
+        <a class="nav-link" id="photometry-tab" href="#photometry" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Photometry</a>
+      </li>      
+      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
+        <a class="nav-link" id="spectroscopy-tab" href="#spectroscopy" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Spectroscopy</a>
+      </li>      
+      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
+        <a class="nav-link" id="exchange-tab" href="#exchange" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Exchange</a>
+      </li>
+      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
+        <a class="nav-link" id="observations-tab" href="#observations" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Observations</a>
+      </li>
+      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
+        <a class="nav-link" id="manage-data-tab" href="#manage-data" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Manage Data</a>
+      </li>
+
+ 
+    </ul>
 </dl>
+</dl>
+
 <dl class="row">
 {% for key, value in extras.items %}
   <dt class="col-sm-6">{{ key }}</dt>

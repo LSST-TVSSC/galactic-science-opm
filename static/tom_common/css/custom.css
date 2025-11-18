@@ -3,7 +3,7 @@
  * Set defaults for custom css
  */
 :root {
-    --primary: #007bff;
+    --primary: #c50d29;
     --secondary: #6c757d;
     --success: #28a745;
     --info: #17a2b8;
@@ -22,26 +22,26 @@
 }
 
 body {
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Verdana', sans-serif; 
     font-size: 1rem;
-    font-weight: 800;
+    font-weight: 900;
     line-height: 1.2;
     color: #fff;
     background-color: #000;
 }
 
 a {
-    color: #007bff;
+    color: #5b90c9;
     background-color: transparent;
 }
 
 a:hover {
-    color: #007bff;
+    color: #007bff5b9;
     text-decoration: underline;
 }
 
 .card {
-  background-color: #343a40;
+  background-color: #3f4346;
   color: #e0f2fc;
   overflow: -moz-hidden-unscrollable;
   border-radius: 7px;
@@ -62,19 +62,35 @@ table {
 
 thead {
   color: #fff;
-  border: 2pt solid #c50d29;
+  border: 1pt solid #c50d29;
 }
 
 tbody {
-  border: 2pt solid #c50d29;
+  border: 1pt solid #c50d29;
+  border: 1pt solid #c50d29;
 }
 
 tr {
-  border: 2pt solid #c50d29;
+  border: 1pt solid #c50d29;
 }
 
 td, th {
-  border: 2pt solid #c50d29;
-  background-color: #343a40;
+  border: 1pt solid #c50d29;
+  background-color: #313437;
   color: #fff;
+}
+
+.card, .btn-primary {
+    background-color: #c3072a;
+    border-color: #c3072a;
+    color: #fff;
+    border-radius: 3;
+}
+
+
+.card:hover, .btn-primary:hover {
+    background-color: #610314;
+    border-color: #292526;
+    color: #fff;
+    border-radius: 3;
 }
