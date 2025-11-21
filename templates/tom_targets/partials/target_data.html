@@ -11,11 +11,11 @@
   {% for key, value in target.as_dict.items %}
 
     {% if key == 'ra' %}
-      <dt class="col-sm-6">&nbsp;</dt>
+      <dt class="col-sm-6">RA&nbsp;</dt>
       <dd class="col-sm-6">{{ value|deg_to_sexigesimal:"hms" }}</dd>
     {% endif%}
     {% if key == 'dec' %}
-      <dt class="col-sm-6">&nbsp;</dt>
+      <dt class="col-sm-6">Dec&nbsp;</dt>
       <dd class="col-sm-6">{{ value|deg_to_sexigesimal:"dms" }}</dd>
 
     {% endif%}
@@ -23,24 +23,28 @@
   
 <dd class="col-sm-6">Class</dd>
 <dd class="col-sm-6" >{{target.target_type}}</dd>
+<dd class="col-sm-6">Probability rescaled</dd>
+<dd class="col-sm-6" >{{target.target_type}}</dd>
 <dl class="col-sm-12">
     <ul class="nav flex-column" role="tablist" id="tabs2" style="background-color: #c50d29; color: #fff;">
+      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
+        <a class="nav-link" id="imaging-tab" href="#imaging" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Imaging</a>
+      </li>   
       <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
         <a class="nav-link" id="photometry-tab" href="#photometry" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Photometry</a>
       </li>      
       <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="spectroscopy-tab" href="#spectroscopy" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Spectroscopy</a>
+        <a class="nav-link" id="spectroscopy-tab" href="#spectroscopy" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Spectroscopy</a>
+      </li>      
+        <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
+        <a class="nav-link" id="classification-tab" href="#classification" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Classifications</a>
       </li>      
       <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="exchange-tab" href="#exchange" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Exchange</a>
+        <a class="nav-link" id="analysis-tab" href="#analysis" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Analysis</a>
       </li>
       <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="observations-tab" href="#observations" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Observations</a>
+        <a class="nav-link" id="exchange-tab" href="#exchange" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Observe/Exchange</a>
       </li>
-      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="manage-data-tab" href="#manage-data" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Manage Data</a>
-      </li>
-
  
     </ul>
 </dl>

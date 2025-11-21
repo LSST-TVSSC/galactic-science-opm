@@ -43,7 +43,7 @@
       </div>
       {% endif %}
       {% target_unknown_statuses object %}
-      {% target_buttons object %}
+ 
       {% target_data object %}
   </dl>
       {% if object.type == 'SIDEREAL' %}
@@ -60,12 +60,12 @@
     <table class="table table-dark table-striped">
         <thead>
             <tr>
-                <th>t0 [JD]</th>
-                <th>tE [d] </th>
-                <th>u0     </th>
-                <th>&pi;E  </th>
-                <th>s      </th>
-                <th>q      </th>
+               <th>t<sub>0</sub> [HJD]</th>
+              <th>t<sub>E</sub> [days]</th>
+               <th>u<sub>0</sub></th>
+               <th>&pi;<sub>E</sub></th>
+               <th>s</th>
+               <th>q</th>
             </tr>
         </thead>
         <tbody>
@@ -83,10 +83,45 @@
     <div class="tab-content">
      <div class="tab-pane active" id="photometry">
         {% photometry_for_target target %}
+        <p>
+       <a href="https://data.lsst.cloud/" class="btn btn-primary" role="button" target="_blank">Rubin RSP</a> <a href="https://roman.gsfc.nasa.gov/index.html" class="btn btn-primary" role="button" target="_blank">Roman</a>  <a href="https://www.cosmos.esa.int/web/gaia/data-access" class="btn btn-primary" role="button" >Gaia</a>
+       </p>
         </div>
+      <div class="tab-pane" id="imaging">
+        <h4>Imaging</h4>
+       <div class="container">
+    <h1 class="mt-4">Imaging</h1>    
+
+    <div class="row">
+        <div class="col-md-4">
+            Template
+        </div>
+        <div class="col-md-4">
+            Data Image
+        </div>
+        <div class="col-md-4">
+            Difference Image
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+          {% aladin_finderchart object %}
+        </div>
+        <div class="col-md-4">
+        Sky position
+          </div>
+        <div class="col-md-4">
+        Last shared image
+        </div>
+    </div>
+</div>
+      </div>
       <div class="tab-pane" id="exchange">
         <h4>Exchange</h4>
-        <ul style="background-color: #c50d29; color=#fff;">MOP&nbsp;&nbsp;BHTOM&nbsp;&nbsp;Zooniverse</ul>
+        
+<a href="https://mop.lco.global/" >MOP</a>
+<a href="https://bhtom.space" >BHTOM</a>
+
         <h4>Plan</h4>
         {% if object.type == 'SIDEREAL' %}
         {% moon_distance object %}
@@ -94,11 +129,68 @@
           <p>Airmass plotting for non-sidereal targets is not currently supported. If you would like to add this functionality, please check out the <a href="https://github.com/TOMToolkit/tom_nonsidereal_airmass" target="_blank">non-sidereal airmass plugin.</a></p>
         {% endif %}
       </div>
-      <div class="tab-pane" id="observations">
-        {% existing_observation_form object %}
-        <h4>Observations</h4>
-        <a href="{% url 'targets:detail' pk=target.id %}?update_status=True" title="Update status of observations for target" class="btn btn-danger">Update Observations Status</a>
-        {% observation_list object %}
+      <div class="tab-pane" id="analysis">
+        <h4>Analysis (detailed parameter summary)</h4>
+
+        <div class="row">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>t<sub>0</sub> [HJD]</th>
+                    <th>u<sub>0</sub></th>
+                    <th>t<sub>E</sub> [days]</th>
+                    <th>&pi;<sub>EE</sub></th>
+                    <th>&pi;<sub>EN</sub></th>
+                    <th>&rho;</th>
+                    <th>s</th>
+                    <th>q</th>
+                    <th>&alpha;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ target.t0|floatformat:3 }}&#8723;</br>
+                        {{ target.t0_error|floatformat:3 }}</td>
+                    <td>{{ target.u0|floatformat:4 }}&#8723;<br/>
+                        {{ target.u0_error|floatformat:4 }}</td>
+                    <td>{{ target.tE|floatformat:3 }}&#8723;<br/>
+                        {{ target.tE_error|floatformat:3 }}</td>
+                    <td>{{ target.piEE|floatformat:3 }}&#8723;<br/>
+                        {{ target.piEN_error|floatformat:3 }}</td>
+                    <td>{{ target.piEE|floatformat:3 }}&#8723;<br/>
+                        {{ target.piEE_error|floatformat:3 }}</td>
+                    <td>{{ target.rho|floatformat:3 }}&#8723;<br/>
+                        {{ target.rho_error|floatformat:3 }}</td>
+                    <td>{{ target.s|floatformat:3 }}&#8723;<br/>
+                        {{ target.s_error|floatformat:3 }}</td>
+                    <td>{{ target.q|floatformat:3 }}&#8723;<br/>
+                        {{ target.q_error|floatformat:3 }}</td>
+                    <td>{{ target.alpha|floatformat:3 }}&#8723;<br/>
+                        {{ target.alpha_error|floatformat:3 }}</td>
+                </tr>
+            </tbody>
+        </table>
+         </div>
+     <div class="row">
+     <table class="table">
+         <thead>
+            <tr>
+                <th>Source magnitude</th>
+                <th>Blend magnitude</th>
+                <th>Baseline magnitude</th>
+                <th>Current magnitude</th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr>
+                <td>{{ target.source_magnitude }}&#8723;{{ target.source_mag_error }}</td>
+                <td>{{ target.blend_magnitude }}&#8723;{{ target.blend_mag_error }}</td>
+                <td>{{ target.baseline_magnitude }}&#8723;{{ target.baseline_mag_error }}</td>
+                <td>{{ target.mag_now }}</td>
+            </tr>
+         </tbody>
+     </table>
+         </div>
       </div>
 
       <div class="tab-pane" id="manage-data">
@@ -116,20 +208,29 @@
         {% target_groups target %}
       </div>
  
+   <div class="tab-pane" id="classification">
+   <h4>Classifications</h4>
+   </div>
+      <div class="tab-pane" id="manage-groups">
+        {% target_groups target %}
+      </div>
+
       <div class="tab-pane" id="spectroscopy">
         {% spectroscopy_for_target target %}
+        <a href="https://vizier.cds.unistra.fr/vizier/sed/">SED Vizier</a>
       </div>
       {% include_app_tab_divs %}
 
       {% comments_enabled as comments_are_enabled %}
       {% if comments_are_enabled %}
       <hr/>
-      <h5>Comments</h5>
+     <!-- <h5>Comments</h5>
           {% render_comment_list for object %}
           {% url 'targets:detail' object.id as next %}
           {% if user.is_authenticated %}
             {% render_comment_form for object %}
           {% endif %}
+          -->
       {% endif %}
     </div>
   </div>
