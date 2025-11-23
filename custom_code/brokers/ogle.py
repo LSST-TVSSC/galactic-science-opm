@@ -87,7 +87,7 @@ class OGLEBroker(GenericBroker):
 
         for event_name, event_params in ogle_events.items():
 
-            qs = Target.objects.filter(name=event_name)
+            qs = GalacticTarget.objects.filter(name=event_name)
 
             if len(qs) == 0:
                 s = SkyCoord(event_params[0], event_params[1], unit=(unit.hourangle, unit.deg), frame='icrs')
