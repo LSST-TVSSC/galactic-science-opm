@@ -18,7 +18,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         print('Starting OGLE photometry ingest')
         Ogle = ogle.OGLEBroker()
-
         # Parse the years for which to harvest target data, since this could be a single
         # integer or a list:
         if ',' in options['years']:
@@ -26,7 +25,7 @@ class Command(BaseCommand):
         else:
             year_list = [options['years']]
         full_phot = False
-        if options['phot']:
+        if options['phot'] == True:
             full_phot = True
 
         # If a number of events to select is given, make a list of all available events;

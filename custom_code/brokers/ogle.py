@@ -91,7 +91,6 @@ class OGLEBroker(GenericBroker):
 
             if len(qs) == 0:
                 s = SkyCoord(event_params[0], event_params[1], unit=(unit.hourangle, unit.deg), frame='icrs')
-
                 target, result = validators.get_or_create_event(
                     event_name,
                     s.ra.deg,
@@ -123,26 +122,12 @@ class OGLEBroker(GenericBroker):
                 year = target.name.split('-')[1]
                 event = target.name.split('-')[2]+'-'+target.name.split('-')[3]
 
-                # Only harvest the photometry for the current year's events, since
-                # it will not otherwise be updating.  Also check to see if the latest
-                # datapoint is more recent than those data already ingested, to minimize
-                # runtime.
-                if year == current_year or year == previous_year:
+                # harvest the photometry for all years
+                if int(year) > 1990:
                     try:
                         photometry = self.read_ogle_lightcurve(target)
-                        if ogle_last_jd and not full_phot:
-                            if photometry[-1][0] > ogle_last_jd:
-                                status = self.ingest_ogle_photometry(target, photometry)
-                                print('OGLE harvester: read and ingested photometry for event '+target.name)
-                            else:
-                                print('OGLE harvester: most recent photometry for event '
-                                            +target.name+' ('+str(photometry[-1][0])+') already ingested')
-                                target.latest_data_hjd = t_last_jd
-                                target.latest_data_utc = t_last_date
-                                target.save()
-                        else:
-                            status = self.ingest_ogle_photometry(target, photometry)
-                            print('OGLE harvester: completed read and ingested photometry for event ' + target.name)
+                        status = self.ingest_ogle_photometry(target, photometry)
+                        print('OGLE harvester: completed read and ingested photometry for event ' + target.name)
                     except IndexError:
                         print('OGLE harvester: WARNING malformed photometry for event '
                                     + target.name + ', skipping ingest')
@@ -154,22 +139,18 @@ class OGLEBroker(GenericBroker):
 
     def read_ogle_lightcurve(self, target):
         """Method to read the OGLE lightcurve via HTTP"""
-
-        ogle_name = target.get_target_name_survey('OGLE')
         photometry = []
-
-        if ogle_name:
+        ogle_name = target.__repr__()
+        if 'OGLE' in ogle_name:
             year = ogle_name.split('-')[1]
             event = ogle_name.split('-')[2] + '-' + ogle_name.split('-')[3]
 
-            lc_file_url = os.path.join(BROKER_URL, year, event.lower(), 'phot.dat')
-
+            lc_file_url = os.path.join(BROKER_URL, year, event.lower()[:-1], 'phot.dat')
             response = requests.request('GET', lc_file_url)
             if response.status_code == 200:
                 for line in response.iter_lines():
                     entries = str(line).replace('\n','').replace("b'",'').replace("'",'').split()
                     photometry.append( [float(x) for x in entries] )
-
             print('OGLE harvester: read and ingested photometry for event ' + target.name
                         + ' from file ' + os.path.join(event.lower(), 'phot.dat'))
 
