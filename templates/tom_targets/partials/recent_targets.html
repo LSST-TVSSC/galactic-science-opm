@@ -1,0 +1,38 @@
+<table class="table">
+  <thead><tr><th>ID</th><th>Created</th></tr></thead>
+  <tbody>
+    {% for target in targets %}
+    <tr>
+      <td>
+        <a href="{% url 'targets:detail' target.id %}" title="Detail for {{ target.name }}">
+          {{ target.name }}
+        </a>
+      </td>
+      <td>
+        {{ target.created|date }}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="2">
+          {% if authenticated %}
+            {% if empty_database %}
+                There are no targets in the database.
+                You might want to <a href="{% url 'tom_targets:create' %}">create a target manually</a>,
+                <a href="{% url 'tom_alerts:list' %}">import one from an alert broker</a>
+                or
+                <form method="POST" action="{% url 'tom_targets:seed' %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-outline-primary" type="submit">add the Messier catalog</button>
+                </form>
+            {% else %}
+                No targets.
+            {% endif %}
+        {% else %}
+            Please <a href="{% url 'login' %}?next={% url 'targets:list' %}">login</a> to view or create targets.
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

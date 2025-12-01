@@ -1,0 +1,61 @@
+{% load targets_extras %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>
+        {% if all_checked %}
+          <input type="checkbox" id="selectPage" onClick="select_page(this, {{ targets|length }})" form="grouping-form" checked/>
+        {% else %}
+          <input type="checkbox" id="selectPage" onClick="select_page(this, {{ targets|length }})" form="grouping-form" />
+        {% endif %}
+      </th>
+      {% for column in headers %}
+      <th>{{ column }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for target in targets %}
+    <tr>
+      <td>
+        {% if all_checked %}
+          <input type="checkbox" name="selected-target" value="{{ target.id }}" onClick="single_select()" form="grouping-form" checked/>
+        {% else %}
+          <input type="checkbox" name="selected-target" value="{{ target.id }}" onClick="single_select()" form="grouping-form"/>
+        {% endif %}
+      </td>
+      {% target_table_row target as target_row %}
+      {% for target_col in target_row %}
+        <td>
+        {% if forloop.first %}
+          <a href="{% url 'targets:detail' target.id %}" title="{{ target_col }}">{{ target_col }}</a>
+        {% else %}
+          {{ target_col }}
+        {% endif %}
+        </td>
+      {% endfor %}
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5">
+        {% if authenticated %}
+            {% if empty_database and not query_string %}
+                There are no targets in the database.
+                You might want to <a href="{% url 'tom_targets:create' %}">create a target manually</a>,
+                <a href="{% url 'tom_alerts:list' %}">import one from an alert broker</a>
+                or
+                <form method="POST" action="{% url 'tom_targets:seed' %}" class="d-inline">
+                {% csrf_token %}
+                <button class="btn btn-outline-primary" type="submit">add the Messier catalog</button>
+                </form>
+            {% else %}
+                No targets match those filters.
+            {% endif %}
+        {% else %}
+            Please <a href="{% url 'login' %}?next={% url 'targets:list' %}">login</a> to view or create targets.
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
