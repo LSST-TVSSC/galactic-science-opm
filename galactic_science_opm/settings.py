@@ -235,7 +235,7 @@ TASKS = {
 TARGET_TYPE = 'SIDEREAL'
 
 # Set to the full path of a custom target model to extend the BaseTarget Model with custom fields.
-# TARGET_MODEL_CLASS = 'custom_code.models.UserDefinedTarget'
+TARGET_MODEL_CLASS = 'custom_code.target_models.GalacticTarget'
 
 # Define MATCH_MANAGERS here. This is a dictionary that contains a dotted module path to the desired match manager
 # for a given model.
@@ -397,6 +397,10 @@ HOOKS = {
     'data_product_post_save': 'tom_dataproducts.hooks.data_product_post_save',
     'multiple_data_products_post_save': 'tom_dataproducts.hooks.multiple_data_products_post_save',
 }
+
+TARGET_LIST_COLUMNS = [
+    "name", "type", "observations", "saved_data"
+]
 
 AUTO_THUMBNAILS = False
 
