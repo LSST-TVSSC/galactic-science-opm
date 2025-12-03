@@ -35,7 +35,7 @@ class ALERCEBroker(GenericBroker):
     name = 'ALERCE'
     form = ALERCEQueryForm
 
-    def fetch_alerts(self, years = [], events=30):
+    def fetch_alerts(self, events=30,days=60):
         """Fetch data on microlensing events discovered by ALERCE"""
         from alerce.core import Alerce
         alerce = Alerce()
@@ -45,7 +45,7 @@ class ALERCEBroker(GenericBroker):
             classifier="lc_classifier_BHRF_forced_phot",
             class_name="Microlensing",
             format="pandas",
-            firstmjd=float(int(Time.now().mjd)-30),
+            firstmjd=float(int(Time.now().mjd)-days),
             page_size=events,
             order_by="probability",
             order_mode="DESC"
@@ -62,6 +62,9 @@ class ALERCEBroker(GenericBroker):
 
         list_of_targets = []
         new_targets = []
+        if alerce_results.empty:
+            return [],[]
+
         for event_name, event_probability,ra,dec in zip(alerce_results["oid"],
                                                         alerce_results["probability"],
                                                         alerce_results["meanra"],
@@ -91,14 +94,14 @@ class ALERCEBroker(GenericBroker):
 
         return list_of_targets, new_targets
 
-    def find_and_ingest_photometry(self, targets, full_phot=False):
+    def find_and_ingest_photometry(self, targets):
         print('ALERCE harvester: ingesting photometry')
 
         for target in targets:
             print('ALERCE harvester: ingesting photometry for event ' + target.name)
             try:
-                photometry = self.read_ALERCE_lightcurve(target)
-                status = self.ingest_ALERCE_photometry(target, photometry)
+                detections_photometry, forced_photometry = self.read_ALERCE_lightcurve(target)
+                status = self.ingest_ALERCE_photometry(target, detections_photometry, forced_photometry)
                 print('ALERCE harvester: completed read and ingested photometry for event ' + target.name)
             except:
                 print('ALERCE harvester: WARNING reading photometry failed for '
@@ -111,18 +114,17 @@ class ALERCEBroker(GenericBroker):
         from alerce.core import Alerce
         alerce = Alerce()
         photometry = []
-        ALERCE_name = target.__repr__()
+        ALERCE_name = target.name
         detections_photometry = alerce.query_detections(ALERCE_name,
                                      format="pandas")
         forced_photometry = alerce.query_forced_photometry(ALERCE_name,
                                      format="pandas")
         return detections_photometry, forced_photometry
 
-    def ingest_ALERCE_photometry(self, target, detections_photometry, forced_photometry):
+    def ingest_ALERCE_photometry(self, target, detections_photometry, forced_photometry,debug=False):
         """Method to store the photometry datapoints in the OPM TOM as ReducedDatums"""
         filter_definition = {1:"ZTF_g", 2:"ZTF_r", 3:"ZTF_i"}
-
-        for i, row in detections.iterrows():
+        for i, row in detections_photometry.iterrows():
             jd = Time(row["mjd"], format='mjd', scale='utc')
             jd.to_datetime(timezone=TimezoneInfo())
             datum = {'magnitude': row["magpsf_corr"],
@@ -142,6 +144,7 @@ class ALERCEBroker(GenericBroker):
                 print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
 
         for i, row in forced_photometry.iterrows():
+
             jd = Time(row["mjd"], format='mjd', scale='utc')
             jd.to_datetime(timezone=TimezoneInfo())
             datum = {'magnitude': row["mag_corr"],
