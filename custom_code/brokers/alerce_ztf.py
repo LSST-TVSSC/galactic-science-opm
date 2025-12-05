@@ -117,6 +117,8 @@ class ALERCEBroker(GenericBroker):
         ALERCE_name = target.name
         detections_photometry = alerce.query_detections(ALERCE_name,
                                      format="pandas")
+        #remove multiple detections
+        detections_photometry = detections_photometry.drop_duplicates(subset="mjd")
         forced_photometry = alerce.query_forced_photometry(ALERCE_name,
                                      format="pandas")
         return detections_photometry, forced_photometry
