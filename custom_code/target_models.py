@@ -93,6 +93,10 @@ class Classification(models.Model):
     prob_master_current = models.FloatField(default=0, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        s = f'{self.target}, {self.source}, {self.class1}, {self.prob_class1}'
+        return s
+
 class MicrolensingModel(models.Model):
     """Class providing the parameters of a microlensing model fit"""
 
