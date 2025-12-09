@@ -1,8 +1,7 @@
 from django.shortcuts import render
-from .models import MicrolensingModel
+from .target_models import MicrolensingModel
+from .target_models import Classification
 
-def child_model_view(request):
-    microlensing_models = MicrolensingModel.objects.all()
-    template_name = 'microlensing_model_template.html'  
-
-    return render(request, template_name, {'microlensing_models': microlensing_models})
+def microlensing_model_view(request):
+    microlensing_models = MicrolensingModel.objects.all()  # Get all MicrolensingModels
+    return render(request, 'custom_code/model_list.html', {'microlensing_models': microlensing_models})

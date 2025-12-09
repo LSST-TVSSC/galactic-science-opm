@@ -34,6 +34,8 @@ class Command(BaseCommand):
                 # First check that the event isn't already known by name
                 qs = GalacticTarget.objects.filter(name=event_name)
                 # If not, proceed with duplication check based on position
+
+
                 if len(qs) == 0:
                     s = SkyCoord(ra, dec, unit=(u.hourangle, u.deg), frame='icrs')
 
