@@ -26,7 +26,7 @@ services:
       DB_PASSWORD: opm
 
   galactic-science-opm-db:
-    image: postgres:latest
+    image: postgres:16
     environment:
       POSTGRES_USER: opm
       POSTGRES_PASSWORD: opm
