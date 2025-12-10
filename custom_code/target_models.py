@@ -81,7 +81,7 @@ class Classification(models.Model):
     prob_class3 Probability of class1
     """
 
-    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE)
+    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, related_name="classification_parameters")
     source = models.CharField(max_length=50)
     class1 = models.CharField(max_length=50)
     prob_class1 = models.FloatField(default=0, null=True)
@@ -93,11 +93,15 @@ class Classification(models.Model):
     prob_master_current = models.FloatField(default=0, null=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        s = f'{self.target}, {self.source}, {self.class1}, {self.prob_class1}'
+        return s
+
 class MicrolensingModel(models.Model):
     """Class providing the parameters of a microlensing model fit"""
 
     # Microlensing-specific fields
-    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE)
+    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, related_name="microlensing_parameters")
     t0 = models.FloatField(default=0)
     err_t0 = models.FloatField(default=0)
     u0 = models.FloatField(default=0)

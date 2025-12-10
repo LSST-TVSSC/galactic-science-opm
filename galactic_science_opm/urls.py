@@ -15,8 +15,11 @@ Including another URLconf
 """
 from django.urls import path, include
 from custom_code.views import HomeView
+from custom_code import views
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('', include('tom_common.urls')),
+    path("custom_code/model_list.html", views.microlensing_model_view, name="microlensing_model_view"), 
 ]
+

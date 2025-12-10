@@ -1,9 +1,12 @@
 from django.shortcuts import render
-
-# Create your views here.
-from django.views.generic import TemplateView
 from custom_code.target_models import GalacticTarget
+from custom_code.target_models import MicrolensingModel
+from custom_code.target_models import Classification
+from django.views.generic import TemplateView
 
+def microlensing_model_view(request):
+    microlensing_models = MicrolensingModel.objects.all()  # Get all MicrolensingModels
+    return render(request, 'custom_code/model_list.html', {'microlensing_models': microlensing_models})
 
 class HomeView(TemplateView):
     template_name = "tom_common/index.html"
