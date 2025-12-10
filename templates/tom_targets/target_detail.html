@@ -1,6 +1,7 @@
 {% extends 'tom_common/base.html' %}
-{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache %}
+{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags%}
 {% block title %}Target {{ object.name }}{% endblock %}
+
 {% block additional_css %}
 <link rel="stylesheet" href="{% static 'tom_targets/css/main.css' %}">
 {% endblock %}
@@ -57,10 +58,11 @@
         <h4>Parameters for target type: {{target.target_type}}</h4>
     </div>
 </div>
+           
     <table class="table table-dark table-striped">
         <thead>
             <tr>
-               <th>t<sub>0</sub> [HJD]</th>
+               <th>t<sub>0</sub> [JD]</th>
                  <th>u<sub>0</sub></th>
               <th>t<sub>E</sub> [days]</th>
               <th>&pi;<sub>EE</sub></th>
@@ -71,14 +73,16 @@
         </thead>
         <tbody>
             <tr>
-                <td>{{target.t0|floatformat:3}}</td>
-                <td>{{target.u0|floatformat:3}}</td>
-                 <td>{{target.tE|floatformat:3}}</td>
-                <td>{{target.piEE|floatformat:3}}</td>
-                <td>{{target.piEN|floatformat:3}}</td>
-                <td>{{target.s|floatformat:3}}</td>
-                <td>{{target.q|floatformat:3}}</td>
-            </tr>
+               {% with target|microlensing_parameters_by_name as filtered_parameters %}
+                <td>{{filtered_parameters.t0|floatformat:3}}</td>
+                <td>{{filtered_parameters.u0|floatformat:3}}</td>
+                 <td>{{filtered_parameters.tE|floatformat:3}}</td>
+                <td>{{filtered_parameters.piEE|floatformat:3}}</td>
+                <td>{{filtered_parameters.piEN|floatformat:3}}</td>
+                <td>{{filtered_parameters.s|floatformat:3}}</td>
+                <td>{{filtered_parameters.q|floatformat:3}}</td>
+                {% endwith %}
+            </tr> 
         </tbody>
     </table>
     {% include_app_tabs %}
@@ -151,24 +155,26 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ target.t0|floatformat:3 }}&#8723;</br>
-                        {{ target.t0_error|floatformat:3 }}</td>
-                    <td>{{ target.u0|floatformat:4 }}&#8723;<br/>
-                        {{ target.u0_error|floatformat:4 }}</td>
-                    <td>{{ target.tE|floatformat:3 }}&#8723;<br/>
-                        {{ target.tE_error|floatformat:3 }}</td>
-                    <td>{{ target.piEE|floatformat:3 }}&#8723;<br/>
-                        {{ target.piEN_error|floatformat:3 }}</td>
-                    <td>{{ target.piEE|floatformat:3 }}&#8723;<br/>
-                        {{ target.piEE_error|floatformat:3 }}</td>
-                    <td>{{ target.rho|floatformat:3 }}&#8723;<br/>
-                        {{ target.rho_error|floatformat:3 }}</td>
-                    <td>{{ target.s|floatformat:3 }}&#8723;<br/>
-                        {{ target.s_error|floatformat:3 }}</td>
-                    <td>{{ target.q|floatformat:3 }}&#8723;<br/>
-                        {{ target.q_error|floatformat:3 }}</td>
-                    <td>{{ target.alpha|floatformat:3 }}&#8723;<br/>
-                        {{ target.alpha_error|floatformat:3 }}</td>
+                  {% with target|microlensing_parameters_by_name as filtered_parameters %}
+                    <td>{{ filtered_parameters.t0|floatformat:3 }}&#8723;</br>
+                        {{ filtered_parameters.t0_error|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.u0|floatformat:4 }}&#8723;<br/>
+                        {{ filtered_parameters.u0_error|floatformat:4 }}</td>
+                    <td>{{ filtered_parameters.tE|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.tE_error|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.piEE|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.piEN_error|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.piEE|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.piEE_error|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.rho|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.rho_error|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.s|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.s_error|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.q|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.q_error|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.alpha|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.alpha_error|floatformat:3 }}</td>
+                  {% endwith %}
                 </tr>
             </tbody>
         </table>
@@ -188,7 +194,7 @@
                 <td>{{ target.source_magnitude }}&#8723;{{ target.source_mag_error }}</td>
                 <td>{{ target.blend_magnitude }}&#8723;{{ target.blend_mag_error }}</td>
                 <td>{{ target.baseline_magnitude }}&#8723;{{ target.baseline_mag_error }}</td>
-                <td>{{ target.mag_now }}</td>
+                <td></td>
             </tr>
          </tbody>
      </table>
