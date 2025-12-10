@@ -10,4 +10,4 @@ def microlensing_parameters_by_name(name):
 
 @register.filter
 def classification_by_name(name):
-    return Classification.objects.filter(target=name)
+    return Classification.objects.get(target=name)
