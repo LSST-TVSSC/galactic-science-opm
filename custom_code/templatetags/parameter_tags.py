@@ -4,10 +4,10 @@ from custom_code.target_models import Classification
 
 register = template.Library()
 
-@register.simple_tag
+@register.filter
 def microlensing_parameters_by_name(name):
-    return MicrolensingModel.objects.filter(name__iexact=name)
+    return MicrolensingModel.objects.get(target=name)
 
-@register.simple_tag
+@register.filter
 def classification_by_name(name):
-    return Classification.objects.filter(name__iexact=name)
+    return Classification.objects.filter(target=name)
