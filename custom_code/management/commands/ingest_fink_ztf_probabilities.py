@@ -27,6 +27,8 @@ class Command(BaseCommand):
         #filename = 'quantile_transformer_fink.joblib'
         #joblib.dump(qt_fink, filename)
         app_config = apps.get_app_config('custom_code')
+        #start configuration for ZTF, pill serialized trafos can be stored on a 
+        #daily basis, for instance.
         file_path = path.join(app_config.path, 'auxiliary_data/quantile_transformer_fink.joblib')
         try:        
             loaded_qt = joblib.load(file_path)
@@ -35,27 +37,13 @@ class Command(BaseCommand):
             print("Could not open file")
             trafo_loaded = False
   
-        #use api fink query to retrieve microlensing candidates
-        r = requests.post(
-            "https://api.fink-portal.org/api/v1/latests",
-            json={
-                "class": "Microlensing candidate",
-                "output-format": "json",
-                "output-format": "json",
-                "n": str(options['target_name_contains']),
-            },
-        )
-        #convert to pandas df
-        pdf = pd.read_json(io.BytesIO(r.content))
+
         #For galactic opm, remove known galaxies
         no_galaxies = pdf['d:cdsxmatch'] != 'Galaxy'
         pdf_no_galaxies = pdf[no_galaxies]
         if trafo_loaded:
-            pdf_no_galaxies["d:mulens_uniform"] = loaded_qt.transform(np.array(pdf_no_galaxies["d:mulens"]).reshape(-1, 1)        
-
-
-    
-                   
+            pdf_no_galaxies["d:mulens_uniform"] = loaded_qt.transform(np.array(pdf_no_galaxies["d:mulens"]).reshape(-1, 1))        
+     
      #   m = Classification.objects.update_or_create(target=target,
      #                                               source='fink_ZTF',
      #                                               class1='microlensing',

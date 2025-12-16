@@ -91,6 +91,9 @@ class Classification(models.Model):
     prob_class3 = models.FloatField(default=0, null=True)
     prob_master_peak = models.FloatField(default=0, null=True)
     prob_master_current = models.FloatField(default=0, null=True)
+    #includes standardized brightness and Nsquare metric
+    #prob_master_featured = models.FloatField(default=0, null=True)
+    #quantile_transformer_fit = ..pill serialized fit pars sklearn
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
