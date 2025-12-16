@@ -1,0 +1,29 @@
+{% extends 'tom_common/base.html' %}
+
+{% block content %}
+<ul>
+
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>Targetname</th>
+               <th>Probability</th>
+               <th>Updated</th>
+               
+            </tr>
+        </thead>
+        <tbody>
+                {% for model in microlensing_objects %}
+
+            <tr>
+                 <td> <a href="https://alerce.online/object/{{model.target}}">{{model.target}}</a>
+</td>
+                <td>{{model.prob_class1|floatformat:3}}</td>
+                <td>{{model.updated_at}}</td>
+            </tr>
+                {% endfor %}
+
+        </tbody>
+    </table>    
+</ul>
+{% endblock %}
