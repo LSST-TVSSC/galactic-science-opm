@@ -77,11 +77,9 @@ class Command(BaseCommand):
                 event_path = path.join(tempdirname)
                 saving_path =path.join(settings.MEDIA_ROOT, f"{target.name}.png")
                 model_name = listdir(path.join(tempdirname,"FinalModels"))
-
                 model_path = path.join(tempdirname,"FinalModels",model_name[0])
                 plm.plotmodel(eventname=event_path, modelfile=model_path)
-                print(listdir(data_dir))
-                plt.savefig(saving_path, bbox_inches='tight')
+                plt.savefig(saving_path, bbox_inches='tight',dpi=80)
     
                 
 
