@@ -94,8 +94,8 @@ def run_fit(target):
                                               err_rho = model_results.model_parameters.rho_error, 
                                               rho = model_results.model_parameters.rho)
 
-                    except e as Exception:
-                        print("No FinalModel from RTModel", e)
+                    except :
+                        print("No FinalModel from RTModel")
 
 
 class Command(BaseCommand):
