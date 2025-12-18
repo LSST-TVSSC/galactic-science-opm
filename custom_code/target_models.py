@@ -92,6 +92,8 @@ class Classification(models.Model):
     prob_master_peak = models.FloatField(default=0, null=True)
     prob_master_current = models.FloatField(default=0, null=True)
     updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        get_latest_by = 'updated_at'
 
     def __str__(self):
         s = f'{self.target}, {self.source}, {self.class1}, {self.prob_class1}'
@@ -125,3 +127,5 @@ class MicrolensingModel(models.Model):
     blend_mag = models.FloatField(default=0)
     err_blend_mag = models.FloatField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        get_latest_by = 'updated_at'

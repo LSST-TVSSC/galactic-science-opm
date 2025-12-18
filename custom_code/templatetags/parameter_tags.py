@@ -8,7 +8,7 @@ register = template.Library()
 @register.filter
 def microlensing_parameters_by_name(name):
     try:
-        return MicrolensingModel.objects.get(target=name)
+        return MicrolensingModel.objects.filter(target=name).latest()
     except ObjectDoesNotExist:
         return None
 

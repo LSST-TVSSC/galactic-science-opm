@@ -65,10 +65,10 @@
                <th>t<sub>0</sub> [JD]</th>
                  <th>u<sub>0</sub></th>
               <th>t<sub>E</sub> [days]</th>
+              <th>&rho;</th>
               <th>&pi;<sub>EE</sub></th>
                <th>&pi;<sub>EN</sub></th>
-               <th>s</th>
-               <th>q</th>
+
             </tr>
         </thead>
         <tbody>
@@ -78,10 +78,10 @@
                 <td>{{filtered_parameters.t0|floatformat:3}}</td>
                 <td>{{filtered_parameters.u0|floatformat:3}}</td>
                  <td>{{filtered_parameters.tE|floatformat:3}}</td>
+                 <td>{{filtered_parameters.rho|floatformat:3}}</td>
                 <td>{{filtered_parameters.piEE|floatformat:3}}</td>
                 <td>{{filtered_parameters.piEN|floatformat:3}}</td>
-                <td>{{filtered_parameters.s|floatformat:3}}</td>
-                <td>{{filtered_parameters.q|floatformat:3}}</td>
+
                 {% endwith %}
             </tr> 
         </tbody>
@@ -91,7 +91,7 @@
      <div class="tab-pane active" id="photometry">
         {% photometry_for_target target %}
         <p>
-       <a href="https://data.lsst.cloud/" class="btn btn-primary" role="button" target="_blank">Rubin RSP</a> <a href="https://roman.gsfc.nasa.gov/index.html" class="btn btn-primary" role="button" target="_blank">Roman</a>  <a href="https://www.cosmos.esa.int/web/gaia/data-access" class="btn btn-primary" role="button" >Gaia</a>
+       <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> <a href="https://fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>  <a href="https://gaia.aip.de/conesearch/api/gaiadr3.gaia_source/?RA={{target.ra}}&DEC={{target.dec}}&SR=0.0003&VERB=1" class="btn btn-primary" role="button" >Gaia</a>
        </p>
         </div>
       <div class="tab-pane" id="imaging">
@@ -159,23 +159,23 @@
                 <tr>
                   {% with target|microlensing_parameters_by_name as filtered_parameters %}
                     <td>{{ filtered_parameters.t0|floatformat:3 }}&#8723;</br>
-                        {{ filtered_parameters.t0_error|floatformat:3 }}</td>
+                        {{ filtered_parameters.err_t0|floatformat:3 }}</td>
                     <td>{{ filtered_parameters.u0|floatformat:4 }}&#8723;<br/>
-                        {{ filtered_parameters.u0_error|floatformat:4 }}</td>
+                        {{ filtered_parameters.err_u0|floatformat:4 }}</td>
                     <td>{{ filtered_parameters.tE|floatformat:3 }}&#8723;<br/>
-                        {{ filtered_parameters.tE_error|floatformat:3 }}</td>
+                        {{ filtered_parameters.err_tE|floatformat:3 }}</td>
                     <td>{{ filtered_parameters.piEE|floatformat:3 }}&#8723;<br/>
-                        {{ filtered_parameters.piEN_error|floatformat:3 }}</td>
+                        {{ filtered_parameters.err_piEN|floatformat:3 }}</td>
                     <td>{{ filtered_parameters.piEE|floatformat:3 }}&#8723;<br/>
-                        {{ filtered_parameters.piEE_error|floatformat:3 }}</td>
+                        {{ filtered_parameters.err_piEE|floatformat:3 }}</td>
                     <td>{{ filtered_parameters.rho|floatformat:3 }}&#8723;<br/>
-                        {{ filtered_parameters.rho_error|floatformat:3 }}</td>
+                        {{ filtered_parameters.err_rho|floatformat:3 }}</td>
                     <td>{{ filtered_parameters.s|floatformat:3 }}&#8723;<br/>
-                        {{ filtered_parameters.s_error|floatformat:3 }}</td>
+                        {{ filtered_parameters.err_s|floatformat:3 }}</td>
                     <td>{{ filtered_parameters.q|floatformat:3 }}&#8723;<br/>
                         {{ filtered_parameters.q_error|floatformat:3 }}</td>
                     <td>{{ filtered_parameters.alpha|floatformat:3 }}&#8723;<br/>
-                        {{ filtered_parameters.alpha_error|floatformat:3 }}</td>
+                        {{ filtered_parameters.err_alpha|floatformat:3 }}</td>
                   {% endwith %}
                 </tr>
             </tbody>

@@ -20,19 +20,14 @@ from os import path
 from os import makedirs, listdir
 import numpy as np
 from django.db import connection
+from ._RTModel_results_cls import EventResults, ModelResults
 
-    
-class Command(BaseCommand):
-    help = 'Fit events with PSPL and parallax, then ingest fit parameters in MicrolensingModel'
-
-    def add_arguments(self, parser):
-        parser.add_argument('event', help='Eventname')
-
-    def handle(self, *args, **options):
-        target = Target.objects.get(name=str(options['event']))
-        target_id = target.id
+def run_fit(target):
+    if "ZTF" in target.name or "LSST" in target.name or "OGLE" in target.name:
+        target_id = target.id 
         tempdirname = 'event001'
         print(target.name)
+
         with tempfile.TemporaryDirectory() as tempdirname:      
             data_dir = path.join(tempdirname,'Data')
             makedirs(data_dir)
@@ -59,29 +54,70 @@ class Command(BaseCommand):
                      
                     ltt_heliocentric = t.light_travel_time(target_coord, kind='heliocentric', location=location)
                     hjd_values_rtm = t.jd + ltt_heliocentric.value -2450000.
-                    rd_data = {'timestamp': hjd_values_rtm }
-
-                    rd_data['magnitude'] = reduced_datum.value['magnitude']
-                    rd_data['error'] = reduced_datum.value['error']
-                    rd_data['filter'] = reduced_datum.value['filter']
-                    data.append(rd_data)
+                    try:
+                        rd_data = {'timestamp': hjd_values_rtm }
+                        rd_data['magnitude'] = reduced_datum.value['magnitude']
+                        rd_data['error'] = reduced_datum.value['error']
+                        rd_data['filter'] = reduced_datum.value['filter']
+                        data.append(rd_data)
+                    except:
+                        print("No photometry with suitable mags for RTModel")
                 df = pd.DataFrame.from_dict(data)
-                unique_categories = df['filter'].unique()
-                for category in unique_categories:
-                    filtered_df = df[df['filter'] == category]
-                    filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
-                              header=None, index=None, sep=' ', mode='a')
-                rtm = RTModel.RTModel(tempdirname)
-                rtm.config_InitCond(modelcategories = ['PS'])
-                rtm.run()
-                event_path = path.join(tempdirname)
-                saving_path =path.join(settings.MEDIA_ROOT, f"{target.name}.png")
-                model_name = listdir(path.join(tempdirname,"FinalModels"))
-                model_path = path.join(tempdirname,"FinalModels",model_name[0])
-                plm.plotmodel(eventname=event_path, modelfile=model_path)
-                plt.savefig(saving_path, bbox_inches='tight',dpi=80)
-    
-                
+                if 'filter' in df.columns:
+                    unique_categories = df['filter'].unique()
+                    for category in unique_categories:
+                        filtered_df = df[df['filter'] == category]
+                        if len(filtered_df)>2:
+                            filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
+                                      header=None, index=None, sep=' ', mode='a')
+                    rtm = RTModel.RTModel(tempdirname)
+                    rtm.config_InitCond(modelcategories = ['PS'])
+                if len(data)>3:
+                    rtm.run()
+                    event_path = path.join(tempdirname)
+                    saving_path =path.join(settings.MEDIA_ROOT, f"{target.name}.png")  
+                    try:                   
+                        model_name = listdir(path.join(tempdirname,"FinalModels"))
+                        model_path = path.join(tempdirname,"FinalModels",model_name[0])
+                        model_results = ModelResults(model_path)
+                        print(model_results)
+                        plm.plotmodel(eventname=event_path, modelfile=model_path)
+                        plt.savefig(saving_path, bbox_inches='tight',dpi=80)
 
-if __name__ == '__main__':
-    main()
+                        m = MicrolensingModel.objects.update_or_create(target=target,
+                                              u0 = model_results.model_parameters.u0,
+                                              t0 = model_results.model_parameters.t0,
+                                              tE = model_results.model_parameters.tE,
+                                              err_u0 = model_results.model_parameters.u0_error,
+                                              err_t0 = model_results.model_parameters.t0_error,
+                                              err_tE = model_results.model_parameters.tE_error,
+                                              err_rho = model_results.model_parameters.rho_error, 
+                                              rho = model_results.model_parameters.rho)
+
+                    except e as Exception:
+                        print("No FinalModel from RTModel", e)
+
+
+class Command(BaseCommand):
+    help = 'Fit events with PSPL and parallax, then ingest fit parameters in MicrolensingModel'
+
+    def add_arguments(self, parser):
+        parser.add_argument('event', help='Eventname')
+
+
+    def handle(self, *args, **options):
+        if str(options['event']) != "all":
+            qs = GalacticTarget.objects.filter(name__icontains=str(options['event']))
+            if len(qs)>0:
+                target = Target.objects.get(name=str(options['event']))
+                run_fit(target)
+        else:
+            qs = GalacticTarget.objects.filter(name__icontains="ZTF")
+            target_list = list(set(qs))
+            for target in target_list:
+                run_fit(target)
+            qs = GalacticTarget.objects.filter(name__icontains="LSST")
+            target_list = list(set(qs))
+            for target in target_list:
+                run_fit(target)
+                

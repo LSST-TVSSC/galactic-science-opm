@@ -113,6 +113,7 @@ class BestModel:
 
 class ModelResults:
     def __init__(self, file_to_be_read, *, data_challenge_lc_number=None):
+        print(file_to_be_read)
         self.model_type = file_to_be_read.split('/')[-1][0:2]
         self.data_challenge_lc_number = data_challenge_lc_number
         if self.model_type == 'PS':
