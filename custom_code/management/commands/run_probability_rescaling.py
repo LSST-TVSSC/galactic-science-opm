@@ -10,10 +10,10 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 
 class Command(BaseCommand):
-    help = 'Populate the database with catalogs of known events and handle duplicates'
+    help = 'Populate the database with updated master probability based on '
 
     def add_arguments(self, parser):
-        parser.add_argument('target_name_contains', help='filter for targets containing ... (e.g. ZTF25)')
+        parser.add_argument('target_name_contains', help='filter for targets containing ... (e.g. ZTF25), LSST, OGLE')
 
     def handle(self, *args, **options):
         qs = GalacticTarget.objects.filter(name__icontains=str(options['target_name_contains']))

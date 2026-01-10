@@ -642,10 +642,9 @@ class BinaryLensSingleSourceWithOrbitalMotionLO:
             self.baselines = -2.5 * np.log10(self.blends + self.sources)
             self.baselines_error = sources_error
 
-
 if __name__ == "__main__":
     # Example usage
-    event_folder = "/Users/stela/Documents/Scripts/orbital_task/RTModel_runs/sample_rtmodel_v2.4/event_0_603_3135"
+    event_folder = "./"
     event_results = EventResults(event_folder)
     event_results.extract_information_from_nature_file()
     event_results.looking_for_the_names_of_best_model_of_each_category()

@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from custom_code.target_models import GalacticTarget
 from custom_code.target_models import MicrolensingModel
 from custom_code.target_models import Classification
+from custom_code.target_models import MicrolensingRadarData
 from django.views.generic import TemplateView
 from django.shortcuts import render, get_object_or_404
 from os import path
@@ -22,6 +23,9 @@ def microlensing_prob_view(request):
     except ObjectDoesNotExist:
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
 
+def radar_view(request):
+    data_points = MicrolensingRadarData.objects.all()
+    return render(request, 'custom_code/radar_plot.html', {'data_points': data_points})
 
 class HomeView(TemplateView):
     template_name = "tom_common/index.html"

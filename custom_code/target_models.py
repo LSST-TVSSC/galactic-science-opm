@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 from tom_targets.base_models import BaseTarget
 
 class GalacticTarget(BaseTarget):
@@ -129,3 +129,26 @@ class MicrolensingModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     class Meta:
         get_latest_by = 'updated_at'
+
+
+class MicrolensingRadarData(models.Model):
+    """
+    Radar Model Data to keep the rescaled probabilities, can be averaged and 
+    as the name suggests displayed in a plotly radar plot
+
+    metric_alerce float   Rescaled probability from the Alerce broker filter
+    metric_antares float Rescaled probability from the ANTARES broker
+    metric_fink    obj   Rescaled probability from the Fink broker
+    metric_planet float  Rescaled planet probability Fit and Phi function (Dominik et al.)
+    metric_nsquare float Rescaled rank from Gaia Nsquare map
+    """
+    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, related_name="rescaled_classification_radar_parameters")
+    metric_fink = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+    metric_alerce = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+    metric_antares = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+    metric_nsquare = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+    metric_planet = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+    average_master_probability = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+    class Meta:
+        get_latest_by = 'updated_at'
+

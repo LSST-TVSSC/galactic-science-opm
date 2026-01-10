@@ -1,0 +1,18 @@
+{% load plotly_tags %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Radar Plot Microlensing Probability</title>
+    <script src="cdn.plot.ly"></script>
+</head>
+<body>
+    <h1>Radar Microlensing Plot Test</h1>
+    {% for entry in data_points %}
+        <div>
+            <h3>{{ entry.name }}</h3>
+            {% render_radar_plot entry as plot_div %}
+            {{ plot_div|safe }}
+        </div>
+    {% endfor %}
+</body>
+</html>

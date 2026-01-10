@@ -33,7 +33,6 @@ class Command(BaseCommand):
                         'filter': options['filter'],
                         'error': float(row[2]),
                         }
-                print(datum)
             try:
                 rd, created = ReducedDatum.objects.get_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
