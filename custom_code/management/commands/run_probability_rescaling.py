@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
+from django.apps import apps
+from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification, MicrolensingRadarData
 from custom_code.match_managers import validators
 import numpy as np
 import pandas as pd
@@ -8,6 +9,8 @@ from alerce.core import Alerce
 from astropy.time import Time, TimezoneInfo
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+from ._rescale_ztf_microlensing_prob import psi_planet_priority_peak
+import joblib
 
 class Command(BaseCommand):
     help = 'Populate the database with updated master probability based on '
@@ -18,22 +21,52 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         qs = GalacticTarget.objects.filter(name__icontains=str(options['target_name_contains']))
         target_list = list(set(qs))
-        for target in target_list:
-            print('Check lc_classifier_BHRF_forced_phot microlensing probability for event ' + target.name)
-            time_now = Time(datetime.datetime.now()).jd
-            alerce = Alerce()
-            probabilities = alerce.query_probabilities(target.name)
 
-            prob_pd = pd.DataFrame.from_dict(probabilities)
-            stochastic_bhrf_prob = prob_pd.loc[prob_pd['classifier_name'] == 'lc_classifier_BHRF_forced_phot']
-            prob_class1 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
-            prob_class2 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'CV/Nova']['probability'].iloc[0])
+        config = apps.get_app_config('custom_code')
+
+        model_qt_psi = config.model_qt_psi
+        model_qt_fink = config.model_qt_fink
+        model_qt_alerce = config.model_qt_alerce
+
+        for target in target_list:
+            microlensing_model = MicrolensingModel.objects.filter(target=target).latest()
+            #tbd filter for source...
+            target_classification = Classification.objects.filter(target=target).latest()
+
+            print('Check and rescale probabilities for' + target.name)
+            time_now = Time(datetime.datetime.now()).jd
+            try:
+                psip = psi_planet_priority_peak(microlensing_model.u0, microlensing_model.err_u0)
+                reshaped_value = np.array([[psip]])
+                transformed_prob_planet = model_qt_psi.transform(reshaped_value)
+            except:
+                transformed_prob_planet = 0
+            try:
+                prob_fink = 0.
+                reshaped_value = np.array([[prob_fink]])
+                transformed_prob_fink = model_qt_fink.transform(reshaped_value)
+            except:
+                transformed_prob_fink = 0
+            try:
+                prob_alerce = 0.
+                reshaped_value = np.array([[prob_alerce]])
+                transformed_prob_alerce = model_qt_alerce.transform(reshaped_value)
+            except:
+                transformed_prob_alerce= 0
+
+            transformed_prob_antares = 0 #to be included when filter is available
+            transformed_prob_nsquare = 0 #to be included when rescaled map is available
             
-            m = Classification.objects.update_or_create(target=target,
-                                              source='ALeRCE_ZTF',
-                                              class1='microlensing',
-                                              prob_class1 = prob_class1,
-                                              class2='cv/nova',
-                                              prob_class2 = prob_class2)
+            m = MicrolensingRadarData.objects.update_or_create(target=target,
+                                              metric_fink= transformed_prob_fink,
+                                              metric_alerce= transformed_prob_alerce,
+                                              metric_antares= transformed_prob_antares,
+                                              metric_nsquare = transformed_prob_nsquare,
+                                              metric_planet = transformed_prob_planet,
+                                              average_master_probability=np.mean([transformed_prob_planet,
+                                                                                  transformed_prob_nsquare,
+                                                                                  transformed_prob_antares,
+                                                                                  transformed_prob_alerce])
+                                              )
             
-        print('probabilities created/updated.')
+        print('rescaled probabilities created/updated.')

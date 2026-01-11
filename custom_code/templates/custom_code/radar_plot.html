@@ -1,0 +1,11 @@
+{% extends 'tom_common/base.html' %}
+{% load plotly_tags %}
+{% block content %}
+
+<h1>Radar Microlensing Plot Test</h1>
+{% for model in microlensing_objects %}
+<!-- placeholder until radar plots are available-->
+<ul>{{ {{model.prob_class1|floatformat:3}} }}</ul>
+{% endfor %}
+
+{% endblock %}

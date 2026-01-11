@@ -1,7 +1,7 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
-from custom_code.target_models import MicrolensingModel
 from custom_code.target_models import Classification
+from custom_code.target_models import MicrolensingModel
 
 register = template.Library()
 

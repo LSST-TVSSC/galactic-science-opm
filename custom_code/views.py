@@ -23,9 +23,10 @@ def microlensing_prob_view(request):
     except ObjectDoesNotExist:
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
 
-def radar_view(request):
-    data_points = MicrolensingRadarData.objects.all()
-    return render(request, 'custom_code/radar_plot.html', {'data_points': data_points})
+def microlensing_radar_view(request):
+    # microlensing_objects = MicrolensingRadarData.objects.order_by("-average_probability")[:30]
+    microlensing_objects = MicrolensingModel.objects.all()[:30]
+    return render(request, 'custom_code/radar_plot.html', {'microlensing_objects': microlensing_objects})
 
 class HomeView(TemplateView):
     template_name = "tom_common/index.html"
@@ -36,7 +37,7 @@ class HomeView(TemplateView):
         # Very simple first pass: just take the 7 most probable
         # (we know they at least have id and name).
         # This can be modifed with any selector function later.
-        # First modification: prob_class1
+        # First modification: prob_class1, revised radar model should replace this
         target_ids = Classification.objects.all().order_by("-prob_class1").values_list('target_id', flat=True).distinct()[:8]
         target_objects = GalacticTarget.objects.filter(id__in=target_ids)
         featured = (target_objects)

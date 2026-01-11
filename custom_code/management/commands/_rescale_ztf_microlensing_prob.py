@@ -3,20 +3,29 @@ import pandas as pd
 import os
 import re
 import math
+import joblib
 import warnings
+import uncertainties as unc
 
-def rescale_alerce():
+def psi_planet_priority_peak(u0_pspl, u0_err, sigma_threshold = 2):
+    """
+    This function calculates the peak planet probabiltity for 
+    microlensing events based on the planet probability psi
+    as defined by Dominik 2009. It subtracts 2 sigma of psi 
+    to reflect poor fits in RTModel.
+    """
 
-    return 0.
+    # Catch invalid input
+    if np.isnan(u0_pspl) or np.isnan(u0_err):
+        return 0.0
+    u0 = unc.ufloat(u0_pspl,u0_err)
+    usqr = u0**2
+    pspl_deno = (usqr * (usqr + 4.))**0.5
+    if pspl_deno < 1e-10:
+        pspl_deno = 10000.
+    psip = 4.0 / (pspl_deno) - 2.0 / (usqr + 2.0 + pspl_deno)
 
-def rescale_ztf():
-    return 0.
+    if np.isnan(psip.nominal_value):
+        psip = 0.0
 
-def rescale_nsquare():
-    return 0.
-
-def rescale_phi_planet():
-    return 0.
-
-def calculate_average_master_prob():
-    return 0
+    return psip.nominal_value -  sigma_threshold * psip.std_dev

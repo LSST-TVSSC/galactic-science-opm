@@ -1,11 +1,19 @@
 from django import template
+from django.core.exceptions import ObjectDoesNotExist
 import plotly.graph_objects as go
 from plotly.offline import plot
+from custom_code.target_models import GalacticTarget
+from custom_code.target_models import MicrolensingRadarData
 
 register = template.Library()
 
-@register.simple_tag
-def render_radar_plot(data_obj):
+@register.inclusion_tag('custom_code/radar_plot.html')
+def render_radar_plot(name):
+    try:
+        data_obj =  MicrolensingRadarData.objects.filter(target=name).latest()
+    except ObjectDoesNotExist:
+        return None
+
     categories = ['Metric Fink', 'Metric ALeRCE', 'Metric ANTARES', 'Metric Nsquare', 'Metric Planet Phi']
     values = [data_obj.metric_fink, data_obj.metric_alerce, data_obj.metric_antares, 
               data_obj.metric_nsquare, data_obj.metric_phi]
