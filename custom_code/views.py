@@ -4,6 +4,7 @@ from custom_code.target_models import GalacticTarget
 from custom_code.target_models import MicrolensingModel
 from custom_code.target_models import Classification
 from custom_code.target_models import MicrolensingRadarData
+from django.db.models import OuterRef, Subquery
 from django.views.generic import TemplateView
 from django.shortcuts import render, get_object_or_404
 from os import path
@@ -17,7 +18,10 @@ def microlensing_model_view(request):
     
 def microlensing_prob_view(request):
     #so far prob class 1 is microlensing, but the model permits other options, to be filtered.
-    microlensing_objects = Classification.objects.order_by("-prob_class1")[:30]
+
+    distinct_ids = Classification.objects.order_by('target_id', '-updated_at').distinct('target_id')
+    microlensing_objects = Classification.objects.filter(id__in=distinct_ids).order_by('-prob_class1').filter(prob_class1__gt=0.)
+   
     try:
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
     except ObjectDoesNotExist:
