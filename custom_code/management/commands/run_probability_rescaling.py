@@ -17,7 +17,7 @@ class Command(BaseCommand):
     help = 'Populate the database with updated master probability based on '
 
     def add_arguments(self, parser):
-        parser.add_argument('target_name_contains', help='filter for targets containing ... (e.g. ZTF25), LSST, OGLE')
+        parser.add_argument('target_name_contains', help='filter for targets containing ... (e.g. ZTF2X), LSST, OGLE')
 
     def handle(self, *args, **options):
         qs = GalacticTarget.objects.filter(name__icontains=str(options['target_name_contains']))

@@ -1,5 +1,5 @@
 {% extends 'tom_common/base.html' %}
-{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags%}
+{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags %}
 {% block title %}Target {{ object.name }}{% endblock %}
 
 {% block additional_css %}
@@ -220,13 +220,16 @@
  
    <div class="tab-pane" id="classification">
    <h4>Classifications</h4>
+   <img src="{% static 'tom_common/img/radar_demo.png' %}"
+                      class="img-fluid mx-auto d-block"
+                   alt="Radar demo">
    </div>
       <div class="tab-pane" id="manage-groups">
         {% target_groups target %}
       </div>
 
       <div class="tab-pane" id="spectroscopy">
-        {% spectroscopy_for_target target %}
+        <!--{% spectroscopy_for_target target %}-->
         <a href="https://vizier.cds.unistra.fr/vizier/sed/">SED Vizier</a>
       </div>
       {% include_app_tab_divs %}
