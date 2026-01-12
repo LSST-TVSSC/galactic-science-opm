@@ -1,0 +1,23 @@
+{% extends 'tom_common/base.html' %}
+{% load bootstrap4 %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+
+<h2>Data processing consent</h2>
+   
+By clicking 'Register', you confirm that you have read and agree to our Privacy Policy, including our processing of your personal data. We will only process your information to provide our services, in accordance with the General Data Protection Regulation. You may withdraw your consent or request account deletion at any time. We only collect your data for specified purposes (such as account management) and only store it for as long as is necessary to fulfil those purposes. In accordance with your rights under the GDPR, you may request the full deletion of your user account and all associated personal data at any time. To initiate a deletion request, please email us with the subject line 'Data Erasure Request'. Your data will be permanently deleted from our live systems within 30 days of your request, unless we are legally obliged to retain specific records for a longer period.
+
+<h2>Sign up</h2>
+<form action="{% url 'registration:register' %}" method="POST">
+{% csrf_token %}
+{% bootstrap_form form %}
+{% bootstrap_formset form.user_profile_formset %}
+{% buttons %}
+  <button type="submit" class="btn btn-primary">
+    Register
+  </button>
+{% endbuttons %}
+</form>
+<hr/>
+<p><em><a target="_blank" href="https://github.com/TOMToolkit/tom_registration">TOM Registration</a> version {{ version }}</em></p>
+{% endblock %}

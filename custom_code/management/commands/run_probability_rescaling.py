@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.apps import apps
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification, MicrolensingRadarData
+from sklearn.preprocessing import QuantileTransformer
 from custom_code.match_managers import validators
 import numpy as np
 import pandas as pd

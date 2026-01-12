@@ -1,5 +1,6 @@
 import joblib
 from pathlib import Path
+from sklearn.preprocessing import QuantileTransformer
 from django.apps import AppConfig
 
 
