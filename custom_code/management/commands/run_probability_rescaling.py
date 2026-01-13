@@ -10,6 +10,7 @@ from alerce.core import Alerce
 from astropy.time import Time, TimezoneInfo
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+import healpy as hp
 from ._rescale_ztf_microlensing_prob import psi_planet_priority_peak
 import joblib
 
@@ -28,6 +29,8 @@ class Command(BaseCommand):
         model_qt_psi = config.model_qt_psi
         model_qt_fink = config.model_qt_fink
         model_qt_alerce = config.model_qt_alerce
+        hpx_map = config.nsquare_map
+        nside  = config.nside
 
         for target in target_list:
             microlensing_model = MicrolensingModel.objects.filter(target=target).latest()
@@ -55,9 +58,11 @@ class Command(BaseCommand):
             except:
                 transformed_prob_alerce = 0
 
-            transformed_prob_antares = 0 #to be included when filter is available
-            transformed_prob_nsquare = 0 #to be included when rescaled map is available
-            
+            pixel_index = hp.ang2pix(nside, ra, dec, lonlat=True, nest=True)                   
+            transformed_prob_nsquare = hpx_map[pixel_index] #to be included when rescaled map is available
+
+            transformed_prob_antares = 0            #to be included when filter is available
+
             m = MicrolensingRadarData.objects.update_or_create(target=target,
                                               metric_fink= transformed_prob_fink,
                                               metric_alerce= transformed_prob_alerce,
