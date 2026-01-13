@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 reshaped_value = np.array([[prob_alerce]])
                 transformed_prob_alerce = model_qt_alerce.transform(reshaped_value)
             except:
-                transformed_prob_alerce= 0
+                transformed_prob_alerce = 0
 
             transformed_prob_antares = 0 #to be included when filter is available
             transformed_prob_nsquare = 0 #to be included when rescaled map is available
