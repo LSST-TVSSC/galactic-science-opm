@@ -1,0 +1,47 @@
+{% extends "tom_common/base.html" %}
+
+{% block title %}Delete account{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+          Delete your account
+        </div>
+        <div class="card-body">
+          <p>
+            Deleting your account will:
+          </p>
+          <ul>
+            <li>Remove your personal details (name, email, username)</li>
+            <li>Deactivate your login so you can no longer access the OPM</li>
+            <li>Remove your membership from any groups in the system</li>
+          </ul>
+          <p>
+            Scientific data (targets, observations, comments, data products) that you
+            have contributed may be retained to preserve the scientific record, but
+            will no longer be linked to your identity.
+          </p>
+
+          <p class="text-danger">
+            This action cannot be undone.
+          </p>
+
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+              Yes, delete my account
+            </button>
+            <a href="{% url 'home' %}" class="btn btn-secondary ml-2">
+              Cancel
+            </a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

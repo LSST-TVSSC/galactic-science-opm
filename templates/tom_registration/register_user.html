@@ -1,0 +1,151 @@
+{% extends "tom_common/base.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Register{% endblock %}
+
+{% block additional_css %}
+<style>
+  /* Scope everything to this page */
+  .registration-page .card {
+    background-color: #2b3035;   /* dark grey, like other cards */
+    color: #e0f2fc;
+    border-radius: 0.5rem;
+    border: 1px solid #3e444b;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  }
+
+  .registration-page .card-header {
+    background-color: #343a40;   /* navbar-ish dark grey */
+    border-bottom: 1px solid #3e444b;
+  }
+
+  /* Stop the “burgundy on hover” behaviour */
+  .registration-page .card:hover {
+    background-color: #2b3035;
+  }
+
+  /* Buttons: blue like standard Bootstrap, no red hover */
+  .registration-page .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+  }
+
+  .registration-page .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: #fff;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registration-page">
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+      <!-- GDPR / Data protection notice -->
+      <div class="card mb-4 border-info">
+        <div class="card-header bg-info text-white">
+          Data protection and privacy (GDPR)
+        </div>
+        <div class="card-body">
+          <p>
+            This service is operated as part of the
+            <strong>LSST TVSSC Galactic Science Observing Program Manager (OPM)</strong>.
+            By registering you consent to the processing of your personal data
+            as described below.
+          </p>
+
+          <h5>What data we store</h5>
+          <ul>
+            <li>Your username</li>
+            <li>Your name</li>
+            <li>Your email address</li>
+          </ul>
+
+          <h5>How we use your data</h5>
+          <ul>
+            <li>To manage your access to the OPM and associated tools</li>
+            <li>To contact you with project-related information
+                (e.g. system changes, observing workflows)</li>
+            <li>To derive <em>aggregated, anonymised</em> statistics
+                about TVS membership and OPM usage</li>
+          </ul>
+
+          <h5>How long we keep your data</h5>
+          <ul>
+            <li>
+              Your account data is kept for as long as you remain an active OPM user
+              and at most until the end of the Rubin Observatory LSST survey,
+              unless you withdraw your consent earlier by deleting your account.
+            </li>
+          </ul>
+
+          <h5>Sharing of data</h5>
+          <ul>
+            <li>
+              Your information is stored in the TVS OPM database and is not shared
+              with third parties outside the TVS Science Collaboration, except where
+              required by law.
+            </li>
+          </ul>
+
+          <h5>Your rights</h5>
+          <ul>
+            <li>You can view and update your data via your profile page after logging in.</li>
+            <li>
+              You can delete your account at any time using the
+              <strong>Delete account</strong> option (see user menu),
+              which removes your personal data in the OPM.
+            </li>
+            <li>
+              You may contact the OPM administrators if you have questions about how
+              your data is used.
+            </li>
+          </ul>
+
+          <p class="mb-0 small text-muted">
+            This notice is intended to help align the OPM with GDPR requirements,
+            but does not replace institutional legal advice.
+          </p>
+        </div>
+      </div>
+
+      <!-- Registration form -->
+      <div class="card">
+        <div class="card-header">
+          Create an account
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% bootstrap_form form %}
+
+            <!-- GDPR consent checkbox (front-end enforced) -->
+            <div class="form-check mb-3">
+              <input class="form-check-input"
+                     type="checkbox"
+                     id="id_gdpr_consent"
+                     name="gdpr_consent"
+                     required>
+              <label class="form-check-label" for="id_gdpr_consent">
+                I have read and understood the data protection notice above and
+                consent to the processing of my personal data for the purposes of
+                using the LSST TVSSC Galactic Science Observing Program Manager (OPM).
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+              Register
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
+
