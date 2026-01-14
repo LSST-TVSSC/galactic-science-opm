@@ -63,7 +63,7 @@ INSTALLED_APPS = [
     'tom_observations',
     'tom_dataproducts',
     'tom_registration',
-    'custom_code',
+    'custom_code'
 ]
 
 SITE_ID = 1
