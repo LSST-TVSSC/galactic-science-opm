@@ -1,0 +1,35 @@
+{% extends 'tom_common/base.html' %}
+
+{% block content %}
+<ul>
+
+    {% for model in microlensing_models %}
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>Targetname</th>
+               <th>t<sub>0</sub> [HJD]</th>
+                 <th>u<sub>0</sub></th>
+              <th>t<sub>E</sub> [days]</th>
+              <th>&pi;<sub>EE</sub></th>
+               <th>&pi;<sub>EN</sub></th>
+               <th>s</th>
+               <th>q</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                 <td>{{model.target}}</td>
+                <td>{{model.t0|floatformat:3}}</td>
+                <td>{{model.u0|floatformat:3}}</td>
+                 <td>{{model.tE|floatformat:3}}</td>
+                <td>{{model.piEE|floatformat:3}}</td>
+                <td>{{model.piEN|floatformat:3}}</td>
+                <td>{{model.s|floatformat:3}}</td>
+                <td>{{model.q|floatformat:3}}</td>
+            </tr>
+        </tbody>
+    </table>    
+    {% endfor %}
+</ul>
+{% endblock %}

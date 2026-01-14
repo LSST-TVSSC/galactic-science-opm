@@ -32,9 +32,10 @@ class Command(BaseCommand):
                 err_i_mag = entry[7]
 
                 # First check that the event isn't already known by name
-                qs = Target.objects.filter(name=event_name)
-
+                qs = GalacticTarget.objects.filter(name=event_name)
                 # If not, proceed with duplication check based on position
+
+
                 if len(qs) == 0:
                     s = SkyCoord(ra, dec, unit=(u.hourangle, u.deg), frame='icrs')
 
@@ -71,7 +72,7 @@ class Command(BaseCommand):
                         if 'none' not in str(t0).lower() \
                             and 'none' not in str(tE).lower() \
                             and 'none' not in str(u0).lower():
-
+                           
                             m = MicrolensingModel.objects.create(
                                 target=target,
                                 t0=float(t0),

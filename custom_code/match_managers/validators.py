@@ -51,7 +51,7 @@ def check_target_coordinates_unique(ra, dec, radius=2.0):
     else:
         return True
 
-def get_or_create_event(name, ra, dec, base_i_mag, err_i_mag, target_type, radius=2.0, debug=False):
+def get_or_create_event(name, ra, dec, base_i_mag=None, err_i_mag=None, target_type=None, radius=2.0, debug=False):
     """
     Function to fetch a matching event from the database if one exists with
     either matching coordinates or a matching name
@@ -68,23 +68,34 @@ def get_or_create_event(name, ra, dec, base_i_mag, err_i_mag, target_type, radiu
     name_unique = check_target_name_unique(name)
     alias_unique = check_target_alias_unique(name)
     coords_unique = check_target_coordinates_unique(ra, dec, radius=radius)
+    
     if debug:
         print('Validating candidate event: name_unique=' + repr(name_unique)
                     + ' alias_unique=' + repr(alias_unique)
                     + ' coords_unique=' + repr(coords_unique))
 
-    # If no matches are found at all, create a new target
+    # If no matches are found at all, create a new target, still base target, change to
+    # GalacticTarget
     if name_unique and alias_unique and coords_unique:
-        t = Target.objects.create(
-            name=name,
-            ra=ra,
-            dec=dec,
-            base_i_mag=base_i_mag,
-            err_i_mag=err_i_mag,
-            target_type=target_type,
-            type='SIDEREAL',
-            epoch=2000
-        )
+        if base_i_mag!=None and err_i_mag!=None and target_type!=None:
+            t = Target.objects.create(
+                name=name,
+                ra=ra,
+                dec=dec,
+                base_i_mag=base_i_mag,
+                err_i_mag=err_i_mag,
+                target_type=target_type,
+                type='SIDEREAL',
+                epoch=2000
+            )
+        else:
+            t = Target.objects.create(
+                name=name,
+                ra=ra,
+                dec=dec,
+                type='SIDEREAL',
+                epoch=2000
+            )
 
         return t, 'new_target'
 
@@ -112,3 +123,10 @@ def get_or_create_event(name, ra, dec, base_i_mag, err_i_mag, target_type, radiu
         print('Matched Target ' + name + ' by coordinates to ' + t.name + ', pk=' + str(t.pk)
                     + ' created new alias ' + tn.name)
         return t, created
+    
+    if not name_unique and not alias_unique:
+        tn = TargetName.objects.get(name=name)
+        t = Target.objects.get(pk=tn.target_id)
+        created = False
+        print('Matched Target ' + name + ' by alias to ' + t.name + ', pk=' + str(t.pk))
+        return t, 'non_existing_target_existing_alias'
