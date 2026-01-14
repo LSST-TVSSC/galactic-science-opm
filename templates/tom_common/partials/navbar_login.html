@@ -1,0 +1,37 @@
+{% comment %}
+Override of tom_common/partials/navbar_login.html for OPM.
+
+We keep it simple:
+- When logged out: show Login and Register
+- When logged in: show username, Delete account, Logout
+{% endcomment %}
+
+{% if user.is_authenticated %}
+  <li class="nav-item">
+    <span class="navbar-text mr-2">
+      Logged in as {{ user.username }}
+    </span>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link text-danger" href="/accounts/delete/">
+      Delete account
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/accounts/logout/">
+      Logout
+    </a>
+  </li>
+{% else %}
+  <li class="nav-item">
+    <a class="nav-link" href="/accounts/login/">
+      Login
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="/accounts/register/">
+      Register
+    </a>
+  </li>
+{% endif %}
+
