@@ -81,7 +81,8 @@ class Classification(models.Model):
     prob_class3 Probability of class1
     """
 
-    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, related_name="classification_parameters")
+    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, 
+                               related_name="classification_parameters")
     source = models.CharField(max_length=50)
     class1 = models.CharField(max_length=50)
     prob_class1 = models.FloatField(default=0, null=True)
@@ -103,7 +104,8 @@ class MicrolensingModel(models.Model):
     """Class providing the parameters of a microlensing model fit"""
 
     # Microlensing-specific fields
-    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, related_name="microlensing_parameters")
+    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, 
+                               related_name="microlensing_parameters")
     t0 = models.FloatField(default=0)
     err_t0 = models.FloatField(default=0)
     u0 = models.FloatField(default=0)
@@ -142,7 +144,8 @@ class MicrolensingRadarData(models.Model):
     metric_nsquare float Rescaled rank from Gaia Nsquare map
     metric_bogus float Real bogus probability, tbd
     """
-    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, related_name="rescaled_classification_radar_parameters")
+    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, 
+                               related_name="rescaled_classification_radar_parameters")
     metric_fink = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
     metric_alerce = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
     metric_antares = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])

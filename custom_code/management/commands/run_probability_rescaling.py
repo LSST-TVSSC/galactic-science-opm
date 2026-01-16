@@ -33,9 +33,13 @@ class Command(BaseCommand):
         nside  = config.nside
 
         for target in target_list:
-            microlensing_model = MicrolensingModel.objects.filter(target=target).latest()
+            microlensing_model = MicrolensingModel.objects.filter(target=target)
+            if not microlensing_model.exists():
+                continue
+            else:
+                microlensing_model = MicrolensingModel.objects.filter(target=target).latest()
+            print('MicrolensingModel exists, check and rescale probabilities for' + target.name)
 
-            print('Check and rescale probabilities for' + target.name)
             target_classification = Classification.objects.filter(target=target)
             if target_classification.exists():
                 time_now = Time(datetime.datetime.now()).jd
@@ -45,19 +49,29 @@ class Command(BaseCommand):
                     transformed_prob_planet = model_qt_psi.transform(reshaped_value)
                 except:
                     transformed_prob_planet = [[0]]
-                try:
-                    prob_fink = 0.
-                    reshaped_value = np.array([[prob_fink]])
-                    transformed_prob_fink = model_qt_fink.transform(reshaped_value)
-                except:
+
+                if target_classification.filter(source="fink_ZTF").exists():
+                    try:
+                        prob_fink = target_classification.filter(source="fink_ZTF").latest().prob_class1
+                        reshaped_value = np.array([[prob_fink]])
+                        transformed_prob_fink = model_qt_fink.transform(reshaped_value)
+                    except:
+                        transformed_prob_fink = [[0]]
+                else:
                     transformed_prob_fink = [[0]]
 
                 try:
-                    prob_alerce = 0.
+                    prob_alerce = target_classification.filter(source="ALeRCE_ZTF").latest().prob_class1
                     reshaped_value = np.array([[prob_alerce]])
                     transformed_prob_alerce = model_qt_alerce.transform(reshaped_value)
                 except:
                     transformed_prob_alerce = [[0]]
+
+                try:
+                    prob_bogus = target_classification.filter(source="ALeRCE_ZTF").latest().prob_class3
+                except:
+                    prob_bogus = 0
+
 
                 try:
                     pixel_index = hp.ang2pix(nside, target.ra, target.dec, lonlat=True, nest=True)                   
@@ -68,11 +82,12 @@ class Command(BaseCommand):
                 transformed_prob_antares = 0            #to be included when filter is available
 
             m = MicrolensingRadarData.objects.update_or_create(target=target,
-                                              metric_fink= transformed_prob_fink,
-                                              metric_alerce= transformed_prob_alerce,
+                                              metric_fink= transformed_prob_fink[0][0],
+                                              metric_alerce= transformed_prob_alerce[0][0],
                                               metric_antares= transformed_prob_antares,
                                               metric_nsquare = transformed_prob_nsquare,
-                                              metric_planet = transformed_prob_planet,
+                                              metric_planet = transformed_prob_planet[0][0],
+                                              metric_bogus = prob_bogus,
                                               average_master_probability=np.mean([transformed_prob_planet[0][0],
                                                                                   transformed_prob_nsquare,
                                                                                   transformed_prob_antares,

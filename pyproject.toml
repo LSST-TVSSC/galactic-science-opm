@@ -32,7 +32,7 @@ dependencies = [
     "tom-tns>=0.3.2,<1.0.0",
     "RTModel>=3.1",
     "joblib>=1.5.3",
-    "uncertainties>=3.2.4",
+    "uncertainties=3.2.4",
     "scikit-learn>=1.6",
     "healpy>=1.19",
 ]
