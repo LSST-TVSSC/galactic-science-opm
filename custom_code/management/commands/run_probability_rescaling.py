@@ -34,34 +34,38 @@ class Command(BaseCommand):
 
         for target in target_list:
             microlensing_model = MicrolensingModel.objects.filter(target=target).latest()
-            #tbd filter for source...
-            target_classification = Classification.objects.filter(target=target).latest()
 
             print('Check and rescale probabilities for' + target.name)
-            time_now = Time(datetime.datetime.now()).jd
-            try:
-                psip = psi_planet_priority_peak(microlensing_model.u0, microlensing_model.err_u0)
-                reshaped_value = np.array([[psip]])
-                transformed_prob_planet = model_qt_psi.transform(reshaped_value)
-            except:
-                transformed_prob_planet = 0
-            try:
-                prob_fink = 0.
-                reshaped_value = np.array([[prob_fink]])
-                transformed_prob_fink = model_qt_fink.transform(reshaped_value)
-            except:
-                transformed_prob_fink = 0
-            try:
-                prob_alerce = 0.
-                reshaped_value = np.array([[prob_alerce]])
-                transformed_prob_alerce = model_qt_alerce.transform(reshaped_value)
-            except:
-                transformed_prob_alerce = 0
+            target_classification = Classification.objects.filter(target=target)
+            if target_classification.exists():
+                time_now = Time(datetime.datetime.now()).jd
+                try:
+                    psip = psi_planet_priority_peak(microlensing_model.u0, microlensing_model.err_u0)
+                    reshaped_value = np.array([[psip]])
+                    transformed_prob_planet = model_qt_psi.transform(reshaped_value)
+                except:
+                    transformed_prob_planet = [[0]]
+                try:
+                    prob_fink = 0.
+                    reshaped_value = np.array([[prob_fink]])
+                    transformed_prob_fink = model_qt_fink.transform(reshaped_value)
+                except:
+                    transformed_prob_fink = [[0]]
 
-            pixel_index = hp.ang2pix(nside, ra, dec, lonlat=True, nest=True)                   
-            transformed_prob_nsquare = hpx_map[pixel_index] #to be included when rescaled map is available
+                try:
+                    prob_alerce = 0.
+                    reshaped_value = np.array([[prob_alerce]])
+                    transformed_prob_alerce = model_qt_alerce.transform(reshaped_value)
+                except:
+                    transformed_prob_alerce = [[0]]
 
-            transformed_prob_antares = 0            #to be included when filter is available
+                try:
+                    pixel_index = hp.ang2pix(nside, target.ra, target.dec, lonlat=True, nest=True)                   
+                    transformed_prob_nsquare = hpx_map[pixel_index] #to be included when rescaled map is available
+                except:
+                    transformed_prob_nsquare = 0
+
+                transformed_prob_antares = 0            #to be included when filter is available
 
             m = MicrolensingRadarData.objects.update_or_create(target=target,
                                               metric_fink= transformed_prob_fink,
@@ -69,10 +73,10 @@ class Command(BaseCommand):
                                               metric_antares= transformed_prob_antares,
                                               metric_nsquare = transformed_prob_nsquare,
                                               metric_planet = transformed_prob_planet,
-                                              average_master_probability=np.mean([transformed_prob_planet,
+                                              average_master_probability=np.mean([transformed_prob_planet[0][0],
                                                                                   transformed_prob_nsquare,
                                                                                   transformed_prob_antares,
-                                                                                  transformed_prob_alerce])
+                                                                                  transformed_prob_alerce[0][0]])
                                               )
             
         print('rescaled probabilities created/updated.')

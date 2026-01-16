@@ -150,6 +150,8 @@ class MicrolensingRadarData(models.Model):
     metric_planet = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
     metric_bogus = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
     average_master_probability = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
         get_latest_by = 'updated_at'
 

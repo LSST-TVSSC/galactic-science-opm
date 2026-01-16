@@ -7,12 +7,12 @@ import joblib
 import warnings
 import uncertainties as unc
 
-def psi_planet_priority_peak(u0_pspl, u0_err, sigma_threshold = 2):
+def psi_planet_priority_peak(u0_pspl, u0_err, sigma_threshold = 1):
     """
     This function calculates the peak planet probabiltity for 
     microlensing events based on the planet probability psi
-    as defined by Dominik 2009. It subtracts 2 sigma of psi 
-    to reflect poor fits in RTModel.
+    as defined by Dominik et al. 2009. It subtracts 1 sigma of psi 
+    to reflect poor fits as reported by the respective model
     """
 
     # Catch invalid input
