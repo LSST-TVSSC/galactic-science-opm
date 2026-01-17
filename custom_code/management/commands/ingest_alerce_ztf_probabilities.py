@@ -3,6 +3,7 @@ from custom_code.target_models import GalacticTarget, MicrolensingModel, Classif
 from custom_code.match_managers import validators
 import numpy as np
 import pandas as pd
+import requests, io
 import datetime
 from alerce.core import Alerce
 from astropy.time import Time, TimezoneInfo
@@ -34,6 +35,24 @@ class Command(BaseCommand):
                 prob_class3 = float(bogus_prob[bogus_prob['class_name'] == 'bogus']['probability'].iloc[0])
             except:
                 prob_class3=0
+
+            try:
+                #For ZTF events ingest fink probability as maximum probability 
+                #attach it to the ALeRCE query to avoid repeating the galactic target filter.
+                r = requests.post(
+                "https://api.fink-portal.org/api/v1/objects",
+                json={"objectId": str(target.name), "output-format": "json"})
+                pdf_fink = pd.read_json(io.BytesIO(r.content))
+                if len(r.content) >2:
+                    new_pdf_fink = pdf_fink[["i:jd", "d:mulens"]].copy()
+                    m = Classification.objects.update_or_create(target=target,
+                                                  source='fink_ZTF',
+                                                  class1='microlensing',
+                                                  prob_class1 = np.max(new_pdf_fink["d:mulens"]))
+                else:
+                    print("No fink classification in lightcurve, yet.")
+            except Exception as e:
+                print("Fink request not successful for ", target.name, e)
 
             m = Classification.objects.update_or_create(target=target,
                                               source='ALeRCE_ZTF',

@@ -21,6 +21,7 @@
                <th><b>Averaged Rescaled Probability</b></th>
                 <th>Gaia normalized N&sup2 Rescaled</th>
                 <th>ALeRCE microlensing BHRF Rescaled</th>
+                <th>fink microlensing peak Rescaled</th>
                 <th>Peak Planet Probability from fit &psi; Rescaled</th>
                 <th>Bogus ALeRCE stamp</th>
                <th>Updated</th>
@@ -31,13 +32,13 @@
                 {% for model in microlensing_objects %}
 
             <tr>
-                 <td> <a href="https://alerce.online/object/{{model.target}}">{{model.target}}</a>
+                 <td> {{model.target}} <a href="https://alerce.online/object/{{model.target}}">ALeRCE</a> <a href="https://fink-portal.org/{{model.target}}">fink</a>
 </td>
                 <td><b>{{model.average_master_probability|floatformat:3}}</b></td>
-
                 <td>{{model.metric_nsquare|floatformat:3}}</td>
                 <td>{{model.metric_alerce|floatformat:3}}</td>
                 <td>{{model.metric_planet|floatformat:3}}</td>
+                <td>{{model.metric_fink|floatformat:3}}</td>
                 <td>{{model.metric_bogus|floatformat:3}}</td>
                 <td>{{model.updated_at}}</td>
             </tr>

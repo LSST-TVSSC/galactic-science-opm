@@ -23,7 +23,7 @@ from django.db import connection
 from ._RTModel_results_cls import EventResults, ModelResults
 
 def run_fit(target):
-    if "ZTF25" in target.name or "ZTF26" in target.name or "LSST" in target.name or "OGLE" in target.name:
+    if "ZTF26" in target.name or "LSST" in target.name or "OGLE" in target.name:
         target_id = target.id 
         tempdirname = 'event001'
         print(target.name)
