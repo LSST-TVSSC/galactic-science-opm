@@ -23,7 +23,7 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('', include('tom_common.urls')),
     path('custom_code/model_list.html', views.microlensing_model_view, name='microlensing_model_view'),
-    path('custom_code/prob_list.html', views.microlensing_prob_view, name='microlensing_prob_view'),
+    path('custom_code/prob_list.html', views.microlensing_rescaled_prob_view, name='microlensing_rescaled_prob_view'),
     path('custom_code/radar_plot.html', views.microlensing_radar_view, name='microlensing_radar_view')
 ]
 

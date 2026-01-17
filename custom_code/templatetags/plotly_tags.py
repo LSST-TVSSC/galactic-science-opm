@@ -29,7 +29,7 @@ def render_radar_plot(name):
     categories += categories[:1]
 
     fig = go.Figure()
-    bogus_value = 0.777
+    bogus_value = data_obj.metric_bogus
     fig.add_trace(
         go.Scatterpolar(
             r=[bogus_value] * len(categories),

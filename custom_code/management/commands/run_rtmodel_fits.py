@@ -23,7 +23,7 @@ from django.db import connection
 from ._RTModel_results_cls import EventResults, ModelResults
 
 def run_fit(target):
-    if "ZTF" in target.name or "LSST" in target.name or "OGLE" in target.name:
+    if "ZTF25" in target.name or "ZTF26" in target.name or "LSST" in target.name or "OGLE" in target.name:
         target_id = target.id 
         tempdirname = 'event001'
         print(target.name)
@@ -51,7 +51,6 @@ def run_fit(target):
                     location = EarthLocation.from_geodetic( lat='-30d14m40.68s', lon='-70d44m57.90s', height=2647.*u.m)
                 for reduced_datum in photometry:
                     t = Time(reduced_datum.timestamp, scale='utc')
-                     
                     ltt_heliocentric = t.light_travel_time(target_coord, kind='heliocentric', location=location)
                     hjd_values_rtm = t.jd + ltt_heliocentric.value -2450000.
                     try:
@@ -80,9 +79,9 @@ def run_fit(target):
                         model_name = listdir(path.join(tempdirname,"FinalModels"))
                         model_path = path.join(tempdirname,"FinalModels",model_name[0])
                         model_results = ModelResults(model_path)
-                        print(model_results)
-                        plm.plotmodel(eventname=event_path, modelfile=model_path)
-                        plt.savefig(saving_path, bbox_inches='tight',dpi=80)
+                        if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 3.:
+                            plm.plotmodel(eventname=event_path, modelfile=model_path)
+                            plt.savefig(saving_path, bbox_inches='tight',dpi=90)
 
                         m = MicrolensingModel.objects.update_or_create(target=target,
                                               u0 = model_results.model_parameters.u0,
@@ -116,6 +115,7 @@ class Command(BaseCommand):
             target_list = list(set(qs))
             for target in target_list:
                 run_fit(target)
+                
             qs = GalacticTarget.objects.filter(name__icontains="LSST")
             target_list = list(set(qs))
             for target in target_list:

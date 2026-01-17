@@ -27,6 +27,17 @@ def microlensing_prob_view(request):
     except ObjectDoesNotExist:
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
 
+def microlensing_rescaled_prob_view(request):
+    distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF26')
+    microlensing_objects = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').filter(average_master_probability__gt=0.)
+    #Temporary filter for ZTF 2026 events until LSST is onlin
+    microlensing_objects = microlensing_objects.filter(target__name__icontains='ZTF26')
+    try:
+        return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
+    except ObjectDoesNotExist:
+        return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
+
+
 def microlensing_radar_view(request):
     # microlensing_objects = MicrolensingRadarData.objects.order_by("-average_probability")[:30]
     microlensing_objects = MicrolensingModel.objects.all()[:30]
@@ -41,9 +52,10 @@ class HomeView(TemplateView):
         # Very simple first pass: just take the 7 most probable
         # (we know they at least have id and name).
         # This can be modifed with any selector function later.
-        # First modification: prob_class1, revised radar model should replace this
-        target_ids = Classification.objects.all().order_by("-prob_class1").values_list('target_id', flat=True).distinct()[:8]
-        target_objects = GalacticTarget.objects.filter(id__in=target_ids)
+        # Radar plot top events, for ZTF26 events, waiting for updates        
+        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF26')
+        prio_ids = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').filter(average_master_probability__gt=0.).values_list('target_id', flat=True).distinct()[:8]
+        target_objects = GalacticTarget.objects.filter(id__in=prio_ids)
         featured = (target_objects)
         context["featured_targets"] = featured
         return context
