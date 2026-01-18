@@ -5,9 +5,9 @@ register = template.Library()
 
 # Central place to define base URLs for brokers
 BROKER_BASE_URLS = {
-    "fink": "https://fink-broker.org/",
-    "alerce": "https://alerce.online/",
-    "antares": "https://antares.noirlab.edu/loci",
+    "fink": "https://fink-portal.org/",
+    "alerce": "https://alerce.online/object/",
+    "antares": "https://antares.noirlab.edu/loci/",
 }
 
 
@@ -45,7 +45,7 @@ def broker_target_url(broker, target):
     # --- DEFAULT BEHAVIOUR ---
     # Simple pattern using name; safe to change later without touching templates.
     if name:
-        return f"{base}?q={quote(name)}"
+        return f"{base}{quote(name)}"
 
     # If name is missing but we have coordinates, we could fall back to that.
     if ra is not None and dec is not None:

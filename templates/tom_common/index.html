@@ -70,7 +70,7 @@
     <div class="col-lg-10 mb-4">
       <div class="card shadow-sm">
         <div class="card-header">
-          Featured targets
+          Featured targets microlensing
         </div>
         <div class="card-body p-0">
           {% if featured_targets %}
@@ -181,7 +181,7 @@
           {% endif %}
         </div>
         <div class="card-footer text-right">
-          <a href="{% url 'targets:list' %}" class="btn btn-sm btn-outline-primary gs-opm-view-all-btn">
+          <a target="_blank" rel="noopener noreferrer" href="{% url 'microlensing_rescaled_prob_view' %}" class="btn btn-sm btn-outline-primary gs-opm-view-all-btn">
             View all targets
           </a>
         </div>
