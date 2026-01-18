@@ -7,6 +7,8 @@ from custom_code.target_models import MicrolensingRadarData
 from django.db.models import OuterRef, Subquery
 from django.views.generic import TemplateView
 from django.shortcuts import render, get_object_or_404
+import plotly.graph_objects as go
+from plotly.offline import plot
 from os import path
 
 def microlensing_model_view(request):
@@ -37,11 +39,8 @@ def microlensing_rescaled_prob_view(request):
     except ObjectDoesNotExist:
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
 
-
-def microlensing_radar_view(request):
-    # microlensing_objects = MicrolensingRadarData.objects.order_by("-average_probability")[:30]
-    microlensing_objects = MicrolensingModel.objects.all()[:30]
-    return render(request, 'custom_code/radar_plot.html', {'microlensing_objects': microlensing_objects})
+def template_plot_view(request, target_id):
+    return render(request, "custom_code/plot_template.html", {"target_id": target_id})
 
 class HomeView(TemplateView):
     template_name = "tom_common/index.html"

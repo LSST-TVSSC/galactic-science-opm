@@ -1,8 +1,12 @@
 {% extends 'tom_common/base.html' %}
 {% load plotly_tags %}
-{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Radar Microlensing Plot {{ target_id }}</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Plot for target {{ target_id }}</h1>
 
-<div>
-{{ figure|safe}}
-</div>
-{% endblock %}
+    {% render_plot model_id %}
+</body>

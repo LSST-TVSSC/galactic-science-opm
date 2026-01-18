@@ -1,7 +1,6 @@
 {% extends 'tom_common/base.html' %}
-{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags %}
+{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags plotly_tags %}
 {% block title %}Target {{ object.name }}{% endblock %}
-
 {% block additional_css %}
 <link rel="stylesheet" href="{% static 'tom_targets/css/main.css' %}">
 {% endblock %}
@@ -220,9 +219,38 @@
  
    <div class="tab-pane" id="classification">
    <h4>Classifications</h4>
-   <img src="{% static 'tom_common/img/radar_demo.png' %}"
-                      class="img-fluid mx-auto d-block"
-                   alt="Radar demo">
+
+   <table class="table">
+            <thead>
+                <tr>
+                <th><b>Averaged Rescaled Probability</b></th>
+                <th>Gaia normalized N&sup2 Rescaled</th>
+                <th>ALeRCE microlensing BHRF Rescaled</th>
+                <th>fink microlensing peak Rescaled</th>
+                <th>Peak Planet Probability from fit &psi; Rescaled</th>
+                <th>Bogus ALeRCE stamp</th>
+                <th>Updated rescaled probabilities</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                  {% with target|microlensing_radar_by_name as filtered_parameters %}
+                    <td>{{ filtered_parameters.average_master_probability|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_nsquare|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_alerce|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_fink|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_planet|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_bogus|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.updated_at }}</td>
+                  {% endwith %}
+                </tr>
+            </tbody>
+        </table>
+<!--    render_plot target_id -->
+    <section>
+        {{ plot_data.figure|safe }}
+    </section>
+  
    </div>
       <div class="tab-pane" id="manage-groups">
         {% target_groups target %}
