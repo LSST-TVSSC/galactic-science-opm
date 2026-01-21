@@ -1,13 +1,16 @@
+from plotly import offline
+import plotly.graph_objs as go
+from django import template
+from custom_code.create_plotly_figure import plotly_figure
 from custom_code.target_models import GalacticTarget
-from custom_code.target_models import MicrolensingModel
-from custom_code.target_models import Classification
 from custom_code.target_models import MicrolensingRadarData
-import plotly.graph_objects as go
-from plotly.offline import plot
 
-def plotly_figure(target_id):
+register = template.Library()
+
+@register.inclusion_tag('radar_plots/microlensing_radar.html')
+def microlensing_radar(targets=None):
     try:
-        data_obj = MicrolensingRadarData.objects.filter(target_id=target_id).latest()
+        data_obj = MicrolensingRadarData.objects.filter(target_id=targets).latest()
         values = [data_obj.metric_fink, data_obj.metric_alerce, data_obj.metric_antares, 
                   data_obj.metric_nsquare, data_obj.metric_planet]
         bogus_value = data_obj.metric_bogus
@@ -68,6 +71,6 @@ def plotly_figure(target_id):
         title="Microlensing Radar Transformed probabilities",
     )
 
-    figure = plot(fig, output_type='div', show_link=False)
+    figure = offline.plot(fig, output_type='div', show_link=False)
 
-    return figure
+    return {'figure': figure}

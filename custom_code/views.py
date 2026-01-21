@@ -39,9 +39,6 @@ def microlensing_rescaled_prob_view(request):
     except ObjectDoesNotExist:
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
 
-def template_plot_view(request, target_id):
-    return render(request, "custom_code/plot_template.html", {"target_id": target_id})
-
 class HomeView(TemplateView):
     template_name = "tom_common/index.html"
 
