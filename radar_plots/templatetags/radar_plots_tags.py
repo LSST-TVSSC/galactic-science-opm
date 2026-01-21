@@ -1,7 +1,6 @@
 from plotly import offline
 import plotly.graph_objs as go
 from django import template
-from custom_code.create_plotly_figure import plotly_figure
 from custom_code.target_models import GalacticTarget
 from custom_code.target_models import MicrolensingRadarData
 
