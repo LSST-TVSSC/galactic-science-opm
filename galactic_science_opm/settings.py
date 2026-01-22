@@ -251,7 +251,7 @@ TOM_REGISTRATION = {
     # we're using open registration for now, but when that changes, you'll need this:
     # 'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
     'REGISTRATION_REDIRECT_PATTERN': 'home',
-    'REGISTRATION_STRATEGY': 'open',  # ['open', 'approval_required']
+    'REGISTRATION_STRATEGY': 'approval_required',  # ['open', 'approval_required']
     'SEND_APPROVAL_EMAILS': False,  # Optional email behavior if `REGISTRATION_STRATEGY = 'approval_required'`, default is False
     'APPROVAL_SUBJECT': f'Your {TOM_NAME} registration has been approved!',  # Optional subject line of approval email, (Default Shown)
     'APPROVAL_MESSAGE': f'Your {TOM_NAME} registration has been approved. You can log in <a href="mytom.com/login">here</a>.'  # Optional html-enabled body for approval email, (Default Shown)
