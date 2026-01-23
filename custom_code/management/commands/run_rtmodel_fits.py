@@ -79,7 +79,7 @@ def run_fit(target):
                         model_name = listdir(path.join(tempdirname,"FinalModels"))
                         model_path = path.join(tempdirname,"FinalModels",model_name[0])
                         model_results = ModelResults(model_path)
-                        if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 3.:
+                        if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5.:
                             plm.plotmodel(eventname=event_path, modelfile=model_path)
                             plt.savefig(saving_path, bbox_inches='tight',dpi=90)
 
