@@ -17,6 +17,6 @@ RUN poetry config virtualenvs.create false --local
 # tell poetry: even if you find a virtual env, don't use it; install everything globally
 RUN poetry config virtualenvs.in-project false --local
 # now have poetry install dependencies according to pyproject.toml
-RUN poetry install -vv --no-interaction
+RUN poetry lock && poetry install -vv --no-interaction
 
 RUN poetry run python manage.py collectstatic --noinput
