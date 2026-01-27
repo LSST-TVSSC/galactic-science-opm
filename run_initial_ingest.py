@@ -6,8 +6,8 @@ def run_init():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'galactic_science_opm.settings')
 
     commands = [
-        ['./manage.py','ingest_ogle_lightcurve','2024','all','--phot=True'],
-        ['./manage.py','ingest_ogle_lightcurve','2025','all','--phot=True'],
+        ['./manage.py','ingest_ogle_lightcurves','2024','all','--phot=True'],
+        ['./manage.py','ingest_ogle_lightcurves','2025','all','--phot=True'],
         ['./manage.py','ingest_alerce_ztf_probabilities','ZTF24'],
         ['./manage.py','ingest_alerce_ztf_probabilities','ZTF25'],
         ['./manage.py','run_probability_rescaling','ZTF24'],
