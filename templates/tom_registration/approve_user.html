@@ -1,0 +1,15 @@
+{% extends 'tom_common/base.html' %}
+{% load bootstrap4 %}
+{% block title %}Approve user{% endblock %}
+{% block content %}
+<form action="{% url 'registration:approve' object.id %}" method="POST">
+{% csrf_token %}
+{% bootstrap_form form %}
+{% bootstrap_formset form.user_profile_formset %}
+{% buttons %}
+  <button type="submit" class="btn btn-primary">
+    Approve
+  </button>
+{% endbuttons %}
+</form>
+{% endblock %}

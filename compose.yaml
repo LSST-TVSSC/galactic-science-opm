@@ -6,8 +6,12 @@ services:
     environment:
       DB_HOST: galactic-science-opm-db
       DB_NAME: galactic_science_opm
-      DB_USER: opm
-      DB_PASSWORD: opm
+      DB_USER: ${PSQL_USER}
+      DB_PASSWORD: ${PSQL_PASS}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DJANGO_CSRF_TRUSTED_ORIGIN: ${DJANGO_CSRF_TRUSTED_ORIGIN}
     entrypoint: poetry run python manage.py migrate
     restart: "no"
 
@@ -22,17 +26,21 @@ services:
     environment:
       DB_HOST: galactic-science-opm-db
       DB_NAME: galactic_science_opm
-      DB_USER: opm
-      DB_PASSWORD: opm
+      DB_USER: ${PSQL_USER}
+      DB_PASSWORD: ${PSQL_PASS}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DJANGO_CSRF_TRUSTED_ORIGIN: ${DJANGO_CSRF_TRUSTED_ORIGIN}
 
   galactic-science-opm-db:
-    image: postgres:latest
+    image: ${PSQL_IMAGE}
     environment:
-      POSTGRES_USER: opm
-      POSTGRES_PASSWORD: opm
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASS}
       POSTGRES_DB: galactic_science_opm
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ${PSQL_VOLUME}       
 
 
 ## # The db_worker management command comes with the django-task INSTALLED_APP.

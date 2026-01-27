@@ -1,7 +1,9 @@
 {% extends 'tom_common/base.html' %}
-{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache %}
+{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags %}
+{% load radar_plots_tags %}
 {% block title %}Target {{ object.name }}{% endblock %}
 {% block additional_css %}
+
 <link rel="stylesheet" href="{% static 'tom_targets/css/main.css' %}">
 {% endblock %}
 {% block content %}
@@ -57,28 +59,32 @@
         <h4>Parameters for target type: {{target.target_type}}</h4>
     </div>
 </div>
+           
     <table class="table table-dark table-striped">
         <thead>
             <tr>
-               <th>t<sub>0</sub> [HJD]</th>
+               <th>t<sub>0</sub> [JD]</th>
                  <th>u<sub>0</sub></th>
               <th>t<sub>E</sub> [days]</th>
+              <th>&rho;</th>
               <th>&pi;<sub>EE</sub></th>
                <th>&pi;<sub>EN</sub></th>
-               <th>s</th>
-               <th>q</th>
+
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>{{target.t0|floatformat:3}}</td>
-                <td>{{target.u0|floatformat:3}}</td>
-                 <td>{{target.tE|floatformat:3}}</td>
-                <td>{{target.piEE|floatformat:3}}</td>
-                <td>{{target.piEN|floatformat:3}}</td>
-                <td>{{target.s|floatformat:3}}</td>
-                <td>{{target.q|floatformat:3}}</td>
-            </tr>
+
+              {% with target|microlensing_parameters_by_name as filtered_parameters %} 
+                <td>{{filtered_parameters.t0|floatformat:3}}</td>
+                <td>{{filtered_parameters.u0|floatformat:3}}</td>
+                 <td>{{filtered_parameters.tE|floatformat:3}}</td>
+                 <td>{{filtered_parameters.rho|floatformat:3}}</td>
+                <td>{{filtered_parameters.piEE|floatformat:3}}</td>
+                <td>{{filtered_parameters.piEN|floatformat:3}}</td>
+
+                {% endwith %}
+            </tr> 
         </tbody>
     </table>
     {% include_app_tabs %}
@@ -86,7 +92,7 @@
      <div class="tab-pane active" id="photometry">
         {% photometry_for_target target %}
         <p>
-       <a href="https://data.lsst.cloud/" class="btn btn-primary" role="button" target="_blank">Rubin RSP</a> <a href="https://roman.gsfc.nasa.gov/index.html" class="btn btn-primary" role="button" target="_blank">Roman</a>  <a href="https://www.cosmos.esa.int/web/gaia/data-access" class="btn btn-primary" role="button" >Gaia</a>
+       <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> <a href="https://fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>  <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1" class="btn btn-primary" role="button" >Vizier Gaia DR3</a>
        </p>
         </div>
       <div class="tab-pane" id="imaging">
@@ -130,10 +136,14 @@
         {% elif target.type == 'NON_SIDEREAL' %}
           <p>Airmass plotting for non-sidereal targets is not currently supported. If you would like to add this functionality, please check out the <a href="https://github.com/TOMToolkit/tom_nonsidereal_airmass" target="_blank">non-sidereal airmass plugin.</a></p>
         {% endif %}
+
+
+
       </div>
       <div class="tab-pane" id="analysis">
         <h4>Analysis (detailed parameter summary)</h4>
-
+        {% get_media_prefix as MEDIA_PREFIX %}
+        <img src="{{MEDIA_PREFIX}}{{target.name}}.png" width=50% alt="{{ target.name }}">
         <div class="row">
         <table class="table">
             <thead>
@@ -151,24 +161,26 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>{{ target.t0|floatformat:3 }}&#8723;</br>
-                        {{ target.t0_error|floatformat:3 }}</td>
-                    <td>{{ target.u0|floatformat:4 }}&#8723;<br/>
-                        {{ target.u0_error|floatformat:4 }}</td>
-                    <td>{{ target.tE|floatformat:3 }}&#8723;<br/>
-                        {{ target.tE_error|floatformat:3 }}</td>
-                    <td>{{ target.piEE|floatformat:3 }}&#8723;<br/>
-                        {{ target.piEN_error|floatformat:3 }}</td>
-                    <td>{{ target.piEE|floatformat:3 }}&#8723;<br/>
-                        {{ target.piEE_error|floatformat:3 }}</td>
-                    <td>{{ target.rho|floatformat:3 }}&#8723;<br/>
-                        {{ target.rho_error|floatformat:3 }}</td>
-                    <td>{{ target.s|floatformat:3 }}&#8723;<br/>
-                        {{ target.s_error|floatformat:3 }}</td>
-                    <td>{{ target.q|floatformat:3 }}&#8723;<br/>
-                        {{ target.q_error|floatformat:3 }}</td>
-                    <td>{{ target.alpha|floatformat:3 }}&#8723;<br/>
-                        {{ target.alpha_error|floatformat:3 }}</td>
+                  {% with target|microlensing_parameters_by_name as filtered_parameters %}
+                    <td>{{ filtered_parameters.t0|floatformat:3 }}&#8723;</br>
+                        {{ filtered_parameters.err_t0|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.u0|floatformat:4 }}&#8723;<br/>
+                        {{ filtered_parameters.err_u0|floatformat:4 }}</td>
+                    <td>{{ filtered_parameters.tE|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_tE|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.piEE|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_piEN|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.piEE|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_piEE|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.rho|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_rho|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.s|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_s|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.q|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.q_error|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.alpha|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_alpha|floatformat:3 }}</td>
+                  {% endwith %}
                 </tr>
             </tbody>
         </table>
@@ -188,7 +200,7 @@
                 <td>{{ target.source_magnitude }}&#8723;{{ target.source_mag_error }}</td>
                 <td>{{ target.blend_magnitude }}&#8723;{{ target.blend_mag_error }}</td>
                 <td>{{ target.baseline_magnitude }}&#8723;{{ target.baseline_mag_error }}</td>
-                <td>{{ target.mag_now }}</td>
+                <td></td>
             </tr>
          </tbody>
      </table>
@@ -212,14 +224,50 @@
  
    <div class="tab-pane" id="classification">
    <h4>Classifications</h4>
+
+   {% microlensing_radar target %}
+
+   <table class="table">
+            <thead>
+                <tr>
+                <th><b>Averaged Rescaled Probability</b></th>
+                <th>Gaia normalized N&sup2 Rescaled</th>
+                <th>ALeRCE microlensing BHRF Rescaled</th>
+                <th>fink microlensing peak Rescaled</th>
+                <th>Peak Planet Probability from fit &psi; Rescaled</th>
+                <th>Bogus ALeRCE stamp</th>
+                <th>Updated rescaled probabilities</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                  {% with target|microlensing_radar_by_name as filtered_parameters %}
+                    <td>{{ filtered_parameters.average_master_probability|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_nsquare|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_alerce|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_fink|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_planet|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.metric_bogus|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.updated_at }}</td>
+                  {% endwith %}
+                </tr>
+            </tbody>
+        </table>
+<!--    render_plot target_id -->
+    <section>
+        {{ plot_data.figure|safe }}
+    </section>
+  
    </div>
       <div class="tab-pane" id="manage-groups">
         {% target_groups target %}
       </div>
 
       <div class="tab-pane" id="spectroscopy">
-        {% spectroscopy_for_target target %}
-        <a href="https://vizier.cds.unistra.fr/vizier/sed/">SED Vizier</a>
+        <!--{% spectroscopy_for_target target %}-->
+
+        <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=5" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
+
       </div>
       {% include_app_tab_divs %}
 

@@ -13,7 +13,9 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import logging.config
 import os
 import tempfile
+import environ
 
+env = environ.Env(DJANGO_DEBUG=(bool, False))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,12 +25,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7jj1ni6=mw867=jwr1(cr64()cdcj(igmj^@=7bc_s#xpwf8$m'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', default='7jj1ni6=mw867=jwr1(cr64()cdcj(igmj^@=7bc_s#xpwf8$m')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DJANGO_DEBUG',default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS',default=['127.0.0.1','localhost'])
+CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGIN',default=[])
+
 
 
 # Application definition
@@ -64,6 +68,7 @@ INSTALLED_APPS = [
     'tom_dataproducts',
     'tom_registration',
     'custom_code',
+    'radar_plots'
 ]
 
 SITE_ID = 1
@@ -250,8 +255,8 @@ TOM_REGISTRATION = {
     # we're using open registration for now, but when that changes, you'll need this:
     # 'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
     'REGISTRATION_REDIRECT_PATTERN': 'home',
-    'REGISTRATION_STRATEGY': 'open',  # ['open', 'approval_required']
-    'SEND_APPROVAL_EMAILS': True,  # Optional email behavior if `REGISTRATION_STRATEGY = 'approval_required'`, default is False
+    'REGISTRATION_STRATEGY': 'approval_required',  # ['open', 'approval_required']
+    'SEND_APPROVAL_EMAILS': False,  # Optional email behavior if `REGISTRATION_STRATEGY = 'approval_required'`, default is False
     'APPROVAL_SUBJECT': f'Your {TOM_NAME} registration has been approved!',  # Optional subject line of approval email, (Default Shown)
     'APPROVAL_MESSAGE': f'Your {TOM_NAME} registration has been approved. You can log in <a href="mytom.com/login">here</a>.'  # Optional html-enabled body for approval email, (Default Shown)
 }
@@ -325,10 +330,10 @@ TOM_FACILITY_CLASSES = [
 
 TOM_ALERT_CLASSES = [
     'tom_alerts.brokers.alerce.ALeRCEBroker',
-    #  'tom_alerts.brokers.antares.ANTARESBroker',
+    #'tom_alerts.brokers.antares.ANTARESBroker',
     'tom_alerts.brokers.gaia.GaiaBroker',
-    'tom_alerts.brokers.lasair.LasairBroker',
-    'tom_alerts.brokers.tns.TNSBroker',
+    #  'tom_alerts.brokers.lasair.LasairBroker',
+    #  'tom_alerts.brokers.tns.TNSBroker',
     #  'tom_alerts.brokers.fink.FinkBroker',
 ]
 

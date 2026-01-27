@@ -94,3 +94,72 @@ td, th {
     color: #fff;
     border-radius: 3;
 }
+
+/* Front-page only: disable card hover background change */
+.gs-opm-home .card:hover {
+  background-color: #c3072a;  /* same as normal .card background */
+  border-color: #c3072a;
+  color: #fff;
+}
+
+/* ===== Galactic Science OPM: front-page finder thumbnails ===== */
+
+.gs-opm-home .gs-opm-thumb {
+  position: relative;
+  display: inline-block;
+}
+
+.gs-opm-home .gs-opm-thumb-img {
+  display: block;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}
+
+/* Red circle around target (centered) */
+.gs-opm-home .gs-opm-thumb-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid #ff2b2b;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+}
+
+/* FoV label: bottom-left, blue text, semi-transparent white background */
+.gs-opm-home .gs-opm-thumb-fov {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  padding: 1px 4px;
+  font-size: 0.7rem;
+  color: #0044ff;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 3px;
+}
+
+/* ===== Galactic Science OPM: front-page broker buttons ===== */
+
+/* Front page, Broker portals: make buttons white and half width,
+   while keeping existing hover colors from .btn-outline-primary */
+.gs-opm-home .gs-opm-broker-hero .btn-outline-primary.btn-block {
+  display: block;
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* White background only when NOT hovered;
+   hover keeps the default .btn-outline-primary behavior */
+.gs-opm-home .gs-opm-broker-hero .btn-outline-primary:not(:hover) {
+  background-color: #ffffff;
+}
+
+/* Front page, "View all targets" button: white by default, normal hover */
+.gs-opm-home .gs-opm-view-all-btn:not(:hover) {
+  background-color: #ffffff;
+}
