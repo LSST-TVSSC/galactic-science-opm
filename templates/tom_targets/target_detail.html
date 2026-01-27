@@ -262,7 +262,9 @@
 
       <div class="tab-pane" id="spectroscopy">
         <!--{% spectroscopy_for_target target %}-->
-        <a href="https://vizier.cds.unistra.fr/vizier/sed/">SED Vizier</a>
+
+        <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }}{{ target.dec }}&-c.rs=5" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
+
       </div>
       {% include_app_tab_divs %}
 

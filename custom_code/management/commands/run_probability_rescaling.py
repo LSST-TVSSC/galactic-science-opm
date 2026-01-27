@@ -80,18 +80,20 @@ class Command(BaseCommand):
                     transformed_prob_nsquare = 0
 
                 transformed_prob_antares = 0            #to be included when filter is available
+            try:
+                m = MicrolensingRadarData.objects.update_or_create(target=target,
+                                                  metric_fink= transformed_prob_fink[0][0],
+                                                  metric_alerce= transformed_prob_alerce[0][0],
+                                                  metric_antares= transformed_prob_antares,
+                                                  metric_nsquare = transformed_prob_nsquare,
+                                                  metric_planet = transformed_prob_planet[0][0],
+                                                  metric_bogus = prob_bogus,
+                                                  average_master_probability=np.mean([transformed_prob_planet[0][0],
+                                                                                      transformed_prob_nsquare,
+                                                                                      transformed_prob_antares,
+                                                                                      transformed_prob_alerce[0][0]])
+                                                  )
+            except:
+                print('Rescaled probabilities failed for ' + target.name)
 
-            m = MicrolensingRadarData.objects.update_or_create(target=target,
-                                              metric_fink= transformed_prob_fink[0][0],
-                                              metric_alerce= transformed_prob_alerce[0][0],
-                                              metric_antares= transformed_prob_antares,
-                                              metric_nsquare = transformed_prob_nsquare,
-                                              metric_planet = transformed_prob_planet[0][0],
-                                              metric_bogus = prob_bogus,
-                                              average_master_probability=np.mean([transformed_prob_planet[0][0],
-                                                                                  transformed_prob_nsquare,
-                                                                                  transformed_prob_antares,
-                                                                                  transformed_prob_alerce[0][0]])
-                                              )
-            
         print('rescaled probabilities created/updated.')
