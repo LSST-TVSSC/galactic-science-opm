@@ -23,7 +23,7 @@
 
     <title>{% tom_name %} | {% block title %}{% endblock %}</title>
   </head>
-  <body>
+  <body class="d-flex flex-column min-vh-100">
    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
       <a class="navbar-brand" href="/"><img src="{% static 'tom_common/img/logo-color.png' %}" class="img-fluid"> Galactic Science OPM</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,5 +68,18 @@
   {% endblock %}
   {% block extra_javascript %}
   {% endblock %}
+  <footer class="bg-dark text-center py-3 mt-auto">
+  <div class="container">
+    <div class="row">
+       <div class="col-md-8">
+          <a href="https://www.urz.uni-heidelberg.de/de/impressum">Impressum</a> / <a href="https://www.uni-heidelberg.de/en/imprint">Imprint </a> 
+          <span class="text-light"> &mdash; </span> 
+          <a href="https://www.uni-heidelberg.de/de/datenschutzerklaerung">Datenschutzerklärung</a> / <a href="https://www.uni-heidelberg.de/en/privacy-statement">Privacy Statement</a>
+
+      </div>
+    </div>
+  </div>
+</footer>
+
   </body>
 </html>
