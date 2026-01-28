@@ -130,6 +130,23 @@
 
             aladin.addMOC(moc);
 
+        var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_lodust.fits' %}";
+            var moc = A.MOCFromURL(mocFileUrl, {
+                color: '#ffa040',
+                lineWidth: 2
+            });
+
+            aladin.addMOC(moc);
+
+        var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_nes.fits' %}";
+            var moc = A.MOCFromURL(mocFileUrl, {
+                color: '#6666ff',
+                lineWidth: 2
+            });
+
+            aladin.addMOC(moc);
+
+
     }); // closes A.init.then(() { ...
 
 })();
