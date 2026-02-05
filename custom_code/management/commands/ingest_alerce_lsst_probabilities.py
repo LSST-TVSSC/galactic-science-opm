@@ -17,25 +17,31 @@ class Command(BaseCommand):
         parser.add_argument('target_name_contains', help='filter for targets containing ... (e.g. ZTF26)')
 
     def handle(self, *args, **options):
-        #requires existing targets
+        #requires existing targets, LSST ids will not be identifiable
         qs = GalacticTarget.objects.filter(name__icontains=str(options['target_name_contains']))
         target_list = list(set(qs))
         for target in target_list:
             print('Check lc_classifier_BHRF_forced_phot microlensing probability for event ' + target.name)
             time_now = Time(datetime.datetime.now()).jd
             alerce = Alerce()
-            probabilities = alerce.query_probabilities(target.name,survey='ztf')
+            probabilities = alerce.query_probabilities(target.name,survey='lsst')
             
             prob_pd = pd.DataFrame.from_dict(probabilities)
             stochastic_bhrf_prob = prob_pd.loc[prob_pd['classifier_name'] == 'lc_classifier_BHRF_forced_phot']
-            prob_class1 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
-            prob_class2 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'CV/Nova']['probability'].iloc[0])
-            
+            try:
+                prob_class1=float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
+            except:
+                prob_class1=0.
+            try:
+                prob_class2=float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'CV/Nova']['probability'].iloc[0])
+            except:
+                prob_class2=0.
             try:
                 bogus_prob = prob_pd.loc[prob_pd['classifier_name'] == 'stamp_classifier']
                 prob_class3 = float(bogus_prob[bogus_prob['class_name'] == 'bogus']['probability'].iloc[0])
             except:
-                prob_class3=0
+                prob_class3=0.
+            print(target.name,'microlensing prob ALeRCE ', stochastic_bhrf_prob, prob_class1, ' bogus ',prob_class3)
             try:
                 #For ZTF events ingest fink probability as maximum probability 
                 #attach it to the ALeRCE query to avoid repeating the galactic target filter.
@@ -46,16 +52,17 @@ class Command(BaseCommand):
                 if len(r.content) >2:
                     new_pdf_fink = pdf_fink[["i:jd", "d:mulens"]].copy()
                     m = Classification.objects.update_or_create(target=target,
-                                                  source='fink_ZTF',
+                                                  source='fink_LSST',
                                                   class1='microlensing',
                                                   prob_class1 = np.max(new_pdf_fink["d:mulens"]))
+                    print(target.name,'microlensing prob fink ', np.max(new_pdf_fink["d:mulens"]))
                 else:
                     print("No fink classification in lightcurve, yet.")
             except Exception as e:
                 print("Fink request not successful for ", target.name, e)
 
             m = Classification.objects.update_or_create(target=target,
-                                              source='ALeRCE_ZTF',
+                                              source='ALeRCE_LSST',
                                               class1='microlensing',
                                               prob_class1 = prob_class1,
                                               class2='cv/nova',

@@ -38,9 +38,9 @@ class Command(BaseCommand):
                 continue
             else:
                 microlensing_model = MicrolensingModel.objects.filter(target=target).latest()
-            print('MicrolensingModel exists, check and rescale probabilities for' + target.name)
 
             target_classification = Classification.objects.filter(target=target)
+
             if target_classification.exists():
                 time_now = Time(datetime.datetime.now()).jd
                 try:

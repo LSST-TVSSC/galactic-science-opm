@@ -35,7 +35,7 @@ class ALERCEBroker(GenericBroker):
     name = 'ALERCE'
     form = ALERCEQueryForm
 
-    def fetch_alerts(self, events=10,days=10,survey = 'ztf'):
+    def fetch_alerts(self, events=5,days=5,survey = 'lsst'):
         """Fetch data on microlensing events discovered by ALERCE"""
         from alerce.core import Alerce
         alerce = Alerce()
@@ -57,7 +57,7 @@ class ALERCEBroker(GenericBroker):
 
         return list_of_targets, new_targets
 
-    def ingest_events(self, alerce_results, survey = 'ztf', debug=False):
+    def ingest_events(self, alerce_results, survey = 'lsst', debug=False):
         """Function to ingest the targets into the OPM database"""
         print('ALERCE harvester: ingesting events')
 
@@ -110,7 +110,7 @@ class ALERCEBroker(GenericBroker):
 
         print('ALERCE harvester: Completed ingest of photometry')
 
-    def read_ALERCE_lightcurve(self, target, survey = 'ztf'):
+    def read_ALERCE_lightcurve(self, target, survey = 'lsst'):
         """Method to read the ALERCE lightcurve via alerce api client"""
         from alerce.core import Alerce
         alerce = Alerce()
@@ -124,9 +124,9 @@ class ALERCEBroker(GenericBroker):
                                      format="pandas", survey = survey)
         return detections_photometry, forced_photometry
 
-    def ingest_ALERCE_photometry(self, target, detections_photometry, forced_photometry, survey = 'ztf', debug=False):
+    def ingest_ALERCE_photometry(self, target, detections_photometry, forced_photometry, survey = 'lsst', debug=False):
         """Method to store the photometry datapoints in the OPM TOM as ReducedDatums"""
-        filter_definition = {1:"ZTF_g", 2:"ZTF_r", 3:"ZTF_i"}
+        filter_definition = {1:"LSST_g", 2:"LSST_r", 3:"LSST_i"}
         for i, row in detections_photometry.iterrows():
             jd = Time(row["mjd"], format='mjd', scale='utc')
             jd.to_datetime(timezone=TimezoneInfo())
@@ -138,7 +138,7 @@ class ALERCEBroker(GenericBroker):
                 rd, created = ReducedDatum.objects.get_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                     value=datum,
-                    source_name='ALERCE',
+                    source_name='ALERCE_LSST',
                     source_location=target.name,
                     data_type='photometry',
                     target=target)
@@ -158,7 +158,7 @@ class ALERCEBroker(GenericBroker):
                 rd, created = ReducedDatum.objects.get_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                     value=datum,
-                    source_name='ALERCE',
+                    source_name='ALERCE_LSST',
                     source_location=target.name,
                     data_type='photometry',
                     target=target)
