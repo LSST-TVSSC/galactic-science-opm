@@ -116,8 +116,3 @@ class Command(BaseCommand):
             for target in target_list:
                 run_fit(target)
                 
-            qs = GalacticTarget.objects.filter(name__icontains="LSST")
-            target_list = list(set(qs))
-            for target in target_list:
-                run_fit(target)
-                

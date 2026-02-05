@@ -21,7 +21,7 @@ def microlensing_radar(targets=None):
     "Metric Fink",
     "Metric ALeRCE",
     "Metric ANTARES",
-    "Metric N&sup2",
+    "Metric N<sup>2</sup>",
     "Metric &#968; Peak",
     ]
     #connect first and last entry
@@ -68,6 +68,7 @@ def microlensing_radar(targets=None):
         polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
         showlegend=False,
         title="Microlensing Radar Transformed probabilities",
+        font=dict(size=17)
     )
 
     figure = offline.plot(fig, output_type='div', show_link=False)
