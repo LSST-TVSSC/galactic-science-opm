@@ -24,6 +24,6 @@ def microlensing_radar_by_name(name):
 @register.filter
 def classification_by_name(name):
     try:
-        return Classification.objects.get(target=name)
+        return Classification.objects.get(target=name).latest()
     except ObjectDoesNotExist:
         return None
