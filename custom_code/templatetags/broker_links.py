@@ -7,7 +7,7 @@ register = template.Library()
 BROKER_BASE_URLS = {
     "fink": "https://fink-portal.org/",
     "alerce": "https://alerce.online/object/",
-    "antares": "https://antares.noirlab.edu/loci/",
+    "antares": "https://antares.noirlab.edu/loci/lookup/",
 }
 
 

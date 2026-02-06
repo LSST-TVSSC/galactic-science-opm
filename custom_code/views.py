@@ -22,18 +22,18 @@ def microlensing_prob_view(request):
     #so far prob class 1 is microlensing, but the model permits other options, to be filtered.
 
     distinct_ids = Classification.objects.order_by('target_id', '-updated_at').distinct('target_id')
-    microlensing_objects = Classification.objects.filter(id__in=distinct_ids).order_by('-prob_class1').filter(prob_class1__gt=0.)
+    microlensing_objects_class1 = Classification.objects.filter(id__in=distinct_ids).order_by('-prob_class1').filter(prob_class1__gt=0.)
    
     try:
-        return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
+        return render(request, 'custom_code/prob_list.html', {'microlensing_objects_class1': microlensing_objects_class1})
     except ObjectDoesNotExist:
-        return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
+        return render(request, 'custom_code/prob_list.html', {'microlensing_objects_class1': microlensing_objects_class1})
 
 def microlensing_rescaled_prob_view(request):
-    distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF26')
-    microlensing_objects = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').filter(average_master_probability__gt=0.)
-    #Temporary filter for ZTF 2026 events until LSST is onlin
-    microlensing_objects = microlensing_objects.filter(target__name__icontains='ZTF26')
+    #Temporary filter for ZTF 2026 events until LSST is online, included
+
+    distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF26').filter(average_master_probability__gt=0.)
+    microlensing_objects = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:30]
     try:
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
     except ObjectDoesNotExist:
@@ -48,9 +48,10 @@ class HomeView(TemplateView):
         # Very simple first pass: just take the 7 most probable
         # (we know they at least have id and name).
         # This can be modifed with any selector function later.
-        # Radar plot top events, for ZTF26 events, waiting for updates        
-        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF26')
-        prio_ids = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').filter(average_master_probability__gt=0.).values_list('target_id', flat=True).distinct()[:8]
+        # Radar plot top events, for ZTF26 events, waiting for updates       
+
+        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF26').filter(average_master_probability__gt=0.)
+        prio_ids = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').values_list('target_id', flat=True).distinct()[:8]
         target_objects = GalacticTarget.objects.filter(id__in=prio_ids)
         featured = (target_objects)
         context["featured_targets"] = featured
