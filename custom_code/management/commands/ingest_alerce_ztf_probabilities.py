@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
 from custom_code.match_managers import validators
+from django.db import transaction
 import numpy as np
 import pandas as pd
 import requests, io
@@ -36,32 +37,37 @@ class Command(BaseCommand):
                 prob_class3 = float(bogus_prob[bogus_prob['class_name'] == 'bogus']['probability'].iloc[0])
             except:
                 prob_class3=0
-            try:
+#            try:
                 #For ZTF events ingest fink probability as maximum probability 
                 #attach it to the ALeRCE query to avoid repeating the galactic target filter.
-                r = requests.post(
-                "https://api.fink-portal.org/api/v1/objects",
-                json={"objectId": str(target.name), "output-format": "json"})
-                pdf_fink = pd.read_json(io.BytesIO(r.content))
-                if len(r.content) >2:
-                    new_pdf_fink = pdf_fink[["i:jd", "d:mulens"]].copy()
-                    m = Classification.objects.update_or_create(target=target,
-                                                  source='fink_ZTF',
+#Deactivated, until Stream is online.
+#                r = requests.post(
+#                "https://api.fink-portal.org/api/v1/objects",
+#                json={"objectId": str(target.name), "output-format": "json"})
+#                pdf_fink = pd.read_json(io.BytesIO(r.content))
+#                if len(r.content) >2:
+#                    new_pdf_fink = pdf_fink[["i:jd", "d:mulens"]].copy()
+#                    with transaction.atomic():
+#                        m = Classification.objects.update_or_create(target=target,
+#                                                      source='fink_ZTF',
+#                                                      class1='microlensing',
+#                                                      prob_class1 = np.max(new_pdf_fink["d:mulens"]))
+#                else:
+#                    print("No fink classification in lightcurve, yet.")
+#            except Exception as e:
+#                print("Fink request not successful for ", target.name, e)
+        try:
+            with transaction.atomic():
+                m = Classification.objects.update_or_create(target=target,
+                                                  source='ALeRCE_ZTF',
                                                   class1='microlensing',
-                                                  prob_class1 = np.max(new_pdf_fink["d:mulens"]))
-                else:
-                    print("No fink classification in lightcurve, yet.")
-            except Exception as e:
-                print("Fink request not successful for ", target.name, e)
-
-            m = Classification.objects.update_or_create(target=target,
-                                              source='ALeRCE_ZTF',
-                                              class1='microlensing',
-                                              prob_class1 = prob_class1,
-                                              class2='cv/nova',
-                                              prob_class2 = prob_class2,
-                                              class3='bogus',
-                                              prob_class3 = prob_class3
-                                              )
+                                                  prob_class1 = prob_class1,
+                                                  class2='cv/nova',
+                                                  prob_class2 = prob_class2,
+                                                  class3='bogus',
+                                                  prob_class3 = prob_class3
+                                                  )
+        except Exception as e:
+            print(f"Exception: {e}")
             
         print('probabilities created/updated.')

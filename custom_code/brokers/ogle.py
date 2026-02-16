@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import MultipleObjectsReturned
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
+from django.db import transaction
 from django import forms
 from django.db.utils import IntegrityError
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
@@ -171,13 +172,14 @@ class OGLEBroker(GenericBroker):
                     'error': photometry[i][2]
                     }
             try:
-                rd, created = ReducedDatum.objects.get_or_create(
-                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                    value=datum,
-                    source_name='OGLE',
-                    source_location=target.name,
-                    data_type='photometry',
-                    target=target)
+                with transaction.atomic():
+                    rd, created = ReducedDatum.objects.get_or_create(
+                        timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                        value=datum,
+                        source_name='OGLE',
+                        source_location=target.name,
+                        data_type='photometry',
+                        target=target)
 
             except MultipleObjectsReturned:
                 print('OGLE HARVESTER: Found duplicated data for event '+target.name)
