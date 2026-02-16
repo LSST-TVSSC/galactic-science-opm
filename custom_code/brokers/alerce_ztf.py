@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import MultipleObjectsReturned
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
+from django.db import transaction
 from django import forms
 from django.db.utils import IntegrityError
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
@@ -52,7 +53,18 @@ class ALERCEBroker(GenericBroker):
             survey = survey
         )
 
-        #ingest the OPM TOM db
+        #ingest the OPM TOM db and restart CV query
+        (list_of_targets, new_targets) = self.ingest_events(alerce_results)
+        alerce_results = alerce.query_objects(
+            classifier="lc_classifier_BHRF_forced_phot",
+            class_name="CV/Nova",
+            format="pandas",
+            firstmjd=float(int(Time.now().mjd)-days),
+            page_size=events,
+            order_by="probability",
+            order_mode="DESC",
+            survey = survey
+        )    
         (list_of_targets, new_targets) = self.ingest_events(alerce_results)
 
         return list_of_targets, new_targets
@@ -135,13 +147,14 @@ class ALERCEBroker(GenericBroker):
                     'error': row["sigmapsf_corr_ext"]
                     }
             try:
-                rd, created = ReducedDatum.objects.get_or_create(
-                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                    value=datum,
-                    source_name='ALERCE',
-                    source_location=target.name,
-                    data_type='photometry',
-                    target=target)
+                with transaction.atomic():
+                    rd, created = ReducedDatum.objects.get_or_create(
+                        timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                        value=datum,
+                        source_name='ALERCE',
+                        source_location=target.name,
+                        data_type='photometry',
+                        target=target)
 
             except MultipleObjectsReturned:
                 print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
@@ -155,13 +168,14 @@ class ALERCEBroker(GenericBroker):
                     'error': row["e_mag_corr_ext"]
                     }
             try:
-                rd, created = ReducedDatum.objects.get_or_create(
-                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                    value=datum,
-                    source_name='ALERCE',
-                    source_location=target.name,
-                    data_type='photometry',
-                    target=target)
+                with transaction.atomic():
+                    rd, created = ReducedDatum.objects.get_or_create(
+                        timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                        value=datum,
+                        source_name='ALERCE',
+                        source_location=target.name,
+                        data_type='photometry',
+                        target=target)
 
             except MultipleObjectsReturned:
                 print('ALERCE HARVESTER: Found duplicated data for event '+target.name)

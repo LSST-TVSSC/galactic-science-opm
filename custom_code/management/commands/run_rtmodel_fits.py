@@ -19,7 +19,7 @@ import datetime
 from os import path
 from os import makedirs, listdir
 import numpy as np
-from django.db import connection
+from django.db import connection, transaction
 from ._RTModel_results_cls import EventResults, ModelResults
 
 def run_fit(target):
@@ -82,16 +82,16 @@ def run_fit(target):
                         if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5.:
                             plm.plotmodel(eventname=event_path, modelfile=model_path)
                             plt.savefig(saving_path, bbox_inches='tight',dpi=90)
-
-                        m = MicrolensingModel.objects.update_or_create(target=target,
-                                              u0 = model_results.model_parameters.u0,
-                                              t0 = model_results.model_parameters.t0,
-                                              tE = model_results.model_parameters.tE,
-                                              err_u0 = model_results.model_parameters.u0_error,
-                                              err_t0 = model_results.model_parameters.t0_error,
-                                              err_tE = model_results.model_parameters.tE_error,
-                                              err_rho = model_results.model_parameters.rho_error, 
-                                              rho = model_results.model_parameters.rho)
+                        with transaction.atomic():
+                            m = MicrolensingModel.objects.update_or_create(target=target,
+                                                  u0 = model_results.model_parameters.u0,
+                                                  t0 = model_results.model_parameters.t0,
+                                                  tE = model_results.model_parameters.tE,
+                                                  err_u0 = model_results.model_parameters.u0_error,
+                                                  err_t0 = model_results.model_parameters.t0_error,
+                                                  err_tE = model_results.model_parameters.tE_error,
+                                                  err_rho = model_results.model_parameters.rho_error, 
+                                                  rho = model_results.model_parameters.rho)
 
                     except :
                         print("No FinalModel from RTModel")
