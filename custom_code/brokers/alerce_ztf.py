@@ -14,6 +14,7 @@ from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
 import os
 import numpy as np
+import pandas as pd
 import requests
 from alerce.core import Alerce
 
@@ -116,9 +117,9 @@ class ALERCEBroker(GenericBroker):
                 detections_photometry, forced_photometry = self.read_ALERCE_lightcurve(target)
                 status = self.ingest_ALERCE_photometry(target, detections_photometry, forced_photometry)
                 print('ALERCE harvester: completed read and ingested photometry for event ' + target.name)
-            except:
+            except Exception as e:
                 print('ALERCE harvester: WARNING reading photometry failed for '
-                                    + target.name + ', skipping ingest')
+                                    + target.name + ', skipping ingest ',e)
 
         print('ALERCE harvester: Completed ingest of photometry')
 
@@ -134,6 +135,7 @@ class ALERCEBroker(GenericBroker):
         detections_photometry = detections_photometry.drop_duplicates(subset="mjd")
         forced_photometry = alerce.query_forced_photometry(ALERCE_name,
                                      format="pandas", survey = survey)
+
         return detections_photometry, forced_photometry
 
     def ingest_ALERCE_photometry(self, target, detections_photometry, forced_photometry, survey = 'ztf', debug=False):
@@ -142,44 +144,46 @@ class ALERCEBroker(GenericBroker):
         for i, row in detections_photometry.iterrows():
             jd = Time(row["mjd"], format='mjd', scale='utc')
             jd.to_datetime(timezone=TimezoneInfo())
-            datum = {'magnitude': row["magpsf_corr"],
-                    'filter': filter_definition[row["fid"]],
-                    'error': row["sigmapsf_corr_ext"]
-                    }
-            try:
-                with transaction.atomic():
-                    rd, created = ReducedDatum.objects.get_or_create(
-                        timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                        value=datum,
-                        source_name='ALERCE',
-                        source_location=target.name,
-                        data_type='photometry',
-                        target=target)
+            if "magpsf_corr" in detections_photometry.columns :
+                if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"]<100.:
+                    datum = {'magnitude': row["magpsf_corr"],
+                            'filter': filter_definition[row["fid"]],
+                            'error': row["sigmapsf_corr_ext"]
+                            }          
+                    try:
+                        with transaction.atomic():
+                            rd, created = ReducedDatum.objects.get_or_create(
+                                timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                value=datum,
+                                source_name='ALERCE',
+                                source_location=target.name,
+                                data_type='photometry',
+                                target=target)
 
-            except MultipleObjectsReturned:
-                print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                    except MultipleObjectsReturned:
+                        print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
 
         for i, row in forced_photometry.iterrows():
 
             jd = Time(row["mjd"], format='mjd', scale='utc')
             jd.to_datetime(timezone=TimezoneInfo())
-            datum = {'magnitude': row["mag_corr"],
-                    'filter': filter_definition[row["fid"]],
-                    'error': row["e_mag_corr_ext"]
-                    }
-            try:
-                with transaction.atomic():
-                    rd, created = ReducedDatum.objects.get_or_create(
-                        timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                        value=datum,
-                        source_name='ALERCE',
-                        source_location=target.name,
-                        data_type='photometry',
-                        target=target)
+            if not pd.isna(row["mag_corr"]) and row["mag_corr"]<100.:
+                datum = {'magnitude': row["mag_corr"],
+                        'filter': filter_definition[row["fid"]],
+                        'error': row["e_mag_corr_ext"]
+                        }
+                try:
+                    with transaction.atomic():
+                        rd, created = ReducedDatum.objects.get_or_create(
+                            timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                            value=datum,
+                            source_name='ALERCE',
+                            source_location=target.name,
+                            data_type='photometry',
+                            target=target)
 
-            except MultipleObjectsReturned:
-                print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
-
+                except MultipleObjectsReturned:
+                    print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
 
         target.save()
 
