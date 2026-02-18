@@ -69,6 +69,19 @@ class ALERCEBroker(GenericBroker):
         (list_of_targets, new_targets) = self.ingest_events(alerce_results)
 
         return list_of_targets, new_targets
+    
+    def fetch_alert(self, name, survey = 'ztf'):
+        """Fetch data on microlensing events discovered by ALERCE"""
+        from alerce.core import Alerce
+        alerce = Alerce()
+        # Query the list of microlensing events, last 10d, 10 events page1
+        # 
+        alerce_results = alerce.query_objects(oid=name,survey = survey)
+
+        #ingest the OPM TOM db and restart CV query
+        (list_of_targets, new_targets) = self.ingest_events(alerce_results)
+
+        return list_of_targets, None
 
     def ingest_events(self, alerce_results, survey = 'ztf', debug=False):
         """Function to ingest the targets into the OPM database"""
