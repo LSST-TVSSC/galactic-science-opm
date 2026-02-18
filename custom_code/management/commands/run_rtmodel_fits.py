@@ -79,9 +79,7 @@ def run_fit(target):
                         model_name = listdir(path.join(tempdirname,"FinalModels"))
                         model_path = path.join(tempdirname,"FinalModels",model_name[0])
                         model_results = ModelResults(model_path)
-                        if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5.:
-                            plm.plotmodel(eventname=event_path, modelfile=model_path)
-                            plt.savefig(saving_path, bbox_inches='tight',dpi=90)
+
                         with transaction.atomic():
                             m = MicrolensingModel.objects.update_or_create(target=target,
                                                   u0 = model_results.model_parameters.u0,
@@ -92,6 +90,9 @@ def run_fit(target):
                                                   err_tE = model_results.model_parameters.tE_error,
                                                   err_rho = model_results.model_parameters.rho_error, 
                                                   rho = model_results.model_parameters.rho)
+                        if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5.:
+                            plm.plotmodel(eventname=event_path, modelfile=model_path)
+                            plt.savefig(saving_path, bbox_inches='tight',dpi=90)
 
                     except :
                         print("No FinalModel from RTModel")
