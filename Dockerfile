@@ -9,14 +9,20 @@ EXPOSE 80
 
 WORKDIR /galactic_science_opm
 
-RUN apt-get update && apt-get upgrade -y && pip install --upgrade pip && pip install 'poetry >=2.0,<3.0'
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    pip install --upgrade pip && \
+    pip install 'poetry >=2.0,<3.0'
 
 COPY . /galactic_science_opm  
 
 # tell poetry: do NOT create a virtual env; should install everything globally
 # tell poetry: even if you find a virtual env, don't use it; install everything globally
 # now have poetry install dependencies according to pyproject.toml
-RUN poetry config virtualenvs.create false --local &&  poetry config virtualenvs.in-project false --local && poetry lock && poetry install -vv --no-interaction
+RUN poetry config virtualenvs.create false --local &&  \
+    poetry config virtualenvs.in-project false --local && \
+    poetry lock && \
+    poetry install -vv --no-interaction
 
 # RUN poetry run python manage.py collectstatic --noinput
 CMD ["/galactic_science_opm/entrypoint.sh"]

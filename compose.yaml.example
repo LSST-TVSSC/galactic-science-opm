@@ -5,9 +5,8 @@ services:
     depends_on:
       - galactic-science-opm-db
     volumes:
-      - ${DJANGO_STATIC_DIR:-./static}:/static
-      - ${DJANGO_STATIC_DIR:-./static}:/_static
-      - ${DJANGO_DATA_DIR:-./data}:/data        
+      - ${DJANGO_STATIC_DIR:-./_static}:/galactic_science_opm/_static
+      - ${DJANGO_DATA_DIR:-./data}:/galactic_science_opm/data  
     environment:
       DB_HOST: galactic-science-opm-db
       DB_NAME: galactic_science_opm
@@ -24,9 +23,8 @@ services:
       - "${EXT_PORT:-8000}:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ${DJANGO_STATIC_DIR:-./static}:/static:ro
-      - ${DJANGO_STATIC_DIR:-./static}:/_static:ro  
-      - ${DJANGO_DATA_DIR:-./data}:/data:ro        
+      - ${DJANGO_STATIC_DIR:-./_static}:/static:ro  
+      - ${DJANGO_DATA_DIR:-./data}:/data:ro    
     depends_on:
       - galactic-science-opm
 
@@ -73,4 +71,4 @@ services:
 ##       DB_PASSWORD: opm
 ##     entrypoint: poetry run python manage.py readstreams -v3
 
-volumes:
+# volumes:
