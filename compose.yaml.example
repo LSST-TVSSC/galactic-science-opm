@@ -1,28 +1,12 @@
 services:
-  galactic-science-opm-migrate:
-    build: .
-    depends_on:
-      - galactic-science-opm-db
-    environment:
-      DB_HOST: galactic-science-opm-db
-      DB_NAME: galactic_science_opm
-      DB_USER: ${PSQL_USER}
-      DB_PASSWORD: ${PSQL_PASS}
-      DJANGO_DEBUG: ${DJANGO_DEBUG}
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-      DJANGO_CSRF_TRUSTED_ORIGIN: ${DJANGO_CSRF_TRUSTED_ORIGIN}
-    entrypoint: poetry run python manage.py migrate
-    restart: "no"
-
   galactic-science-opm:
     build: .
 #    env_file: "opm-secrets.env"
-    ports:
-      - "${EXT_PORT:-8000}:80"
     depends_on:
-      - galactic-science-opm-migrate
       - galactic-science-opm-db
+    volumes:
+      - ${DJANGO_STATIC_DIR:-./_static}:/galactic_science_opm/_static
+      - ${DJANGO_DATA_DIR:-./data}:/galactic_science_opm/data  
     environment:
       DB_HOST: galactic-science-opm-db
       DB_NAME: galactic_science_opm
@@ -32,6 +16,17 @@ services:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
       DJANGO_CSRF_TRUSTED_ORIGIN: ${DJANGO_CSRF_TRUSTED_ORIGIN}
+
+  frontend-proxy:
+    image: nginx:latest
+    ports:
+      - "${EXT_PORT:-8000}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${DJANGO_STATIC_DIR:-./_static}:/static:ro  
+      - ${DJANGO_DATA_DIR:-./data}:/data:ro    
+    depends_on:
+      - galactic-science-opm
 
   galactic-science-opm-db:
     image: ${PSQL_IMAGE}
@@ -40,7 +35,7 @@ services:
       POSTGRES_PASSWORD: ${PSQL_PASS}
       POSTGRES_DB: galactic_science_opm
     volumes:
-      - ${PSQL_VOLUME}       
+      - ${OPM_PSQL_VOLUME}:/var/lib/postgresql/data     
 
 
 ## # The db_worker management command comes with the django-task INSTALLED_APP.
@@ -76,5 +71,4 @@ services:
 ##       DB_PASSWORD: opm
 ##     entrypoint: poetry run python manage.py readstreams -v3
 
-volumes:
-  postgres_data:
+# volumes:
