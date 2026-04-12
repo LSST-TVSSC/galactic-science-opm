@@ -85,5 +85,16 @@ We quote from [settings.py](https://github.com/LSST-TVSSC/galactic-science-opm/b
 Point your browser to http://127.0.0.1:8000 for the Galactic Science OPM home page running locally.
 
 
+## WIP: Notes from E2E setup 
 
+### Local setup 
 
+Uses django dev server for faster iterations.
+
+docker compose -f compose.base.yaml -f compose.local.yaml up -d  
+docker compose -f compose.base.yaml -f compose.local.yaml down 
+
+### Prod like setup
+
+docker compose -f compose.base.yaml -f compose.prod.yaml up -d
+docker compose -f compose.base.yaml -f compose.prod.yaml down

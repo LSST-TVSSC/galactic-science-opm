@@ -1,0 +1,7 @@
+services:
+
+  galactic-science-opm:
+    ports:
+      - "${EXT_PORT:-8000}:8000"
+    environment:
+     LOCAL: 1
