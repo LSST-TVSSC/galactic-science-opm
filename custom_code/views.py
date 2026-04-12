@@ -1,3 +1,5 @@
+from django.db import OperationalError, connections
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from custom_code.target_models import GalacticTarget
@@ -69,4 +71,17 @@ class HomeView(TemplateView):
         featured = (target_objects)
         context["featured_targets"] = featured
         return context
+
+def health(request):
+    """
+    Very simple health endpoint to check when migrations and so on are done
+    """
+    database_connection = connections["default"]
+    try:
+        database_connection.cursor()
+    except OperationalError:
+        return JsonResponse({"status": "unhealthy"}, status=503)
+    
+    return JsonResponse({"status": "healthy"}, status=200)
+
 

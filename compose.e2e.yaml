@@ -1,0 +1,33 @@
+services:
+  galactic-science-opm:
+    environment:
+     E2E: 1
+     DB_HOST: galactic-science-opm-db-test
+
+  galactic-science-opm-db-test:
+    image: ${PSQL_IMAGE}
+    environment:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASS}
+      POSTGRES_DB: galactic_science_opm
+    
+  e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    command: pytest custom_code/tests/e2e
+    depends_on:
+      -   frontend-proxy
+    volumes:
+      - .:/galactic_science_opm
+    environment:
+      BASE_URL: http://frontend-proxy
+      DB_HOST: galactic-science-opm-db-test
+      DB_NAME: galactic_science_opm
+      DB_USER: ${PSQL_USER}
+      DB_PASSWORD: ${PSQL_PASS}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DJANGO_CSRF_TRUSTED_ORIGIN: ${DJANGO_CSRF_TRUSTED_ORIGIN}
+      DJANGO_SETTINGS_MODULE: galactic_science_opm.settings_test

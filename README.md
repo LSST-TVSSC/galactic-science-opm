@@ -98,3 +98,9 @@ docker compose -f compose.base.yaml -f compose.local.yaml down
 
 docker compose -f compose.base.yaml -f compose.prod.yaml up -d
 docker compose -f compose.base.yaml -f compose.prod.yaml down
+
+if needed: `poetry run pytest -rs  --headed --slowmo=200`    
+
+### Run E2E
+
+`./run-e2e.sh`

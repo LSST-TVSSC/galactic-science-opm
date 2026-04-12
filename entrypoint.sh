@@ -2,6 +2,14 @@
 cd /galactic_science_opm
 ./wait-for-it.sh galactic-science-opm-db:5432 --
 python manage.py migrate --noinput
+
+if [ "$E2E" = "1" ]; then
+    echo "Running E2E setup..."
+    ./wait-for-it.sh galactic-science-opm-db-test:5432 --
+    python manage.py flush --noinput
+    python manage.py seed_e2e_data
+fi
+
 python manage.py collectstatic --noinput
 
 if [ "$LOCAL" = "1" ]; then
