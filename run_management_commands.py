@@ -7,7 +7,7 @@ def run_ztf26():
     #ingest lightcurves makes the event query
     #just in case, test ingest of LSST is called
     commands = [
-        ['./manage.py','ingest_alerce_ztf_lightcurves','ZTF26','5','20'],
+        ['./manage.py','ingest_alerce_ztf_lightcurves','ZTF26','15','30'],
         ['./manage.py','ingest_alerce_ztf_probabilities','ZTF26'],
         ['./manage.py','run_rtmodel_fits','all'],
         ['./manage.py','run_probability_rescaling','ZTF26']
