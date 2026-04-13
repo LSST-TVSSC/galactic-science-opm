@@ -104,16 +104,9 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('event', help='Eventname')
 
-
     def handle(self, *args, **options):
-        if str(options['event']) != "all":
-            qs = GalacticTarget.objects.filter(name__icontains=str(options['event']))
-            if len(qs)>0:
-                target = Target.objects.get(name=str(options['event']))
-                run_fit(target)
-        else:
-            qs = GalacticTarget.objects.filter(name__icontains="ZTF")
-            target_list = list(set(qs))
-            for target in target_list:
-                run_fit(target)
+        qs = GalacticTarget.objects.filter(name__icontains=str(options['event']))
+        target_list = list(set(qs))
+        for target in target_list:
+            run_fit(target)
                 

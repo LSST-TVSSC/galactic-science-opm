@@ -44,8 +44,7 @@ def microlensing_rescaled_prob_view(request):
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
     except ObjectDoesNotExist:
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
-
-from django.urls import reverse
+    
 
 class HomeView(TemplateView):
     template_name = "tom_common/index.html"
