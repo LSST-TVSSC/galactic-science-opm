@@ -56,18 +56,18 @@ class Command(BaseCommand):
 #                    print("No fink classification in lightcurve, yet.")
 #            except Exception as e:
 #                print("Fink request not successful for ", target.name, e)
-        try:
-            with transaction.atomic():
-                m = Classification.objects.update_or_create(target=target,
-                                                  source='ALeRCE_ZTF',
-                                                  class1='microlensing',
-                                                  prob_class1 = prob_class1,
-                                                  class2='cv/nova',
-                                                  prob_class2 = prob_class2,
-                                                  class3='bogus',
-                                                  prob_class3 = prob_class3
-                                                  )
-        except Exception as e:
-            print(f"Exception: {e}")
+            try:
+                with transaction.atomic():
+                    m = Classification.objects.update_or_create(target=target,
+                                                    source='ALeRCE_ZTF',
+                                                    class1='microlensing',
+                                                    prob_class1 = prob_class1,
+                                                    class2='cv/nova',
+                                                    prob_class2 = prob_class2,
+                                                    class3='bogus',
+                                                    prob_class3 = prob_class3
+                                                    )
+            except Exception as e:
+                print(f"Exception: {e}")
             
         print('probabilities created/updated.')
