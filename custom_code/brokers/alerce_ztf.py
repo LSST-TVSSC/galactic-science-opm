@@ -42,7 +42,6 @@ class ALERCEBroker(GenericBroker):
         from alerce.core import Alerce
         alerce = Alerce()
         # Query the list of microlensing events, last 10d, 10 events page1
-        # 
         alerce_results = alerce.query_objects(
             classifier="lc_classifier_BHRF_forced_phot",
             class_name="Microlensing",
@@ -53,9 +52,8 @@ class ALERCEBroker(GenericBroker):
             order_mode="DESC",
             survey = survey
         )
+        (list_of_targets_microlensing, new_targets_microlensing) = self.ingest_events(alerce_results)
 
-        #ingest the OPM TOM db and restart CV query
-        (list_of_targets, new_targets) = self.ingest_events(alerce_results)
         alerce_results = alerce.query_objects(
             classifier="lc_classifier_BHRF_forced_phot",
             class_name="CV/Nova",
@@ -66,9 +64,12 @@ class ALERCEBroker(GenericBroker):
             order_mode="DESC",
             survey = survey
         )    
-        (list_of_targets, new_targets) = self.ingest_events(alerce_results)
+        (list_of_targets_cv, new_targets_cv) = self.ingest_events(alerce_results)
 
-        return list_of_targets, new_targets
+        return (
+            list_of_targets_microlensing + list_of_targets_cv, 
+            new_targets_microlensing + new_targets_cv
+        )
     
     def fetch_alert(self, name, survey = 'ztf'):
         """Fetch data on microlensing events discovered by ALERCE"""
