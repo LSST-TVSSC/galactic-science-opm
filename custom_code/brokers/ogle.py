@@ -103,7 +103,7 @@ class OGLEBroker(GenericBroker):
                     print('OGLE harvester: added event '+event_name+' to OPM')
                     new_targets.append(target)
                     filtered_target = GalacticTarget.objects.filter(name__icontains=target)
-                    filtered_target.update(permissions='PUBLIC')
+                    filtered_target.update(permissions = GalacticTarget.Permissions.PUBLIC)
             else:
                 print('OGLE harvester: found ' + str(qs.count()) + ' targets with name ' + event_name)
                 target = qs[0]
