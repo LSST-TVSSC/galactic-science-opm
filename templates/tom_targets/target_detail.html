@@ -92,7 +92,11 @@
      <div class="tab-pane active" id="photometry">
         {% photometry_for_target target %}
         <p>
-        <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> <a href="https://fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>  <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1" class="btn btn-primary" role="button" >Vizier Gaia DR3</a> <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
+        <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> 
+        {% if "ztf" in target.name|lower %}
+            <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>
+        {% endif %}
+        <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1" class="btn btn-primary" role="button" >Vizier Gaia DR3</a> <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
         </p>
         </div>
       <div class="tab-pane" id="imaging">
@@ -227,7 +231,11 @@
 
    {% microlensing_radar target %}
     <p>
-    <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> <a href="https://fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>  <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1" class="btn btn-primary" role="button" >Vizier Gaia DR3</a>  <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
+    <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> 
+    {% if "ztf" in target.name|lower %}
+        <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>
+    {% endif %}
+    <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1" class="btn btn-primary" role="button" >Vizier Gaia DR3</a>  <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
 
     </p>
    <table class="table">
@@ -270,7 +278,11 @@
         <!--{% spectroscopy_for_target target %}-->
         <img src="{% static 'tom_common/img/draft_sed2.png' %}">
         <p>
-        <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> <a href="https://fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>  <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=2" class="btn btn-primary" role="button" >Vizier Gaia DR3</a> <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
+        <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> 
+        {% if "ztf" in target.name|lower %}
+            <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>
+        {% endif %}
+        <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=2" class="btn btn-primary" role="button" >Vizier Gaia DR3</a> <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
 </p>
       </div>
       {% include_app_tab_divs %}

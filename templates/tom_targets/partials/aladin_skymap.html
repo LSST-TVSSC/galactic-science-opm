@@ -122,29 +122,32 @@
 
         aladin.addCatalog(sunCatalog);
 
-        var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_nolodust.fits' %}";
-            var moc = A.MOCFromURL(mocFileUrl, {
-                color: '#ff0000',
-                lineWidth: 2
-            });
-
-            aladin.addMOC(moc);
-
-        var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_lodust.fits' %}";
-            var moc = A.MOCFromURL(mocFileUrl, {
+        var mocFileUrl = "{% static 'tom_common/moc/base51_for_OPM_600visits.fits' %}";
+            var moc_base51_600visits = A.MOCFromURL(mocFileUrl, {
                 color: '#ffa040',
-                lineWidth: 2
+                lineWidth: 2,
+                opacity: 0.4
             });
 
-            aladin.addMOC(moc);
+            aladin.addMOC(moc_base51_600visits);
+
+        var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_nolodust.fits' %}";
+            var moc_nolodust = A.MOCFromURL(mocFileUrl, {
+                color: '#ff0000',
+                lineWidth: 2,
+                opacity: 0.3
+            });
+
+            aladin.addMOC(moc_nolodust);
 
         var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_nes.fits' %}";
-            var moc = A.MOCFromURL(mocFileUrl, {
+            var moc_nes = A.MOCFromURL(mocFileUrl, {
                 color: '#6666ff',
-                lineWidth: 2
+                lineWidth: 2,
+                opacity: 0.3
             });
 
-            aladin.addMOC(moc);
+            aladin.addMOC(moc_nes);
 
 
     }); // closes A.init.then(() { ...

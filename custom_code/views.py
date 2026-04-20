@@ -45,6 +45,7 @@ def microlensing_rescaled_prob_view(request):
     except ObjectDoesNotExist:
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects': microlensing_objects})
     
+
 class HomeView(TemplateView):
     template_name = "tom_common/index.html"
 
