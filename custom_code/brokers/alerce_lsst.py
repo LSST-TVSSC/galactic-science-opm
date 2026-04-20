@@ -40,7 +40,6 @@ class ALERCEBroker(GenericBroker):
         from alerce.core import Alerce
         alerce = Alerce()
         # Query the list of microlensing events, last 10d, 10 events page1
-        print(days, events)
         alerce_results = alerce.query_objects(
             classifier="lc_classifier_BHRF_forced_phot",
             class_name="Microlensing",
