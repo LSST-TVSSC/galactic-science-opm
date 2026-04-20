@@ -29,3 +29,6 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.TESTING:
+    urlpatterns.append(path('flush_and_seed/', views.flush_and_seed, name="flush_and_seed"))

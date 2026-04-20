@@ -5,11 +5,4 @@ services:
       - "${EXT_PORT:-8000}:8000"
     environment:
      LOCAL: 1
-     DB_HOST_TEST: galactic-science-opm-db-test
-
-  galactic-science-opm-db-test:
-    image: ${PSQL_IMAGE}
-    environment:
-      POSTGRES_USER: ${PSQL_USER}
-      POSTGRES_PASSWORD: ${PSQL_PASS}
-      POSTGRES_DB: galactic_science_opm
+     DJANGO_DEBUG: True

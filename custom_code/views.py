@@ -1,3 +1,4 @@
+from django.core import management
 from django.db import OperationalError, connections
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -74,7 +75,7 @@ class HomeView(TemplateView):
 
 def health(request):
     """
-    Very simple health endpoint to check when migrations and so on are done
+    Very simple health endpoint to check when migrations and so on are done.
     """
     database_connection = connections["default"]
     try:
@@ -83,5 +84,20 @@ def health(request):
         return JsonResponse({"status": "unhealthy"}, status=503)
     
     return JsonResponse({"status": "healthy"}, status=200)
+
+def flush_and_seed(request):
+    """
+    FOR TESTING ONLY!
+    This endpoint flushes the database and imports test data. 
+    It is only added to urlpatterns if SETTINGS.TESTING is True.
+    """
+    _ = management.call_command(
+        "flush",
+        '--noinput'
+    )
+    _ = management.call_command(
+        "seed_e2e_data"
+    )
+    return JsonResponse({"status": "seeding_done"}, status=201)
 
 
