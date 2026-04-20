@@ -112,9 +112,13 @@ class ALERCEBroker(GenericBroker):
                 if result == 'new_target':
                     print('ALERCE harvester: added event '+event_name+' to OPM')
                     new_targets.append(target)
+                    filtered_target = GalacticTarget.objects.filter(name__icontains=target)
+                    filtered_target.update(permissions = GalacticTarget.Permissions.PUBLIC)
+
             else:
                 print('ALERCE harvester: found ' + str(qs.count()) + ' targets with name ' + event_name)
                 target = qs[0]
+
 
             list_of_targets.append(target)
 
@@ -200,7 +204,6 @@ class ALERCEBroker(GenericBroker):
                     print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
 
         target.save()
-
         return 'OK'
 
 

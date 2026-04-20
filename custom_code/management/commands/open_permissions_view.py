@@ -7,9 +7,5 @@ class Command(BaseCommand):
     help = 'Add all targets to the OPM users list'
     
     def handle(self, *args, **options):
-        users = User.objects.filter(is_active=True)
-
-        for user in users:
-            for target in GalacticTarget.objects.all():
-                assign_perm('tom_targets.view_target', user, target)
-
+        GalacticTarget.objects.all().update(permissions='PUBLIC')
+    
