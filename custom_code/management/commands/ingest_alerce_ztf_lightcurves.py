@@ -32,5 +32,6 @@ class Command(BaseCommand):
             Alerce.find_and_ingest_photometry(list_of_targets)
         else:
             Alerce.find_and_ingest_photometry(new_targets)
+            
         print('Filtered and Identified '+str(len(list_of_targets))+' target(s) from ALeRCE')
         print('Completed run of ALeRCE event ingest')

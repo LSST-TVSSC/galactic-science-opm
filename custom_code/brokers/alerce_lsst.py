@@ -84,6 +84,8 @@ class ALERCEBroker(GenericBroker):
                 if result == 'new_target':
                     print('ALERCE harvester: added event '+event_name+' to OPM')
                     new_targets.append(target)
+                    filtered_target = GalacticTarget.objects.filter(name__icontains=target)
+                    filtered_target.update(permissions='PUBLIC')
             else:
                 print('ALERCE harvester: found ' + str(qs.count()) + ' targets with name ' + event_name)
                 target = qs[0]
