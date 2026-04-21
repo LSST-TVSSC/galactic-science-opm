@@ -3,7 +3,7 @@ from tom_dataproducts.models import ReducedDatum
 from tom_targets.models import Target,TargetExtra
 from django.conf import settings
 from django.db import transaction
-from astropy.time import Time
+from astropy.time import Time, TimeDelta
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
 from astropy.time import Time, TimezoneInfo
 from astropy.coordinates import SkyCoord, EarthLocation
@@ -53,11 +53,14 @@ def run_fit(target):
                 ltt_heliocentric = t.light_travel_time(target_coord, kind='heliocentric', location=location)
                 hjd_values_rtm = t.jd + ltt_heliocentric.value -2450000.
                 try:
-                    rd_data = {'timestamp': hjd_values_rtm }
-                    rd_data['magnitude'] = reduced_datum.value['magnitude']
-                    rd_data['error'] = reduced_datum.value['error']
-                    rd_data['filter'] = reduced_datum.value['filter']
-                    data.append(rd_data)
+                    current_time = Time.now()
+                    age = current_time - t
+                    if age < TimeDelta(500., format='jd'): 
+                        rd_data = {'timestamp': hjd_values_rtm }
+                        rd_data['magnitude'] = reduced_datum.value['magnitude']
+                        rd_data['error'] = reduced_datum.value['error']
+                        rd_data['filter'] = reduced_datum.value['filter']                    
+                        data.append(rd_data)
                 except:
                     print("No photometry with suitable mags for RTModel")
             df = pd.DataFrame.from_dict(data)
@@ -78,7 +81,8 @@ def run_fit(target):
                     model_name = listdir(path.join(tempdirname,"FinalModels"))
                     model_path = path.join(tempdirname,"FinalModels",model_name[0])
                     model_results = ModelResults(model_path)
-                    if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5.:
+                    if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5. and\
+                       model_results.model_parameters.tE > 0. and model_results.model_parameters.u0_error > 0. :
                         plm.plotmodel(eventname=event_path, modelfile=model_path)
                         plt.savefig(saving_path, bbox_inches='tight',dpi=90)
                     with transaction.atomic():
