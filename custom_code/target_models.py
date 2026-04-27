@@ -28,6 +28,8 @@ class GalacticTarget(BaseTarget):
     base_y_mag = models.FloatField(default=0)
     err_y_mag = models.FloatField(default=0)
     target_type = models.CharField(max_length=50, default='Microlensing candidate')
+    expected_visits = models.IntegerField(default=-1)
+    known_variability = models.CharField(max_length=150, default='None')
 
     class Meta:
         verbose_name = "target"

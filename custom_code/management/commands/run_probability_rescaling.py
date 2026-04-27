@@ -31,6 +31,7 @@ class Command(BaseCommand):
         model_qt_fink = config.model_qt_fink
         model_qt_alerce = config.model_qt_alerce
         hpx_map = config.nsquare_map
+        visit_map = config.nvisits_10yrs_map
         nside  = config.nside
 
         for target in target_list:
@@ -97,5 +98,9 @@ class Command(BaseCommand):
                                                       )
             except:
                 print('Rescaled probabilities failed for ' + target.name)
-
+            filtered_target = GalacticTarget.objects.filter(name__icontains=target)
+            pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
+            filtered_target.update(expected_visits = visit_map[pixel_index])
+        
         print('rescaled probabilities created/updated.')
+

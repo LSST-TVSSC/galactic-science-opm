@@ -17,7 +17,10 @@
     {% if key == 'dec' %}
       <dt class="col-sm-6">Dec&nbsp;</dt>
       <dd class="col-sm-6">{{ value|deg_to_sexigesimal:"hms" }}</dd>
-
+    {% endif%}
+    {% if key == 'expected_visits' %}
+      <dt class="col-sm-6">LSST visits (10 yrs) </dt>
+      <dd class="col-sm-6">{{ value }}</dd>
     {% endif%}
   {% endfor %}
   
@@ -27,6 +30,9 @@
 {% with target|microlensing_radar_by_name as filtered_parameters %} 
 <dd class="col-sm-6" >{{filtered_parameters.average_master_probability|floatformat:3}}</dd>
 {% endwith %}
+
+
+
 <dl class="col-sm-12">
     <ul class="nav flex-column" role="tablist" id="tabs2" style="background-color: #c50d29; color: #fff;">
       <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
