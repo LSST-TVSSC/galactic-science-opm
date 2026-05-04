@@ -1215,6 +1215,24 @@ django = "*"
 typing-extensions = "*"
 
 [[package]]
+name = "django-tables2"
+version = "3.0.0"
+description = "Table/data-grid framework for Django"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "django_tables2-3.0.0-py3-none-any.whl", hash = "sha256:2a5b5447f10d7a8cfb7a2e8f0b139d969c7eb2e675079a4b8ba0107956345bfa"},
+    {file = "django_tables2-3.0.0.tar.gz", hash = "sha256:3c5343f72663b0d6684e8e6cbcb16caae10d7621a51c1cf3c581f57ce605f8ee"},
+]
+
+[package.dependencies]
+django = ">=4.2"
+
+[package.extras]
+tablib = ["tablib"]
+
+[[package]]
 name = "django-tasks"
 version = "0.6.1"
 description = "An implementation and backport of background workers and tasks in Django"
@@ -3869,24 +3887,24 @@ files = [
 
 [[package]]
 name = "tomtoolkit"
-version = "2.27.0"
+version = "2.32.0"
 description = "TOM Toolkit and base modules"
 optional = false
-python-versions = "<3.13,>=3.9.0"
+python-versions = "<3.14,>=3.10.0"
 groups = ["main"]
 files = [
-    {file = "tomtoolkit-2.27.0-py3-none-any.whl", hash = "sha256:9e870de30c5dc1f1c5536b1d604deafc96d3ef8d57104a20f04bb7e28410154a"},
-    {file = "tomtoolkit-2.27.0.tar.gz", hash = "sha256:b3ef1c0a0dfc6625af11dbb32d0ad846f457c834c837acce8eb70026de227357"},
+    {file = "tomtoolkit-2.32.0-py3-none-any.whl", hash = "sha256:114de5627046c3cd723df188001c0ea6b7cfc51f22fd129691da687c8f52cf6f"},
+    {file = "tomtoolkit-2.32.0.tar.gz", hash = "sha256:ebc13c975ed946aae8380f9116dac298a739be041ab76f3cbb327ebe79cdc3d3"},
 ]
 
 [package.dependencies]
 astroplan = ">=0.8,<0.11"
-astropy = {version = ">=5.3.3,<7", markers = "python_version >= \"3.10\""}
+astropy = {version = ">=5.3.3,<8", markers = "python_version >= \"3.10\""}
 astroquery = "<1"
 beautifulsoup4 = "<5"
 crispy-bootstrap4 = ">=2023.1,<2024.11"
-cryptography = "<=46"
-django = "<5"
+cryptography = "<=47"
+django = "<6"
 django-bootstrap4 = ">3,<25"
 django-contrib-comments = ">=2.0,<3.0"
 django-crispy-forms = ">=2.0,<3.0"
@@ -3895,17 +3913,18 @@ django-filter = ">=23,<25"
 django-gravatar2 = ">=1.0.0,<2.0.0"
 django-guardian = ">=2.0.0,<3.0.0"
 django-htmx = ">=1.0.0,<2.0.0"
+django-tables2 = ">=3.0,<4"
 django-tasks = ">=0.6.1,<0.7.0"
 djangorestframework = ">=3.15,<4"
 fits2image = ">=0.4,<0.5"
 importlib-resources = ">=6.4.5,<6.5.0"
 markdown = "<4"
 numpy = ">1.24,<2.2"
-pillow = ">9.2,<12.0"
+pillow = ">9.2,<13.0"
 plotly = "<6"
 python-dateutil = "<3"
 requests = "<3"
-specutils = "<2"
+specutils = ">=1.20.0,<3"
 
 [[package]]
 name = "tqdm"
@@ -4199,4 +4218,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.12"
-content-hash = "4c54ab6bb740a85598bcd85efd886e1d0db5ea995d2be822562abf3556d3442e"
+content-hash = "f171002242f5959912c2c50b7608a835081e9fd1cadd567f1650ee0669bc34eb"
