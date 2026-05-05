@@ -99,6 +99,15 @@ docker compose -f compose.base.yaml -f compose.local.yaml down
 docker compose -f compose.base.yaml -f compose.prod.yaml up -d
 docker compose -f compose.base.yaml -f compose.prod.yaml down
 
+### E2E debugging setup 
+
+This can be used to make debugging easier when writing end to end tests.
+It does not run with the actual e2e setup (which would use nginx) but with
+Django's dev server.
+
+docker compose -f compose.base.yaml -f compose.local.yaml -f compose.e2e.yaml up -d 
+docker compose -f compose.base.yaml -f compose.local.yaml -f compose.e2e.yaml down
+
 ### Run E2E
 
 `./run-e2e.sh`
@@ -114,8 +123,9 @@ Can also be run in local directory, because nothing django related should be use
 
 ### Running integration tests
 
-Since these might interact with the database, they should/must be run with docker (docker exec), since e.g. hosts for 
-databases and so on are set via envs and also have no meaning outside the docker network:
+Since these might interact with the database, they should/must be run with docker (docker exec), 
+since e.g. hosts for databases and so on are set via envs and also have no meaning 
+outside the docker network:
 `python manage.py test custom_code.tests.integration --settings=galactic_science_opm.settings_test`
 
 ### Running e2e tests
@@ -127,9 +137,21 @@ This will already run the management command `seed_e2e_data` which clears the
 test-database and adds testing data.
 
 Then you can run the tests on your machine, using
-`pytest custom_code/tests/e2e -rs  --headed --slowmo=200`. This has the advantage that you can see what the browser is doing and debug errors more easily. 
-The tests can also be run headlessly, as they would in a CI setup by using this command (locally or from docker):
+`pytest custom_code/tests/e2e -rs  --headed --slowmo=200`. This has the advantage 
+that you can see what the browser is doing and debug errors more easily. 
+
+The tests can also be run headlessly, as they would in a CI setup 
+by using this command (locally or from docker):
 `pytest custom_code/tests/e2e -rs`
-Beware that running the E2E tests does not flush the test DB afterwards. So any data that was created during the test, will remain in the database. When you run the E2E tests, though, the database is reset and all the test data is applied to the test database. 
+Beware that running the E2E tests does not flush the test DB afterwards. 
+So any data that was created during the test, will remain in the database. 
+When you run the E2E tests, though, the database is reset and all the 
+test data is applied to the test database. 
+
 Or (but this has not been tested) to run this in some kind of CI setting:
-` docker-compose -f compose.base.yaml -f compose.prod.yaml -f compose.e2e.yaml up --abort-on-container-exit --exit-code-from e2e`
+```sh
+docker compose -f compose.base.yaml -f compose.prod.yaml -f compose.e2e.yaml up \
+--abort-on-container-exit --exit-code-from e2e
+```
+
+For help in creating tests, use `playwright codegen http://localhost:8000`

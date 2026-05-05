@@ -25,7 +25,6 @@ services:
       - .:/code
     depends_on:
       - galactic-science-opm
-      - frontend-proxy
       - galactic-science-opm-db-test
     environment:
       BASE_URL: http://frontend-proxy
