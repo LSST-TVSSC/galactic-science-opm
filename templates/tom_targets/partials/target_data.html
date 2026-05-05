@@ -1,5 +1,5 @@
 {% load tom_common_extras targets_extras parameter_tags %}
-<dl class="row">
+<dl class="row" data-testid="target-info">
   {% for target_name in target.names %}
     {% if forloop.first %}
       <dt class="col-sm-6">Names</dt>

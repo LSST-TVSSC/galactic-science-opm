@@ -60,8 +60,8 @@
           <button type="submit" class="btn btn-outline-primary ml-1" name="move">Move</button>
           <button type="submit" class="btn btn-outline-danger ml-1" name="remove">Remove</button>
         </div>
-        {% bootstrap_pagination page_obj extra=request.GET.urlencode %}
-        {% target_table object_list %}
+        <div data-testid="pagination-top">{% bootstrap_pagination page_obj extra=request.GET.urlencode %}</div>
+        <div data-testid="targets-table">{% target_table object_list %}</div>
         {% bootstrap_pagination page_obj extra=request.GET.urlencode %}
       </form>
       </div>
@@ -73,7 +73,7 @@
 
 
 </div>
-<div class="col-md-4">
+<div class="col-md-4" data-testid="skymap">
  {% aladin_skymap object_list %}
 </div>
   </div>
