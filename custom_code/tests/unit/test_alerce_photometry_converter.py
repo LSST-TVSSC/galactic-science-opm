@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 pd.set_option('future.no_silent_downcasting', True)
 
-# A possible implementation. Should go into different container.
+# A possible implementation. Should go into different file.
 def alerce_photometry_converter(target_name, detections_photometry):
     results = []
     filter_definition = {1: "ZTF_g", 2: "ZTF_r", 3: "ZTF_i"}
