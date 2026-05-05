@@ -22,6 +22,10 @@
       <dt class="col-sm-6">LSST visits (10 yrs) </dt>
       <dd class="col-sm-6">{{ value }}</dd>
     {% endif%}
+    {% if key == 'known_extragalactic' %}
+      <dt class="col-sm-6">Extragalactic</dt>
+      <dd class="col-sm-6">{{ value }}</dd>
+    {% endif%}
   {% endfor %}
   
 <dd class="col-sm-6">Class</dd>

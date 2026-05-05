@@ -4,14 +4,17 @@ from django.core.exceptions import MultipleObjectsReturned
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
 from django.db import transaction
 from django import forms
+from django.apps import apps
 from django.db.utils import IntegrityError
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
 from custom_code.match_managers import validators
 from tom_observations import facility
 from tom_dataproducts.models import ReducedDatum
-from astropy.coordinates import SkyCoord, Galactic
+from astropy.coordinates import SkyCoord, Galactic, Angle
 from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
+from astroquery.vizier import Vizier
+import healpy as hp
 import os
 import numpy as np
 import requests
@@ -82,7 +85,8 @@ class OGLEBroker(GenericBroker):
     def ingest_events(self, ogle_events, debug=False):
         """Function to ingest the targets into the OPM database"""
         print('OGLE harvester: ingesting events')
-
+        config = apps.get_app_config('custom_code')
+        visit_map = config.nvisits_10yrs_map
         list_of_targets = []
         new_targets = []
 
@@ -104,6 +108,15 @@ class OGLEBroker(GenericBroker):
                     new_targets.append(target)
                     filtered_target = GalacticTarget.objects.filter(name__icontains=target)
                     filtered_target.update(permissions = GalacticTarget.Permissions.PUBLIC)
+                    try:
+                        with transaction.atomic():
+                            filtered_target = GalacticTarget.objects.filter(name__icontains=target)
+                            pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
+                            filtered_target.update(expected_visits = visit_map[pixel_index])
+                    except:
+                        print('Expected visits or GLADE+ check failed for ' + target.name)
+
+
             else:
                 print('OGLE harvester: found ' + str(qs.count()) + ' targets with name ' + event_name)
                 target = qs[0]

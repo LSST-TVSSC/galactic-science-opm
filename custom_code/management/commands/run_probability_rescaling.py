@@ -98,9 +98,13 @@ class Command(BaseCommand):
                                                       )
             except:
                 print('Rescaled probabilities failed for ' + target.name)
-            filtered_target = GalacticTarget.objects.filter(name__icontains=target)
-            pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
-            filtered_target.update(expected_visits = visit_map[pixel_index])
-        
+            try:
+                with transaction.atomic():
+                    filtered_target = GalacticTarget.objects.filter(name__icontains=target)
+                    pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
+                    filtered_target.update(expected_visits = visit_map[pixel_index])
+            except:
+                print('Expected visits failed for ' + target.name)
+                
         print('rescaled probabilities created/updated.')
 

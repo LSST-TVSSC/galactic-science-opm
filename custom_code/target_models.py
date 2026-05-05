@@ -30,6 +30,7 @@ class GalacticTarget(BaseTarget):
     target_type = models.CharField(max_length=50, default='Microlensing candidate')
     expected_visits = models.IntegerField(default=-1)
     known_variability = models.CharField(max_length=150, default='None')
+    known_extragalactic = models.CharField(max_length=150, default='None')
 
     class Meta:
         verbose_name = "target"

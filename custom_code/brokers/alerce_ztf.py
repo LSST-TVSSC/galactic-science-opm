@@ -4,14 +4,17 @@ from django.core.exceptions import MultipleObjectsReturned
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
 from django.db import transaction
 from django import forms
+from django.apps import apps
 from django.db.utils import IntegrityError
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
 from custom_code.match_managers import validators
 from tom_observations import facility
 from tom_dataproducts.models import ReducedDatum
-from astropy.coordinates import SkyCoord, Galactic
+from astropy.coordinates import SkyCoord, Galactic, Angle
 from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
+from astroquery.vizier import Vizier
+import healpy as hp
 import os
 import numpy as np
 import pandas as pd
@@ -87,7 +90,8 @@ class ALERCEBroker(GenericBroker):
     def ingest_events(self, alerce_results, survey = 'ztf', debug=False):
         """Function to ingest the targets into the OPM database"""
         print('ALERCE harvester: ingesting events')
-
+        config = apps.get_app_config('custom_code')
+        visit_map = config.nvisits_10yrs_map
         list_of_targets = []
         new_targets = []
         if alerce_results.empty:
@@ -99,7 +103,6 @@ class ALERCEBroker(GenericBroker):
                                                         alerce_results["meandec"]):
 
             qs = GalacticTarget.objects.filter(name=event_name)
-
             if len(qs) == 0:
                 s = SkyCoord(ra, dec, unit=(unit.deg, unit.deg), frame='icrs')
                 target, result = validators.get_or_create_event(
@@ -113,7 +116,20 @@ class ALERCEBroker(GenericBroker):
                     print('ALERCE harvester: added event '+event_name+' to OPM')
                     new_targets.append(target)
                     filtered_target = GalacticTarget.objects.filter(name__icontains=target)
-                    filtered_target.update(permissions = GalacticTarget.Permissions.PUBLIC)
+                    with transaction.atomic():
+                        filtered_target.update(permissions = GalacticTarget.Permissions.PUBLIC)
+                    try:
+                        result = Vizier.query_region(s,radius=Angle(1.5 / 60. / 60., "deg"), catalog='VII/281', cache=False)
+                        extragalactic_catalog_flag = "not in GLADE+"
+                        if (len(result) > 0):
+                            extragalactic_catalog_flag = f"in GLADE+"
+
+                        with transaction.atomic():
+                            pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
+                            filtered_target.update(expected_visits = visit_map[pixel_index])
+                            filtered_target.update(known_extragalactic = extragalactic_catalog_flag)
+                    except:
+                        print('Expected visits or GLADE+ check failed for ' + target.name)
 
             else:
                 print('ALERCE harvester: found ' + str(qs.count()) + ' targets with name ' + event_name)
@@ -202,6 +218,7 @@ class ALERCEBroker(GenericBroker):
 
                 except MultipleObjectsReturned:
                     print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                
 
         target.save()
         return 'OK'
