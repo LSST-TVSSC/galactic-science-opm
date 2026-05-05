@@ -9,7 +9,6 @@ services:
     volumes:
       - ${DJANGO_STATIC_DIR:-./_static}:/galactic_science_opm/_static
       - ${DJANGO_DATA_DIR:-./data}:/galactic_science_opm/data
-      - .:/galactic_science_opm
     environment:
       DB_HOST: galactic-science-opm-db
       DB_NAME: galactic_science_opm

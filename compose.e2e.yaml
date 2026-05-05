@@ -1,5 +1,7 @@
 services:
   galactic-science-opm:
+    volumes:
+      - ${DJANGO_TEST_DATA_DIR}:/galactic_science_opm/test_data
     depends_on: !override
       - galactic-science-opm-db-test
     environment:

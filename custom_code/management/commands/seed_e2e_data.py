@@ -1,5 +1,6 @@
 import json
 from os import path, remove
+import os
 from django.core import management
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, User
@@ -7,13 +8,14 @@ from django.test import Client
 from django.urls import reverse
 
 from galactic_science_opm.settings import BASE_DIR
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
 class Command(BaseCommand):
     
     def handle(self, *args, **options):
 
         with open(
-            path.join(BASE_DIR, "custom_code", "tests", "e2e", "data", "db_out_full.json"),
+            path.join(BASE_DIR, "test_data", "db_out_full.json"),
             encoding="utf-8",
         ) as f:
             read_data = f.read()
@@ -26,15 +28,15 @@ class Command(BaseCommand):
             # just to demonstrate how to change seed data before importing it.
             entry["fields"]["name"] += ""
 
-        with open(path.join(BASE_DIR, "custom_code", "tests", "e2e", "temp_seed_out.json"), encoding="utf-8", mode="w+") as f:
+        with open(path.join(BASE_DIR, "test_data", "temp_seed_out.json"), encoding="utf-8", mode="w+") as f:
             f.write(json.dumps(as_json))
 
         _ = management.call_command(
             "loaddata",
-            'custom_code/tests/e2e/temp_seed_out.json'
+            'test_data/temp_seed_out.json'
         )
 
-        remove(path.join(BASE_DIR, "custom_code", "tests", "e2e", "temp_seed_out.json"))
+        remove(path.join(BASE_DIR, "test_data", "temp_seed_out.json"))
 
         superuser = User.objects.create_superuser(username="admin", password="1234", email="admin@example.com")
 
@@ -72,7 +74,7 @@ def register_test_user(username, group):
     
     client = Client()
     _ =client.post(
-        "http://localhost:8000" + reverse('registration:register'), 
+        BASE_URL + reverse('registration:register'), 
         data=user_form_data,
     )
     user = User.objects.get(username=user_data['username'])
@@ -102,6 +104,6 @@ def approve_user(superuser, user_to_approve, users_group):
     client = Client()
     client.force_login(superuser)
     _ = client.post(
-        "http://localhost:8000" + reverse('registration:approve', kwargs={'pk': user_to_approve.id}), 
+        BASE_URL + reverse('registration:approve', kwargs={'pk': user_to_approve.id}), 
         data=user_form_data_super
     )
