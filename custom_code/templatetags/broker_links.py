@@ -5,7 +5,7 @@ register = template.Library()
 
 # Central place to define base URLs for brokers
 BROKER_BASE_URLS = {
-    "fink": "https://fink-portal.org/",
+    "fink": "https://ztf.fink-portal.org/",
     "alerce": "https://alerce.online/object/",
     "antares": "https://antares.noirlab.edu/loci/lookup/",
 }
