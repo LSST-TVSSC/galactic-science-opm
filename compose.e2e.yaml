@@ -29,4 +29,4 @@ services:
       - galactic-science-opm
       - galactic-science-opm-db-test
     environment:
-      BASE_URL: http://frontend-proxy
+      BASE_URL: ${BASE_URL:-http://frontend-proxy:80}

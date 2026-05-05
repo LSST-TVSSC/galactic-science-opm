@@ -4,7 +4,7 @@ set -e
 
 echo -n "Waiting for django"
 
-until curl -s -f http://galactic-science-opm:80/health/ > /dev/null; do
+until curl -s -f "$BASE_URL"/health/ > /dev/null; do
     echo -n "."
     sleep 1
 done
