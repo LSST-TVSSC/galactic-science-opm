@@ -73,7 +73,7 @@ class HomeView(TemplateView):
         context["featured_targets"] = featured
         return context
 
-def health(request):
+def health(_request):
     """
     Very simple health endpoint to check when migrations and so on are done.
     """
@@ -85,7 +85,7 @@ def health(request):
     
     return JsonResponse({"status": "healthy"}, status=200)
 
-def flush_and_seed(request):
+def flush_and_seed(_request):
     """
     FOR TESTING ONLY!
     This endpoint flushes the database and imports test data. 
@@ -93,6 +93,11 @@ def flush_and_seed(request):
     """
     _ = management.call_command(
         "flush",
+        '--noinput'
+    )
+    # mkistner: I am not quite sure if this is really needed
+    _ = management.call_command(
+        "migrate",
         '--noinput'
     )
     _ = management.call_command(
