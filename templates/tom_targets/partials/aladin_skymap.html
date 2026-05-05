@@ -125,6 +125,7 @@
         var mocFileUrl = "{% static 'tom_common/moc/base51_for_OPM_600visits.fits' %}";
             var moc_base51_600visits = A.MOCFromURL(mocFileUrl, {
                 color: '#ffa040',
+                name: 'Rubin',
                 lineWidth: 2,
                 opacity: 0.4
             });
@@ -135,6 +136,7 @@
             var moc_nolodust = A.MOCFromURL(mocFileUrl, {
                 color: '#ff0000',
                 lineWidth: 2,
+                name: 'Galactic Plane Survey',
                 opacity: 0.3
             });
 
@@ -143,6 +145,7 @@
         var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_nes.fits' %}";
             var moc_nes = A.MOCFromURL(mocFileUrl, {
                 color: '#6666ff',
+                name: 'North Ecliptic Spur',
                 lineWidth: 2,
                 opacity: 0.3
             });
