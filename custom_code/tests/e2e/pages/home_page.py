@@ -2,6 +2,8 @@ import re
 from playwright.sync_api import Page
 from playwright.sync_api import expect
 
+from custom_code.tests.e2e.pages.users_page import UsersPage
+
 class HomePage:
     def __init__(self, page: Page, base_url) -> None:
         self.page = page
@@ -18,14 +20,6 @@ class HomePage:
         self.page.get_by_role("button", name="Login").click()
 
     def register(self, username, first_name, last_name, email, password, password_confirm, affiliation):
-        self.page.get_by_text("Register").click()
-        expect(self.page).to_have_title(re.compile(r".*Sign up"))
-        self.page.get_by_placeholder("Username").fill(username)
-        self.page.get_by_placeholder("First name").fill(first_name)
-        self.page.get_by_placeholder("Last name").fill(last_name)
-        self.page.get_by_placeholder("Email").fill(email)
-        self.page.get_by_placeholder("Password", exact=True).fill(password)
-        self.page.get_by_placeholder("Password confirmation").fill(password_confirm)
-        self.page.get_by_placeholder("Affiliation").fill(affiliation)
-        self.page.get_by_role("button", name="Register").click()
-
+        user_page = UsersPage(self.page, self.base_url)
+        user_page.register(username, first_name, last_name, email, password, password_confirm, affiliation)
+        
