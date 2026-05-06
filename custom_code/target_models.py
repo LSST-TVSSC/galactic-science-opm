@@ -14,6 +14,9 @@ class GalacticTarget(BaseTarget):
     class_antares    obj     Current-most-probable classification from the ANTARES broker
     class_fink    obj     Current-most-probable classification from the Fink broker
     """
+    class CatalogFlag(models.TextChoices):
+        NOT_IN_GLADE_PLUS = 'not in GLADE+ galaxy catalog'
+        IN_GLADE_PLUS = 'in GLADE+ galaxy catalog'
 
     base_u_mag = models.FloatField(default=0)
     err_u_mag = models.FloatField(default=0)
@@ -28,6 +31,9 @@ class GalacticTarget(BaseTarget):
     base_y_mag = models.FloatField(default=0)
     err_y_mag = models.FloatField(default=0)
     target_type = models.CharField(max_length=50, default='Microlensing candidate')
+    expected_visits = models.IntegerField(default=-1)
+    known_variability = models.CharField(max_length=150, default='None')
+    known_extragalactic = models.CharField(max_length=150, choices=CatalogFlag.choices)
 
     class Meta:
         verbose_name = "target"

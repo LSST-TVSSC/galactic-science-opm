@@ -2,18 +2,15 @@ from django.core.management.base import BaseCommand
 from django.apps import apps
 from django.db import transaction
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification, MicrolensingRadarData
-from sklearn.preprocessing import QuantileTransformer
 from custom_code.match_managers import validators
 import numpy as np
 import pandas as pd
 import datetime
-from alerce.core import Alerce
 from astropy.time import Time, TimezoneInfo
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 import healpy as hp
 from ._rescale_ztf_microlensing_prob import psi_planet_priority_peak
-import joblib
 
 class Command(BaseCommand):
     help = 'Populate the database with updated master probability based on '
@@ -31,6 +28,7 @@ class Command(BaseCommand):
         model_qt_fink = config.model_qt_fink
         model_qt_alerce = config.model_qt_alerce
         hpx_map = config.nsquare_map
+        visit_map = config.nvisits_10yrs_map
         nside  = config.nside
 
         for target in target_list:
@@ -97,5 +95,16 @@ class Command(BaseCommand):
                                                       )
             except:
                 print('Rescaled probabilities failed for ' + target.name)
-
+            try:                
+                with transaction.atomic():
+                    filtered_target = GalacticTarget.objects.filter(name__icontains=target)
+                    pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
+                    filtered_target.update(expected_visits = visit_map[pixel_index])
+            except:
+                print('Expected visits failed for ' + target.name)
+                
         print('rescaled probabilities created/updated.')
+        #Filter for to ranked events and augment with variability information
+
+
+

@@ -36,6 +36,7 @@ dependencies = [
     "scikit-learn>=1.6",
     "healpy>=1.19",
     "alerce>=2.3.0",
+    "antares-client>=1.14",
 ]
 
 [build-system]

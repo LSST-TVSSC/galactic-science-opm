@@ -34,7 +34,8 @@ DEBUG = env('DJANGO_DEBUG',default=False)
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS',default=['127.0.0.1','localhost'])
 CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGIN',default=[])
 
-
+ANTARES_KEY = env("ANTARES_KEY",default=False)
+ANTARES_SECRET = env("ANTARES_SECRET",default = False)
 
 # Application definition
 

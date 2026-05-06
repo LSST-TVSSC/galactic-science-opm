@@ -1,19 +1,17 @@
-from django.core.management.base import BaseCommand
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import MultipleObjectsReturned
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
 from django import forms
-from django.db.utils import IntegrityError
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
+from django.apps import apps
+from django.db import transaction
+from custom_code.target_models import GalacticTarget
 from custom_code.match_managers import validators
-from tom_observations import facility
 from tom_dataproducts.models import ReducedDatum
-from astropy.coordinates import SkyCoord, Galactic
+from astropy.coordinates import SkyCoord, Angle
 from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
-import os
-import numpy as np
-import requests
+from astroquery.vizier import Vizier
+from custom_code.utils.catalog_requests import get_glade_plus_count
+import healpy as hp
 from alerce.core import Alerce
 
 class ALERCEQueryForm(GenericQueryForm):
@@ -59,7 +57,8 @@ class ALERCEBroker(GenericBroker):
     def ingest_events(self, alerce_results, survey = 'lsst', debug=False):
         """Function to ingest the targets into the OPM database"""
         print('ALERCE harvester: ingesting events')
-
+        config = apps.get_app_config('custom_code')
+        visit_map = config.nvisits_10yrs_map
         list_of_targets = []
         new_targets = []
         if alerce_results.empty:
@@ -86,6 +85,18 @@ class ALERCEBroker(GenericBroker):
                     new_targets.append(target)
                     filtered_target = GalacticTarget.objects.filter(name__icontains=target)
                     filtered_target.update(permissions = GalacticTarget.Permissions.PUBLIC)
+                    try:
+                        result = get_glade_plus_count(s)
+                        with transaction.atomic():
+                            filtered_target = GalacticTarget.objects.filter(name__icontains=target)
+                            pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
+                            filtered_target.update(expected_visits = visit_map[pixel_index])
+                            if result > 0:
+                                filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.IN_GLADE_PLUS)
+                            elif result==0:
+                                filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS)
+                    except:
+                        print('Expected visits failed for ' + target.name)
             else:
                 print('ALERCE harvester: found ' + str(qs.count()) + ' targets with name ' + event_name)
                 target = qs[0]

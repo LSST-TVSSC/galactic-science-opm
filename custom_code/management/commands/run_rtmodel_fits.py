@@ -4,8 +4,8 @@ from tom_targets.models import Target,TargetExtra
 from django.conf import settings
 from django.db import transaction
 from astropy.time import Time, TimeDelta
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
-from astropy.time import Time, TimezoneInfo
+from custom_code.target_models import GalacticTarget, MicrolensingModel
+from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation
 import RTModel
 import matplotlib
@@ -15,10 +15,8 @@ import RTModel.plotmodel as plm
 import astropy.units as u
 import pandas as pd
 import tempfile
-import datetime
 from os import path
 from os import makedirs, listdir
-import numpy as np
 from django.db import connection, transaction
 from ._RTModel_results_cls import EventResults, ModelResults
 
@@ -56,7 +54,8 @@ def run_fit(target):
                     try:
                         current_time = Time.now()
                         age = current_time - t
-                        if age < TimeDelta(500., format='jd'): 
+                        #TBD revise with filter
+                        if age < TimeDelta(500., format='jd') and float(reduced_datum.value['error']) < 0.5: 
                             rd_data = {'timestamp': hjd_values_rtm }
                             rd_data['magnitude'] = reduced_datum.value['magnitude']
                             rd_data['error'] = reduced_datum.value['error']
@@ -69,7 +68,7 @@ def run_fit(target):
                     unique_categories = df['filter'].unique()
                     for category in unique_categories:
                         filtered_df = df[df['filter'] == category]
-                        if len(filtered_df)>2:
+                        if len(filtered_df)>8:
                             filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
                                       header=None, index=None, sep=' ', mode='a')
                     rtm = RTModel.RTModel(tempdirname)

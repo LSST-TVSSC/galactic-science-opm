@@ -68,7 +68,7 @@ def run_fit(target):
                 unique_categories = df['filter'].unique()
                 for category in unique_categories:
                     filtered_df = df[df['filter'] == category]
-                    if len(filtered_df)>2:
+                    if len(filtered_df)>8:
                         filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
                                   header=None, index=None, sep=' ', mode='a')
                 rtm = RTModel.RTModel(tempdirname)
