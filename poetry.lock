@@ -3754,7 +3754,7 @@ files = [
 gcn-kafka = ">=0.3,<1.0"
 hop-client = ">=0.10,<1.0"
 psycopg2-binary = ">=2.9,<3.0"
-tomtoolkit = ">=2.22,<3.0"
+tomtoolkit = ">=2.32.2,<3.0"
 
 [[package]]
 name = "tom-fink"
