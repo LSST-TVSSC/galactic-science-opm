@@ -12,7 +12,6 @@ from plotly.offline import plot
 from os import path
 from itertools import chain
 
-
 def microlensing_model_view(request):
     microlensing_models = MicrolensingModel.objects.all()[:30]  # Get 30 MicrolensingModels
     try:

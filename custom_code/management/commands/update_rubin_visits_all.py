@@ -3,12 +3,12 @@ from django.contrib.auth.models import User, Group
 from guardian.shortcuts import assign_perm
 from django.apps import apps
 from django.db import transaction
-from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
 from astroquery.vizier import Vizier
-from astropy.coordinates import SkyCoord, Galactic, Angle
+from astropy.coordinates import SkyCoord, Angle
 import healpy as hp
 from custom_code.target_models import GalacticTarget
+from custom_code.utils.catalog_requests import get_glade_plus_count
 
 class Command(BaseCommand):
     help = 'Update all expected Rubin obs and check for GLADE+'
@@ -20,17 +20,13 @@ class Command(BaseCommand):
         visit_map = config.nvisits_10yrs_map
         
         for target in target_list:
-
             s = SkyCoord(target.ra, target.dec, unit=(unit.deg, unit.deg), frame='icrs')
-            result = Vizier.query_region(s,radius=Angle(1.5 / 60. / 60., "deg"), catalog='VII/281', cache=False)
-            extragalactic_catalog_flag = "not in GLADE+"
-            if (len(result) > 0):
-                extragalactic_catalog_flag = f"in GLADE+"
-            print(target,extragalactic_catalog_flag)
+            result = get_glade_plus_count(s)
             with transaction.atomic():
                 filtered_target = GalacticTarget.objects.filter(name__icontains=target)
                 pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
                 filtered_target.update(expected_visits = visit_map[pixel_index])
-                filtered_target.update(known_extragalactic = extragalactic_catalog_flag)
-               
-            target.save()
+                if result > 0:
+                    filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.IN_GLADE_PLUS)
+                elif result == 0:
+                    filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS)

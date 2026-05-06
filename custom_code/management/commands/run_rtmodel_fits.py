@@ -4,8 +4,8 @@ from tom_targets.models import Target,TargetExtra
 from django.conf import settings
 from django.db import transaction
 from astropy.time import Time, TimeDelta
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
-from astropy.time import Time, TimezoneInfo
+from custom_code.target_models import GalacticTarget, MicrolensingModel
+from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation
 import RTModel
 import matplotlib
@@ -15,10 +15,8 @@ import RTModel.plotmodel as plm
 import astropy.units as u
 import pandas as pd
 import tempfile
-import datetime
 from os import path
 from os import makedirs, listdir
-import numpy as np
 from django.db import connection, transaction
 from ._RTModel_results_cls import EventResults, ModelResults
 

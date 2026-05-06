@@ -1,16 +1,12 @@
-from django.core.management.base import BaseCommand
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import MultipleObjectsReturned
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
 from django.db import transaction
 from django import forms
 from django.apps import apps
-from django.db.utils import IntegrityError
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
+from custom_code.target_models import GalacticTarget
 from custom_code.match_managers import validators
-from tom_observations import facility
 from tom_dataproducts.models import ReducedDatum
-from astropy.coordinates import SkyCoord, Galactic, Angle
+from astropy.coordinates import SkyCoord
 from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
 from astroquery.vizier import Vizier
@@ -114,7 +110,7 @@ class OGLEBroker(GenericBroker):
                             pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
                             filtered_target.update(expected_visits = visit_map[pixel_index])
                     except:
-                        print('Expected visits or GLADE+ check failed for ' + target.name)
+                        print('Expected visits failed for ' + target.name)
 
 
             else:

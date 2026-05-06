@@ -1,24 +1,18 @@
-from django.core.management.base import BaseCommand
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import MultipleObjectsReturned
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
 from django.db import transaction
 from django import forms
 from django.apps import apps
-from django.db.utils import IntegrityError
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
+from custom_code.target_models import GalacticTarget
 from custom_code.match_managers import validators
-from tom_observations import facility
 from tom_dataproducts.models import ReducedDatum
-from astropy.coordinates import SkyCoord, Galactic, Angle
+from astropy.coordinates import SkyCoord, Angle
 from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
 from astroquery.vizier import Vizier
+from custom_code.utils.catalog_requests import get_glade_plus_count
 import healpy as hp
-import os
-import numpy as np
 import pandas as pd
-import requests
 from alerce.core import Alerce
 
 class ALERCEQueryForm(GenericQueryForm):
@@ -119,15 +113,14 @@ class ALERCEBroker(GenericBroker):
                     with transaction.atomic():
                         filtered_target.update(permissions = GalacticTarget.Permissions.PUBLIC)
                     try:
-                        result = Vizier.query_region(s,radius=Angle(1.5 / 60. / 60., "deg"), catalog='VII/281', cache=False)
-                        extragalactic_catalog_flag = "not in GLADE+"
-                        if (len(result) > 0):
-                            extragalactic_catalog_flag = f"in GLADE+"
-
+                        result = get_glade_plus_count(s)
                         with transaction.atomic():
                             pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
                             filtered_target.update(expected_visits = visit_map[pixel_index])
-                            filtered_target.update(known_extragalactic = extragalactic_catalog_flag)
+                            if result > 0:
+                                filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.IN_GLADE_PLUS)
+                            elif result == 0:
+                                filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS)
                     except:
                         print('Expected visits or GLADE+ check failed for ' + target.name)
 
