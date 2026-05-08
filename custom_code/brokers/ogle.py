@@ -195,8 +195,6 @@ class OGLEBroker(GenericBroker):
             except MultipleObjectsReturned:
                 print('OGLE HARVESTER: Found duplicated data for event '+target.name)
 
-        target.save()
-
         return 'OK'
 
     def sort_target_list(self, list_of_targets):

@@ -179,8 +179,6 @@ class ALERCEBroker(GenericBroker):
                 print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
 
 
-        target.save()
-
         return 'OK'
 
 
