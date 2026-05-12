@@ -43,7 +43,7 @@ class Command(BaseCommand):
             if target_classification.exists():
                 time_now = Time(datetime.datetime.now()).jd
                 try:
-                    psip = psi_planet_priority_peak(microlensing_model.u0, microlensing_model.err_u0)
+                    psip = psi_planet_priority_peak(microlensing_model.u0, microlensing_model.err_u0, sigma_threshold = 0)
                     reshaped_value = np.array([[psip]])
                     transformed_prob_planet = model_qt_psi.transform(reshaped_value)
                 except:

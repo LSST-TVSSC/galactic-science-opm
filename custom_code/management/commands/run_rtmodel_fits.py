@@ -21,11 +21,10 @@ from django.db import connection, transaction
 from ._RTModel_results_cls import EventResults, ModelResults
 
 def run_fit(target):
-    if "ZTF26" in target.name or "LSST" in target.name or "OGLE" in target.name:
+    if "ZTF2" in target.name or "LSST" in target.name or "OGLE" in target.name:
         target_id = target.id 
         tempdirname = 'event001'
-        print(target.name)
-
+        print(f"Prepare RTModel fit for {target.name}")
         with tempfile.TemporaryDirectory() as tempdirname:      
             data_dir = path.join(tempdirname,'Data')
             makedirs(data_dir)
