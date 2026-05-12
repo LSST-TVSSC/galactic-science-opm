@@ -54,5 +54,3 @@ package-mode = false
 DJANGO_SETTINGS_MODULE = "galactic_science_opm.settings_test"
 # show output during tests
 addopts = "-s"
-# remove some warnings during the test. They still should be fixed, though.
-filterwarnings = ["ignore::DeprecationWarning", "ignore::sklearn.exceptions.InconsistentVersionWarning"]
