@@ -32,6 +32,7 @@ class TargetsPage:
         self.page.get_by_role("textbox", name="Name").fill(str(name))
         self.page.get_by_role("textbox", name="Right Ascension*").fill(str(ra))
         self.page.get_by_role("textbox", name="Declination*").fill(str(dec))
+        self.page.get_by_label("Known extragalactic*").select_option("not in GLADE+ galaxy catalog")
         self.page.get_by_role("button", name="Submit").click()
 
     def assign_target_to_group(self, group_name, target_name):
