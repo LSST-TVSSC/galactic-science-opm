@@ -63,26 +63,13 @@ class HomeView(TemplateView):
 
         # Very simple first pass: just take the 7 most probable
         # (we know they at least have id and name).
-        # This can be modified with any selector function later.
+        # This can be modifed with any selector function later.
         # Radar plot top events, for ZTF26 events, waiting for updates       
 
-        distinct_ids = (
-            MicrolensingRadarData.objects
-            .filter(
-                target__name__icontains="ZTF26",
-                average_master_probability__gt=0.0
-            )
-            .order_by("target_id", "-updated_at", "-id")
-            .distinct("target_id")
-        )
-        prio_ids = (
-            MicrolensingRadarData.objects
-                .filter(id__in=distinct_ids)
-                .order_by("-average_master_probability", "-id")
-                .values_list("target_id", flat=True)[:3]
-        )
-        target_map = GalacticTarget.objects.in_bulk(prio_ids)
-        featured = [target_map[i] for i in prio_ids if i in target_map]
+        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF26').filter(average_master_probability__gt=0.)
+        prio_ids = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').values_list('target_id', flat=True).distinct()[:3]
+        target_objects = GalacticTarget.objects.filter(id__in=prio_ids)
+        featured = (target_objects)
         context["featured_targets"] = featured
         return context
 
