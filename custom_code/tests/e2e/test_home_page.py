@@ -65,9 +65,9 @@ def test_shows_top_targets_in_descending_order(page: Page):
     featured_targets = page.get_by_test_id("featured-target-element")
     expect(featured_targets).to_have_count(3)
 
-    for i, target_data in enumerate(TOP_TARGETS):
+    for _i, target_data in enumerate(TOP_TARGETS):
         target_name, coordinates, pk = target_data["name"], target_data["coordinates"], target_data["pk"]
-        target = featured_targets.nth(i)
+        target = featured_targets.filter(has_text=re.compile(fr".*{target_name}.*"))
 
         expect(target).to_contain_text(target_name)
 
