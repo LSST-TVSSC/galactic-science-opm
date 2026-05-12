@@ -5028,6 +5028,7 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.12"
 <<<<<<< HEAD
+<<<<<<< HEAD
 content-hash = "8ebef5cb631a8ea1ef264f2006e0074813f0700682db78d629dbbc001e92631f"
 ||||||| parent of b4d98e8 (Add first basic E2E setup with first tests)
 content-hash = "235673716f10e211b4c40fb68faf788ab0b6f0ad73cea346b0d181779890a2ec"
@@ -5040,3 +5041,14 @@ content-hash = "4c54ab6bb740a85598bcd85efd886e1d0db5ea995d2be822562abf3556d3442e
 content-hash = "6fddbb528ec2ada90bde3e4f3e756b828b6d0987eb0d20b71135bdd14a910f46"
 >>>>>>> 867f164 (Add first basic E2E setup with first tests)
 >>>>>>> b4d98e8 (Add first basic E2E setup with first tests)
+||||||| parent of ef224ef (Update poetry.lock has after merge)
+<<<<<<< HEAD
+content-hash = "235673716f10e211b4c40fb68faf788ab0b6f0ad73cea346b0d181779890a2ec"
+||||||| parent of 867f164 (Add first basic E2E setup with first tests)
+content-hash = "4c54ab6bb740a85598bcd85efd886e1d0db5ea995d2be822562abf3556d3442e"
+=======
+content-hash = "6fddbb528ec2ada90bde3e4f3e756b828b6d0987eb0d20b71135bdd14a910f46"
+>>>>>>> 867f164 (Add first basic E2E setup with first tests)
+=======
+content-hash = "920492ec3cda5b266599e69fc092bf9aa528f00d551c7cbb2a46e3568da030a7"
+>>>>>>> ef224ef (Update poetry.lock has after merge)
