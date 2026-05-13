@@ -21,7 +21,7 @@ from django.db import connection, transaction
 from ._RTModel_results_cls import EventResults, ModelResults
 
 def run_fit(target):
-    if "ZTF2" in target.name or "LSST" in target.name or "OGLE" in target.name:
+    if "ZTF" in target.name or "LSST_" in target.name or "OGLE" in target.name:
         target_id = target.id 
         tempdirname = 'event001'
         print(f"Prepare RTModel fit for {target.name}")
