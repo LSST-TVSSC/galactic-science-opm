@@ -1,5 +1,7 @@
 from astroquery.vizier import Vizier
 from astropy.coordinates import Angle
+import astropy.units as u
+from astropy.coordinates import SkyCoord
 
 def get_glade_plus_count(coords):
     """
@@ -16,3 +18,63 @@ def get_glade_plus_count(coords):
     except:
         return -1
 
+
+def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
+    """
+    Queries the Vizier catalog for variable stars within a given regions
+    as detailed as possible
+    Args:
+        ra (float): Right Ascension in degrees.
+        dec (float): Declination in degrees.
+        radius_arcsec (float): Search radius in arcseconds.
+
+    Returns:
+        str: Summary of found variability classifications.
+    """
+    
+    try:
+        VIZIER = Vizier(ucd="src.var", columns=["*"])
+        VIZIER.ROW_LIMIT = -1 
+    except Exception as e:
+        print(f"Error initializing Vizier: {e}")
+        VIZIER = None
+        
+    if VIZIER is None:
+        return "No Vizier connection."
+
+    coords = SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg), frame='icrs')
+    radius = radius_arcsec * u.arcsec
+
+    try:
+        results = VIZIER.query_region(coords, radius=radius)
+    except Exception as e:
+        return f"Error Vizier query: {e}"
+
+    if not results:
+        return "No matching catalogs."
+
+    result_string=""
+    for catalog_name in results.keys():
+        table = results[catalog_name]
+        var_col = None
+        for col in table.colnames:
+             if col.lower() in [
+                "vartype",
+                "type",
+                "class",
+                "var_type",
+                "best_class_name",
+                "vari_type",
+            ]:
+                var_col = col
+                break
+        if var_col and len(table) > 0:
+            var_type = table[var_col][0] 
+            if not var_type in result_string:
+                if result_string == "":
+                    result_string = var_type
+                else:
+                    result_string = f"{result_string},{var_type}"
+        else:
+            pass
+    return result_string

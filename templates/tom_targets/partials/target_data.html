@@ -26,6 +26,10 @@
       <dt class="col-sm-6">Extragalactic</dt>
       <dd class="col-sm-6">{{ value }}</dd>
     {% endif%}
+        {% if key == 'known_variability' %}
+      <dt class="col-sm-6">Variability Flags</dt>
+      <dd class="col-sm-6">{{ value }}</dd>
+    {% endif%}
   {% endfor %}
   
 <dd class="col-sm-6">Class</dd>
