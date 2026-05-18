@@ -9,6 +9,7 @@ from astropy.coordinates import SkyCoord, Angle
 import healpy as hp
 from custom_code.target_models import GalacticTarget
 from custom_code.utils.catalog_requests import get_glade_plus_count
+from custom_code.utils.catalog_requests import get_var_star_variability_analysis
 
 class Command(BaseCommand):
     help = 'Update all expected Rubin obs and check for GLADE+'
@@ -30,3 +31,10 @@ class Command(BaseCommand):
                     filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.IN_GLADE_PLUS)
                 elif result == 0:
                     filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS)
+                if "ZTF" in target.name or "LSST_" in target.name:
+                    result_var_vizier=get_var_star_variability_analysis(target.ra, target.dec)
+                    print(target.name, result_var_vizier)
+                    if result_var_vizier!="" and result_var_vizier!=None:
+                        filtered_target.update(known_variability = result_var_vizier)
+                    else:
+                        filtered_target.update(known_variability = "None, queried")

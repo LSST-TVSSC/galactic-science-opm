@@ -18,7 +18,8 @@
         <thead>
             <tr>
                 <th>Targetname<br>Broker links</th>
-               <th><b>Averaged Rescaled <br> Probability</b></th>
+                <th>Averaged Rescaled <br> Probability</th> 
+                <th>Variability Flags<br> Vizier</th>
                 <th>Gaia N&sup2 <br> Rescaled</th>
                 <th>ALeRCE microlensing <br> BHRF Rescaled</th>
                 <th>ANTARES microlensing <br> filter</th>
@@ -41,6 +42,7 @@
                      <a href="https://antares.noirlab.edu/loci/lookup/{{model.target}}">ANTARES</a>
 </td>
                 <td><b>{{model.average_master_probability|floatformat:3}}</b></td>
+                <td>{{model.target.known_variability}}</td>
                 <td>{{model.metric_nsquare|floatformat:3}}</td>
                 <td>{{model.metric_alerce|floatformat:3}}</td>
                 <th> NA </th>
