@@ -1,15 +1,15 @@
 from django.core.management.base import BaseCommand
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
-from custom_code.match_managers import validators
+from custom_code.target_models import GalacticTarget, Classification
 from django.db import transaction
 import numpy as np
 import pandas as pd
-import requests, io
 import datetime
 from alerce.core import Alerce
-from astropy.time import Time, TimezoneInfo
-from astropy.coordinates import SkyCoord
+from astropy.time import Time
 from astropy import units as u
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Q
 
 class Command(BaseCommand):
     help = 'Populate the database with catalogs of known events and handle duplicates'
@@ -18,11 +18,14 @@ class Command(BaseCommand):
         parser.add_argument('target_name_contains', help='filter for targets containing ... (e.g. ZTF26)')
 
     def handle(self, *args, **options):
-        #requires existing targets
-        qs = GalacticTarget.objects.filter(name__icontains=str(options['target_name_contains']))
-        target_list = list(set(qs))
-        for target in target_list:
-            print('Check lc_classifier_BHRF_forced_phot microlensing probability for event ' + target.name)
+        #requires existing targets        
+        time_window = timezone.now() - timedelta(days=2)
+        new_or_modified_targets = GalacticTarget.objects.filter(
+            Q(modified__gte=time_window) | 
+            Q(reduceddatum__timestamp__gte=time_window)
+        ).filter(name__icontains=str(options['target_name_contains'])).distinct()
+        for target in new_or_modified_targets:
+            print(f'Check lc_classifier_BHRF_forced_phot microlensing probability for event {target.name}')
             time_now = Time(datetime.datetime.now()).jd
             alerce = Alerce()
             probabilities = alerce.query_probabilities(target.name,survey='ztf')

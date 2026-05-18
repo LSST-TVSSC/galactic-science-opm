@@ -4,7 +4,7 @@ from tom_targets.models import Target,TargetExtra
 from django.conf import settings
 from django.db import transaction
 from astropy.time import Time, TimeDelta
-from custom_code.target_models import GalacticTarget, MicrolensingModel
+from custom_code.target_models import GalacticTarget, MicrolensingModel, MicrolensingRadarData
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation
 import RTModel
@@ -106,8 +106,8 @@ class Command(BaseCommand):
         parser.add_argument('event', help='Eventname')
 
     def handle(self, *args, **options):
-        qs = GalacticTarget.objects.filter(name__icontains=str(options['event']))
-        target_list = list(set(qs))
-        for target in target_list:
-            run_fit(target)
+        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.)
+        qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:100]
+        for target in qs:
+            run_fit(GalacticTarget.objects.filter(name__icontains=target.target.name).last())
                 

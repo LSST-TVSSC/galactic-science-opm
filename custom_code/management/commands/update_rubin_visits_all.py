@@ -7,20 +7,21 @@ import astropy.units as unit
 from astroquery.vizier import Vizier
 from astropy.coordinates import SkyCoord, Angle
 import healpy as hp
-from custom_code.target_models import GalacticTarget
+from custom_code.target_models import GalacticTarget, MicrolensingRadarData
 from custom_code.utils.catalog_requests import get_glade_plus_count
 from custom_code.utils.catalog_requests import get_var_star_variability_analysis
 
 class Command(BaseCommand):
-    help = 'Update all expected Rubin obs and check for GLADE+'
+    help = 'Update top 100 expected Rubin obs and check for GLADE+, variability'
     
     def handle(self, *args, **options):
-        qs = GalacticTarget.objects.all()
-        target_list = list(set(qs))
         config = apps.get_app_config('custom_code')
         visit_map = config.nvisits_10yrs_map
-        
-        for target in target_list:
+      
+        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.)
+        qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:100]
+        for entry in qs:
+            target = GalacticTarget.objects.filter(name__icontains=entry.target.name).last()
             s = SkyCoord(target.ra, target.dec, unit=(unit.deg, unit.deg), frame='icrs')
             result = get_glade_plus_count(s)
             with transaction.atomic():
