@@ -69,7 +69,7 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
                 var_col = col
                 break
         if var_col and len(table) > 0:
-            var_type = table[var_col][0] 
+            var_type = str(table[var_col][0])
             if not var_type in result_string:
                 if result_string == "":
                     result_string = var_type
