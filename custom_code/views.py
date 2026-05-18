@@ -33,8 +33,8 @@ def microlensing_prob_view(request):
 def microlensing_rescaled_prob_view(request):
     #Temporary filter for ZTF 2026 events until LSST is online, included
 
-    distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF26').filter(average_master_probability__gt=0.)
-    microlensing_objects = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:40]
+    distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.)
+    microlensing_objects = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:100]
     #distinct_ids2 = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF25').filter(average_master_probability__gt=0.5)
     #microlensing_objects2 = MicrolensingRadarData.objects.filter(id__in=distinct_ids2).order_by('-average_master_probability').distinct()
     #microlensing_objects = microlensing_objects1.union(microlensing_objects2, all=True)
