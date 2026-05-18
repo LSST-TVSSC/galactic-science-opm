@@ -11,6 +11,7 @@ from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
 from astroquery.vizier import Vizier
 from custom_code.utils.catalog_requests import get_glade_plus_count
+from custom_code.utils.catalog_requests import get_var_star_variability_analysis
 import healpy as hp
 import pandas as pd
 from alerce.core import Alerce
@@ -122,7 +123,17 @@ class ALERCEBroker(GenericBroker):
                             elif result == 0:
                                 filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS)
                     except:
-                        print('Expected visits or GLADE+ check failed for ' + target.name)
+                        print('Expected visits or GLADE+ check failed for ' + target.name)                   
+
+                    try:
+                        if "ZTF" in target.name or "LSST_" in target.name:
+                           result_var_vizier=get_var_star_variability_analysis(target.ra, target.dec)
+                        if result_var_vizier!="" and result_var_vizier!=None:
+                            filtered_target.update(known_variability = result_var_vizier)
+                        else:
+                            filtered_target.update(known_variability = "None, queried")
+                    except:
+                        print('Vizier query failed for ' + target.name)
 
             else:
                 print('ALERCE harvester: found ' + str(qs.count()) + ' targets with name ' + event_name)
