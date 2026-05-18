@@ -37,6 +37,7 @@ dependencies = [
     "healpy>=1.19",
     "alerce>=2.3.0",
     "antares-client>=1.14",
+    "scikit-build-core (>=0.12.2,<0.13.0)",
 ]
 
 [build-system]
