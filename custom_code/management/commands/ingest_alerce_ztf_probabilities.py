@@ -28,10 +28,15 @@ class Command(BaseCommand):
             probabilities = alerce.query_probabilities(target.name,survey='ztf')
             
             prob_pd = pd.DataFrame.from_dict(probabilities)
-            stochastic_bhrf_prob = prob_pd.loc[prob_pd['classifier_name'] == 'lc_classifier_BHRF_forced_phot']
-            prob_class1 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
-            prob_class2 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'CV/Nova']['probability'].iloc[0])
-            
+            prob_class1 = 0.
+            prob_class2 = 0.
+            try:
+                stochastic_bhrf_prob = prob_pd.loc[prob_pd['classifier_name'] == 'lc_classifier_BHRF_forced_phot']
+                prob_class1 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
+                prob_class2 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'CV/Nova']['probability'].iloc[0])
+            except Exception as e:
+                print(f"Classification missing, Exception: {e}")
+
             try:
                 bogus_prob = prob_pd.loc[prob_pd['classifier_name'] == 'stamp_classifier']
                 prob_class3 = float(bogus_prob[bogus_prob['class_name'] == 'bogus']['probability'].iloc[0])
@@ -57,16 +62,17 @@ class Command(BaseCommand):
 #            except Exception as e:
 #                print("Fink request not successful for ", target.name, e)
             try:
-                with transaction.atomic():
-                    m = Classification.objects.update_or_create(target=target,
-                                                    source='ALeRCE_ZTF',
-                                                    class1='microlensing',
-                                                    prob_class1 = prob_class1,
-                                                    class2='cv/nova',
-                                                    prob_class2 = prob_class2,
-                                                    class3='bogus',
-                                                    prob_class3 = prob_class3
-                                                    )
+                if prob_class1>0 or prob_class2>0:
+                    with transaction.atomic():
+                        m = Classification.objects.update_or_create(target=target,
+                                                        source='ALeRCE_ZTF',
+                                                        class1='microlensing',
+                                                        prob_class1 = prob_class1,
+                                                        class2='cv/nova',
+                                                        prob_class2 = prob_class2,
+                                                        class3='bogus',
+                                                        prob_class3 = prob_class3
+                                                        )
             except Exception as e:
                 print(f"Exception: {e}")
             
