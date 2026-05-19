@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         #requires existing targets        
-        time_window = timezone.now() - timedelta(days=20)
+        time_window = timezone.now() - timedelta(days=2)
         new_or_modified_targets = GalacticTarget.objects.filter(
             Q(modified__gte=time_window) | 
             Q(reduceddatum__timestamp__gte=time_window)
