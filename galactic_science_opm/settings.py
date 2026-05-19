@@ -436,6 +436,12 @@ SHOW_PAGINATION_INFO = True
 # This is used to enable testing related things, such as certain endpoints.
 TESTING = False
 
+BOOTSTRAP4 = {
+    "css_url": os.path.join(STATIC_URL, "bootstrap.min.css"),
+    "javascript_url": os.path.join(STATIC_URL, "bootstrap.bundle.min.js"),
+    "jquery_url": os.path.join(STATIC_URL, "jquery-3.5.1.min.js")
+}
+
 try:
     from local_settings import * # noqa
 except ImportError:
