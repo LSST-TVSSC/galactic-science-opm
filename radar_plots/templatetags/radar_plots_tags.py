@@ -10,7 +10,7 @@ register = template.Library()
 def microlensing_radar(targets=None):
     try:
         data_obj = MicrolensingRadarData.objects.filter(target_id=targets).latest()
-        values = [data_obj.metric_fink, data_obj.metric_alerce, data_obj.metric_antares, 
+        values = [data_obj.metric_alerce_atat, data_obj.metric_alerce, data_obj.metric_antares, 
                   data_obj.metric_nsquare, data_obj.metric_planet]
         bogus_value = data_obj.metric_bogus
     except:
@@ -18,7 +18,7 @@ def microlensing_radar(targets=None):
         bogus_value = 0.
 
     categories = [
-    "Metric Fink",
+    "Metric ALeRCE ATAT direct",
     "Metric ALeRCE",
     "Metric ANTARES",
     "Metric N<sup>2</sup>",

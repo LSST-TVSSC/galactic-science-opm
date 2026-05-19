@@ -55,7 +55,7 @@ def run_fit(target):
                 try:
                     current_time = Time.now()
                     age = current_time - t
-                    if age < TimeDelta(500., format='jd'): 
+                    if age < TimeDelta(10.*365., format='jd'): 
                         rd_data = {'timestamp': hjd_values_rtm }
                         rd_data['magnitude'] = reduced_datum.value['magnitude']
                         rd_data['error'] = reduced_datum.value['error']
@@ -68,12 +68,14 @@ def run_fit(target):
                 unique_categories = df['filter'].unique()
                 for category in unique_categories:
                     filtered_df = df[df['filter'] == category]
-                    if len(filtered_df)>8:
+                    if len(filtered_df)>2:
                         filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
                                   header=None, index=None, sep=' ', mode='a')
                 rtm = RTModel.RTModel(tempdirname)
                 rtm.config_InitCond(modelcategories = ['PS'])
             if len(data)>3:
+                rho_constraints =  [['log_rho', -2., -10., 0.1]]
+                rtm.set_constraints(rho_constraints)
                 rtm.run()
                 event_path = path.join(tempdirname)
                 saving_path =path.join(settings.MEDIA_ROOT, f"{target.name}.png")  

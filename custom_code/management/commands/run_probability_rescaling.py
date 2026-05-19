@@ -27,6 +27,7 @@ class Command(BaseCommand):
         model_qt_psi = config.model_qt_psi
         model_qt_fink = config.model_qt_fink
         model_qt_alerce = config.model_qt_alerce
+        model_qt_alerce_atat = config.model_qt_alerce_atat
         hpx_map = config.nsquare_map
         visit_map = config.nvisits_10yrs_map
         nside  = config.nside
@@ -67,6 +68,12 @@ class Command(BaseCommand):
                     transformed_prob_alerce = [[0]]
 
                 try:
+                    #ATAT distribution differs substantially, is used directly.
+                    transformed_prob_alerce_atat = [[target_classification.filter(source="ALeRCE_ZTF").latest().prob_class4]]
+                except:
+                    transformed_prob_alerce_atat = [[0]]
+
+                try:
                     prob_bogus = target_classification.filter(source="ALeRCE_ZTF").latest().prob_class3
                 except:
                     prob_bogus = 0
@@ -84,6 +91,7 @@ class Command(BaseCommand):
                     m = MicrolensingRadarData.objects.update_or_create(target=target,
                                                       metric_fink= transformed_prob_fink[0][0],
                                                       metric_alerce= transformed_prob_alerce[0][0],
+                                                      metric_alerce_atat= transformed_prob_alerce_atat[0][0],
                                                       metric_antares= transformed_prob_antares,
                                                       metric_nsquare = transformed_prob_nsquare,
                                                       metric_planet = transformed_prob_planet[0][0],
@@ -91,7 +99,9 @@ class Command(BaseCommand):
                                                       average_master_probability=np.mean([transformed_prob_planet[0][0],
                                                                                           transformed_prob_nsquare,
                                                                                           transformed_prob_antares,
-                                                                                          transformed_prob_alerce[0][0]])
+                                                                                          transformed_prob_alerce[0][0],
+                                                                                          transformed_prob_alerce_atat[0][0],
+                                                                                          ])
                                                       )
             except:
                 print('Rescaled probabilities failed for ' + target.name)

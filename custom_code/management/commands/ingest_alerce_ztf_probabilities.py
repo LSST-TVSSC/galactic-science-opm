@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         #requires existing targets        
-        time_window = timezone.now() - timedelta(days=2)
+        time_window = timezone.now() - timedelta(days=20)
         new_or_modified_targets = GalacticTarget.objects.filter(
             Q(modified__gte=time_window) | 
             Q(reduceddatum__timestamp__gte=time_window)
@@ -39,12 +39,18 @@ class Command(BaseCommand):
                 prob_class2 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'CV/Nova']['probability'].iloc[0])
             except Exception as e:
                 print(f"Classification missing, Exception: {e}")
-
+            prob_class3 = 0.
             try:
                 bogus_prob = prob_pd.loc[prob_pd['classifier_name'] == 'stamp_classifier']
                 prob_class3 = float(bogus_prob[bogus_prob['class_name'] == 'bogus']['probability'].iloc[0])
-            except:
-                prob_class3=0
+            except Exception as e:
+                print(f"Classification missing, Exception: {e}")
+            prob_class4 = 0.
+            try:
+                forced_atat_prob = prob_pd.loc[prob_pd['classifier_name'] == 'LC_classifier_ATAT_forced_phot(beta)']
+                prob_class4 = float(forced_atat_prob[forced_atat_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
+            except Exception as e:
+                print(f"Classification missing, Exception: {e}")
 #            try:
                 #For ZTF events ingest fink probability as maximum probability 
                 #attach it to the ALeRCE query to avoid repeating the galactic target filter.
@@ -74,7 +80,9 @@ class Command(BaseCommand):
                                                         class2='cv/nova',
                                                         prob_class2 = prob_class2,
                                                         class3='bogus',
-                                                        prob_class3 = prob_class3
+                                                        prob_class3 = prob_class3,
+                                                        class4='microlensing_atat',
+                                                        prob_class4 = prob_class4
                                                         )
             except Exception as e:
                 print(f"Exception: {e}")
