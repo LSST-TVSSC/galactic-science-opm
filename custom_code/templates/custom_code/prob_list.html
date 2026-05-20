@@ -6,13 +6,16 @@
     <div class>
       <div class="card shadow-sm">
         <div class="card-header">
-         Public ranking based on averaged and rescaled probabilities of a quantile transform. 
+         Public ranking based on averaged and rescaled probabilities of a quantile transform.
         </div>
    <img src="{% static 'tom_common/img/rescale_baade.png' %}"
                       class="img-fluid mx-auto d-block"
                    alt="Rescaled probability">
      </div>
     </div>    
+
+
+
 <ul>    
     <table class="table table-dark table-striped">
         <thead>
@@ -22,16 +25,16 @@
                 <th>Variability Flags<br> Vizier</th>
                 <th>Gaia N&sup2 <br> Rescaled</th>
                 <th>ALeRCE microlensing <br> BHRF Rescaled</th>
+                <th>ALeRCE microlensing <br> ATAT Direct</th>
                 <th>ANTARES microlensing <br> filter</th>
                 <th>Peak Planet Probability <br> from fit &psi; Rescaled</th>
-                <th>fink microlensing  <br> peak Rescaled</th>
                 <th>Bogus ALeRCE <br> stamp</th>
                <th>Updated</th>
                
             </tr>
         </thead>
         <tbody>
-                {% for model in microlensing_objects %}
+                {% for model in microlensing_objects_queried %}
 
             <tr>
                  <td> <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
@@ -40,14 +43,37 @@
                          <a href="https://ztf.fink-portal.org/{{model.target}}">fink</a>
                      {% endif %}
                      <a href="https://antares.noirlab.edu/loci/lookup/{{model.target}}">ANTARES</a>
-</td>
-                <td><b>{{model.average_master_probability|floatformat:3}}</b></td>
+                </td>
+                <td ><b>{{model.average_master_probability|floatformat:4}}</b></td>
                 <td>{{model.target.known_variability}}</td>
                 <td>{{model.metric_nsquare|floatformat:3}}</td>
                 <td>{{model.metric_alerce|floatformat:3}}</td>
+                <td>{{model.metric_alerce_atat|floatformat:3}}</td>
                 <th> NA </th>
                 <td>{{model.metric_planet|floatformat:3}}</td>
-                <td>{{model.metric_fink|floatformat:3}}</td>
+                <td>{{model.metric_bogus|floatformat:3}}</td>
+                <td>{{model.updated_at}}</td>
+            </tr>
+                {% endfor %}
+            </tbody>        
+            <tbody>
+
+                {% for model in microlensing_objects %}
+                 <tr>
+                 <td> <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
+                     <a href="https://alerce.online/object/{{model.target}}">ALeRCE</a> 
+                     {% if "ztf" in model.target|lower %}
+                         <a href="https://ztf.fink-portal.org/{{model.target}}">fink</a>
+                     {% endif %}
+                     <a href="https://antares.noirlab.edu/loci/lookup/{{model.target}}">ANTARES</a>
+                </td>
+                <td><b>{{model.average_master_probability|floatformat:4}}</b></td>
+                <td>{{model.target.known_variability}}</td>
+                <td>{{model.metric_nsquare|floatformat:3}}</td>
+                <td>{{model.metric_alerce|floatformat:3}}</td>
+                <td>{{model.metric_alerce_atat|floatformat:3}}</td>
+                <th> NA </th>
+                <td>{{model.metric_planet|floatformat:3}}</td>
                 <td>{{model.metric_bogus|floatformat:3}}</td>
                 <td>{{model.updated_at}}</td>
             </tr>

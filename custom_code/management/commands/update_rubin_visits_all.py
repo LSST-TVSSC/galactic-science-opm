@@ -34,7 +34,6 @@ class Command(BaseCommand):
                     filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS)
                 if "ZTF" in target.name or "LSST_" in target.name:
                     result_var_vizier=get_var_star_variability_analysis(target.ra, target.dec)
-                    print(target.name, result_var_vizier)
                     if result_var_vizier!="" and result_var_vizier!=None:
                         filtered_target.update(known_variability = result_var_vizier)
                     else:

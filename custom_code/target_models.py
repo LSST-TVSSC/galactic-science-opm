@@ -96,6 +96,8 @@ class Classification(models.Model):
     prob_class2 = models.FloatField(default=0, null=True)
     class3 = models.CharField(max_length=50, null=True)
     prob_class3 = models.FloatField(default=0, null=True)
+    class4 = models.CharField(max_length=50, null=True)
+    prob_class4 = models.FloatField(default=0, null=True)
     prob_master_peak = models.FloatField(default=0, null=True)
     prob_master_current = models.FloatField(default=0, null=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -152,12 +154,13 @@ class MicrolensingRadarData(models.Model):
     """
     target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, 
                                related_name="rescaled_classification_radar_parameters")
-    metric_fink = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
-    metric_alerce = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
-    metric_antares = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
-    metric_nsquare = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
-    metric_planet = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
-    metric_bogus = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+    metric_fink = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
+    metric_alerce = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
+    metric_alerce_atat = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
+    metric_antares = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
+    metric_nsquare = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
+    metric_planet = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
+    metric_bogus = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
     average_master_probability = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
     updated_at = models.DateTimeField(auto_now=True)
 

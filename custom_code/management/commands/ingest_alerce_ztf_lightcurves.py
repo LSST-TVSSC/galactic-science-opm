@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
-from custom_code.match_managers import validators
+from custom_code.target_models import GalacticTarget, MicrolensingRadarData
 from custom_code.brokers import alerce_ztf
 import numpy as np
 from astropy import units as u
@@ -35,3 +34,12 @@ class Command(BaseCommand):
             
         print('Filtered and Identified '+str(len(list_of_targets))+' target(s) from ALeRCE')
         print('Completed run of ALeRCE event ingest')
+        print('Update photometry of 50 priority targets')
+        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.)
+        qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:50]                
+        priority_targets = [GalacticTarget.objects.filter(name__icontains=target.target.name).last() for target in qs]
+        try:
+            Alerce.find_and_ingest_photometry(priority_targets)
+        except Exception as e:
+            print(f"Unexpected exception {e}")
+        print("Update priority targets complete.")

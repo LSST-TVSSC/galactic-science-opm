@@ -55,7 +55,7 @@ def run_fit(target):
                 try:
                     current_time = Time.now()
                     age = current_time - t
-                    if age < TimeDelta(500., format='jd'): 
+                    if age < TimeDelta(10.*365., format='jd'): 
                         rd_data = {'timestamp': hjd_values_rtm }
                         rd_data['magnitude'] = reduced_datum.value['magnitude']
                         rd_data['error'] = reduced_datum.value['error']
@@ -68,12 +68,14 @@ def run_fit(target):
                 unique_categories = df['filter'].unique()
                 for category in unique_categories:
                     filtered_df = df[df['filter'] == category]
-                    if len(filtered_df)>8:
+                    if len(filtered_df)>2:
                         filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
                                   header=None, index=None, sep=' ', mode='a')
                 rtm = RTModel.RTModel(tempdirname)
                 rtm.config_InitCond(modelcategories = ['PS'])
-            if len(data)>3:
+            if len(data)>4:
+                rho_constraints =  [['log_rho', -3., -10., 0.01],['log_tE', 1.6, -0.3, 0.3]]
+                rtm.set_constraints(rho_constraints)
                 rtm.run()
                 event_path = path.join(tempdirname)
                 saving_path =path.join(settings.MEDIA_ROOT, f"{target.name}.png")  
@@ -81,10 +83,8 @@ def run_fit(target):
                     model_name = listdir(path.join(tempdirname,"FinalModels"))
                     model_path = path.join(tempdirname,"FinalModels",model_name[0])
                     model_results = ModelResults(model_path)
-                    if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5. and\
-                       model_results.model_parameters.tE > 0. and model_results.model_parameters.u0_error > 0. :
-                        plm.plotmodel(eventname=event_path, modelfile=model_path)
-                        plt.savefig(saving_path, bbox_inches='tight',dpi=90)
+                    plm.plotmodel(eventname=event_path, modelfile=model_path)
+                    plt.savefig(saving_path, bbox_inches='tight',dpi=90)
                     with transaction.atomic():
                         m = MicrolensingModel.objects.update_or_create(target=target,
                                               u0 = model_results.model_parameters.u0,
