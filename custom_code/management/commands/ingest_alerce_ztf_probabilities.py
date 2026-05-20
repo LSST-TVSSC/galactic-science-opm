@@ -16,10 +16,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('target_name_contains', help='filter for targets containing ... (e.g. ZTF26)')
+        parser.add_argument('days', help='modified n days before now, e.g. 2')
 
     def handle(self, *args, **options):
         #requires existing targets        
-        time_window = timezone.now() - timedelta(days=2)
+        time_window = timezone.now() - timedelta(days=int(str(options['days'])))
         new_or_modified_targets = GalacticTarget.objects.filter(
             Q(modified__gte=time_window) | 
             Q(reduceddatum__timestamp__gte=time_window)
