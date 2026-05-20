@@ -72,8 +72,8 @@ def run_fit(target):
                                       header=None, index=None, sep=' ', mode='a')
                     rtm = RTModel.RTModel(tempdirname)
                     rtm.config_InitCond(modelcategories = ['PS'])
-                if len(data)>3:
-                    rho_constraints =   [['log_rho', -2., -10., 0.1]]
+                if len(data)>4:
+                    rho_constraints = [['log_rho', -3., -10., 0.01],['log_tE', 1.6, -0.3, 0.3]]
                     rtm.set_constraints(rho_constraints)
                     rtm.run()
                     event_path = path.join(tempdirname)
@@ -108,8 +108,14 @@ class Command(BaseCommand):
         parser.add_argument('event', help='Eventname')
 
     def handle(self, *args, **options):
-        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.).filter(target__known_variability__icontains="queried")
-        qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:50]
-        for target in qs:
-            run_fit(GalacticTarget.objects.filter(name__icontains=target.target.name).last())
+       if str(options['event']) != "ZTF" and str(options['event']) != "LSST" :
+           qs=GalacticTarget.objects.filter(name__icontains=str(options['event']))
+           for target in qs:
+               run_fit(target)
+       else:            
+           distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains=str(options['event'])).filter(average_master_probability__gt=0.).filter(target__known_variability__icontains="queried")
+           qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:100]
+           for target in qs:
+               run_fit(GalacticTarget.objects.filter(name__icontains=target.target.name).last())
+        
                 

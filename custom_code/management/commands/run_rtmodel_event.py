@@ -73,8 +73,8 @@ def run_fit(target):
                                   header=None, index=None, sep=' ', mode='a')
                 rtm = RTModel.RTModel(tempdirname)
                 rtm.config_InitCond(modelcategories = ['PS'])
-            if len(data)>3:
-                rho_constraints =  [['log_rho', -2., -10., 0.1]]
+            if len(data)>4:
+                rho_constraints =  [['log_rho', -3., -10., 0.01],['log_tE', 1.6, -0.3, 0.3]]
                 rtm.set_constraints(rho_constraints)
                 rtm.run()
                 event_path = path.join(tempdirname)
@@ -83,10 +83,8 @@ def run_fit(target):
                     model_name = listdir(path.join(tempdirname,"FinalModels"))
                     model_path = path.join(tempdirname,"FinalModels",model_name[0])
                     model_results = ModelResults(model_path)
-                    if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5. and\
-                       model_results.model_parameters.tE > 0. and model_results.model_parameters.u0_error > 0. :
-                        plm.plotmodel(eventname=event_path, modelfile=model_path)
-                        plt.savefig(saving_path, bbox_inches='tight',dpi=90)
+                    plm.plotmodel(eventname=event_path, modelfile=model_path)
+                    plt.savefig(saving_path, bbox_inches='tight',dpi=90)
                     with transaction.atomic():
                         m = MicrolensingModel.objects.update_or_create(target=target,
                                               u0 = model_results.model_parameters.u0,
