@@ -54,7 +54,7 @@ def run_fit(target):
                         current_time = Time.now()
                         age = current_time - t
                         #TBD revise with filter
-                        if age < TimeDelta(10*365., format='jd') and float(reduced_datum.value['error']) < 1.0: 
+                        if age < TimeDelta(10*365., format='jd'): 
                             rd_data = {'timestamp': hjd_values_rtm }
                             rd_data['magnitude'] = reduced_datum.value['magnitude']
                             rd_data['error'] = reduced_datum.value['error']
@@ -68,12 +68,13 @@ def run_fit(target):
                     for category in unique_categories:
                         filtered_df = df[df['filter'] == category]
                         if len(filtered_df)>2:
+                            custom_header = ["Mag", "err", "HJD-2450000"]
                             filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
-                                      header=None, index=None, sep=' ', mode='a')
+                                  header=custom_header, index=None, sep=' ', mode='a')
                     rtm = RTModel.RTModel(tempdirname)
                     rtm.config_InitCond(modelcategories = ['PS'])
-                if len(data)>4:
-                    rho_constraints = [['log_rho', -3., -10., 0.01],['log_tE', 1.6, -0.3, 0.3]]
+                if len(data)>3:
+                    rho_constraints = [['log_rho', -3., -10., 0.01],['log_tE', 1.6, -0.5, 0.5]]
                     rtm.set_constraints(rho_constraints)
                     rtm.run()
                     event_path = path.join(tempdirname)
@@ -110,11 +111,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
        if str(options['event']) != "ZTF" and str(options['event']) != "LSST" :
            qs=GalacticTarget.objects.filter(name__icontains=str(options['event']))
+           print(qs)
            for target in qs:
                run_fit(target)
        else:            
            distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains=str(options['event'])).filter(average_master_probability__gt=0.).filter(target__known_variability__icontains="queried")
-           qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:100]
+           qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:50]
            for target in qs:
                run_fit(GalacticTarget.objects.filter(name__icontains=target.target.name).last())
         

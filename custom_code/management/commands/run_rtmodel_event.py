@@ -55,12 +55,11 @@ def run_fit(target):
                 try:
                     current_time = Time.now()
                     age = current_time - t
-                    if age < TimeDelta(10.*365., format='jd'): 
-                        rd_data = {'timestamp': hjd_values_rtm }
-                        rd_data['magnitude'] = reduced_datum.value['magnitude']
-                        rd_data['error'] = reduced_datum.value['error']
-                        rd_data['filter'] = reduced_datum.value['filter']                    
-                        data.append(rd_data)
+                    rd_data = {'timestamp': hjd_values_rtm }
+                    rd_data['magnitude'] = reduced_datum.value['magnitude']
+                    rd_data['error'] = reduced_datum.value['error']
+                    rd_data['filter'] = reduced_datum.value['filter']                    
+                    data.append(rd_data)
                 except:
                     print("No photometry with suitable mags for RTModel")
             df = pd.DataFrame.from_dict(data)
@@ -69,12 +68,13 @@ def run_fit(target):
                 for category in unique_categories:
                     filtered_df = df[df['filter'] == category]
                     if len(filtered_df)>2:
+                        custom_header = ["Mag", "err", "HJD-2450000"]
                         filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
-                                  header=None, index=None, sep=' ', mode='a')
+                                  header=custom_header, index=None, sep=' ', mode='a')
                 rtm = RTModel.RTModel(tempdirname)
                 rtm.config_InitCond(modelcategories = ['PS'])
-            if len(data)>4:
-                rho_constraints =  [['log_rho', -3., -10., 0.01],['log_tE', 1.6, -0.3, 0.3]]
+            if len(data)>3:
+                rho_constraints = [['log_rho', -3., -10., 0.01],['log_tE', 1.6, -0.5, 0.5]]
                 rtm.set_constraints(rho_constraints)
                 rtm.run()
                 event_path = path.join(tempdirname)
