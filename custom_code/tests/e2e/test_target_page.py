@@ -55,7 +55,7 @@ def test_authorized_user_can_visit(page: Page):
         ("fink microlensing peak Rescaled", 0.000),
         ("Peak Planet Probability from fit ψ Rescaled", 0.000),
         ("Bogus ALeRCE stamp", 0.085),
-        ("Updated rescaled probabilities", "2026-04-30 06:53:51"),
+        ("Updated rescaled probabilities", "April 30, 2026, 6:53 a.m."),
     )
     EXPECTED_ANALYSIS_PARAMETERS = (
         (r"t0\s\[HJD\]", r"11053.599∓\s+12.206"),
