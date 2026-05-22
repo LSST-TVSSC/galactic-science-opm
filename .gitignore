@@ -139,3 +139,5 @@ data/*.png
 
 # docker
 compose.yaml
+
+/database

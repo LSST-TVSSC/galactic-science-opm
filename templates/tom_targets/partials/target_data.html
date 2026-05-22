@@ -1,5 +1,5 @@
 {% load tom_common_extras targets_extras parameter_tags %}
-<dl class="row">
+<dl class="row" data-testid="target-info">
   {% for target_name in target.names %}
     {% if forloop.first %}
       <dt class="col-sm-6">Names</dt>
@@ -38,10 +38,8 @@
 {% with target|microlensing_radar_by_name as filtered_parameters %} 
 <dd class="col-sm-6" >{{filtered_parameters.average_master_probability|floatformat:3}}</dd>
 {% endwith %}
-
-
-
-<dl class="col-sm-12">
+</dl>
+<dl class="col-sm-12 row">
     <ul class="nav flex-column" role="tablist" id="tabs2" style="background-color: #c50d29; color: #fff;">
       <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
         <a class="nav-link" id="imaging-tab" href="#imaging" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Imaging</a>
@@ -63,7 +61,6 @@
       </li>
  
     </ul>
-</dl>
 </dl>
 
 <dl class="row">

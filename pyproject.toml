@@ -38,6 +38,9 @@ dependencies = [
     "alerce>=2.3.0",
     "antares-client>=1.14",
     "scikit-build-core (>=0.12.2,<0.13.0)",
+    "pytest-django (>=4.12.0,<5.0.0)",
+    "pytest-playwright (>=0.7.2,<0.8.0)",
+    "pytest-asyncio (>=1.3.0,<2.0.0)",
 ]
 
 [build-system]
@@ -46,3 +49,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 package-mode = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "galactic_science_opm.settings_test"
+# show output during tests
+addopts = "-s"

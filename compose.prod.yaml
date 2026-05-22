@@ -1,0 +1,12 @@
+services:
+
+  frontend-proxy:
+    image: nginx:latest
+    ports:
+      - "${EXT_PORT:-8000}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${DJANGO_STATIC_DIR:-./_static}:/static:ro  
+      - ${DJANGO_DATA_DIR:-./data}:/data:ro    
+    depends_on:
+      - galactic-science-opm

@@ -60,96 +60,103 @@
     </div>
 </div>
            
-    <table class="table table-dark table-striped">
-        <thead>
-            <tr>
-               <th>t<sub>0</sub> [JD]</th>
-                 <th>u<sub>0</sub></th>
-              <th>t<sub>E</sub> [days]</th>
-              <th>&rho;</th>
-              <th>&pi;<sub>EE</sub></th>
-               <th>&pi;<sub>EN</sub></th>
-
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-
-              {% with target|microlensing_parameters_by_name as filtered_parameters %} 
-                <td>{{filtered_parameters.t0|floatformat:3}}</td>
-                <td>{{filtered_parameters.u0|floatformat:3}}</td>
-                 <td>{{filtered_parameters.tE|floatformat:3}}</td>
-                 <td>{{filtered_parameters.rho|floatformat:3}}</td>
-                <td>{{filtered_parameters.piEE|floatformat:3}}</td>
-                <td>{{filtered_parameters.piEN|floatformat:3}}</td>
-
-                {% endwith %}
-            </tr> 
-        </tbody>
+    <table class="table table-dark table-striped" data-testid="parameter-table">
+      <thead>
+        <tr>
+          <th>t<sub>0</sub> [JD]</th>
+          <th>u<sub>0</sub></th>
+          <th>t<sub>E</sub> [days]</th>
+          <th>&rho;</th>
+          <th>&pi;<sub>EE</sub></th>
+          <th>&pi;<sub>EN</sub></th>
+    
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+    
+          {% with target|microlensing_parameters_by_name as filtered_parameters %}
+          <td>{{filtered_parameters.t0|floatformat:3}}</td>
+          <td>{{filtered_parameters.u0|floatformat:3}}</td>
+          <td>{{filtered_parameters.tE|floatformat:3}}</td>
+          <td>{{filtered_parameters.rho|floatformat:3}}</td>
+          <td>{{filtered_parameters.piEE|floatformat:3}}</td>
+          <td>{{filtered_parameters.piEN|floatformat:3}}</td>
+    
+          {% endwith %}
+        </tr>
+      </tbody>
     </table>
     {% include_app_tabs %}
     <div class="tab-content">
-     <div class="tab-pane active" id="photometry">
-        {% photometry_for_target target %}
-        <p>
-        <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> 
+    <div class="tab-pane active" id="photometry" data-testid="photometry-tab">
+      {% photometry_for_target target %}
+      <p>
+        <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button"
+          target="_blank">ALeRCE</a>
         {% if "ztf" in target.name|lower %}
-            <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>
+          <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" 
+            target="_blank">fink</a>
         {% endif %}
-        <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1" class="btn btn-primary" role="button" >Vizier Gaia DR3</a> <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
-        </p>
-        </div>
-      <div class="tab-pane" id="imaging">
+        <a href="https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1"
+          target="_blank" class="btn btn-primary" role="button">Vizier Gaia DR3</a>
+        <a
+          href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2"
+          class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
+      </p>
+    </div>
+      <div class="tab-pane" id="imaging" data-testid="imaging-tab">
         <h4>Imaging</h4>
-       <div class="container">
-    <h1 class="mt-4">Imaging</h1>    
-
-    <div class="row">
-        <div class="col-md-4">
-            Template
-        </div>
-        <div class="col-md-4">
-            Data Image
-        </div>
-        <div class="col-md-4">
-            Difference Image
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-4">
-          {% aladin_finderchart object %}
-        </div>
-        <div class="col-md-4">
-        Sky position
+        <div class="container">
+          <h1 class="mt-4">Imaging</h1>
+      
+          <div class="row">
+            <div class="col-md-4">
+              Template
+            </div>
+            <div class="col-md-4">
+              Data Image
+            </div>
+            <div class="col-md-4">
+              Difference Image
+            </div>
           </div>
-        <div class="col-md-4">
-        Last shared image
+          <div class="row">
+            <div class="col-md-4" data-testid="survey-view">
+              {% aladin_finderchart object %}
+            </div>
+            <div class="col-md-4">
+              Sky position
+            </div>
+            <div class="col-md-4">
+              Last shared image
+            </div>
+          </div>
         </div>
-    </div>
-</div>
       </div>
-      <div class="tab-pane" id="exchange">
+      <div class="tab-pane" id="exchange" data-testid="exchange-tab">
         <h4>Exchange</h4>
-        
-<a href="https://mop.lco.global/" >MOP</a>
-<a href="https://bhtom.space" >BHTOM</a>
-
+      
+        <a href="https://mop.lco.global/">MOP</a>
+        <a href="https://bhtom.space">BHTOM</a>
+      
         <h4>Plan</h4>
         {% if object.type == 'SIDEREAL' %}
-        {% moon_distance object %}
+          {% moon_distance object %}
         {% elif target.type == 'NON_SIDEREAL' %}
-          <p>Airmass plotting for non-sidereal targets is not currently supported. If you would like to add this functionality, please check out the <a href="https://github.com/TOMToolkit/tom_nonsidereal_airmass" target="_blank">non-sidereal airmass plugin.</a></p>
+          <p>Airmass plotting for non-sidereal targets is not currently supported. If you would like to add this functionality,
+            please check out the <a href="https://github.com/TOMToolkit/tom_nonsidereal_airmass" target="_blank">non-sidereal
+            airmass plugin.</a>
+          </p>
         {% endif %}
-
-
-
+      
       </div>
-      <div class="tab-pane" id="analysis">
+      <div class="tab-pane" id="analysis" data-testid="analysis-tab">
         <h4>Analysis (detailed parameter summary)</h4>
         {% get_media_prefix as MEDIA_PREFIX %}
         <img src="{{MEDIA_PREFIX}}{{target.name}}.png" width=50% alt="{{ target.name }} not plotted: u&#8320; + &sigma;&#7524;&#8320; below 5 ">
         <div class="row">
-        <table class="table">
+        <table class="table" data-testid="analysis-table_parameters">
             <thead>
                 <tr>
                     <th>t<sub>0</sub> [HJD]</th>
@@ -190,7 +197,7 @@
         </table>
          </div>
      <div class="row">
-     <table class="table">
+     <table class="table" data-testid="analysis-table_magnitude">
          <thead>
             <tr>
                 <th>Source magnitude</th>
@@ -226,19 +233,24 @@
         {% target_groups target %}
       </div>
  
-   <div class="tab-pane" id="classification">
+   <div class="tab-pane" id="classification" data-testid="classifications-tab">
    <h4>Classifications</h4>
 
    {% microlensing_radar target %}
     <p>
-    <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> 
-    {% if "ztf" in target.name|lower %}
+      <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button"
+        target="_blank">ALeRCE</a>
+      {% if "ztf" in target.name|lower %}
         <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>
-    {% endif %}
-    <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1" class="btn btn-primary" role="button" >Vizier Gaia DR3</a>  <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
-
+      {% endif %}
+      <a 
+        href="https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1"
+        class="btn btn-primary" role="button">Vizier Gaia DR3</a> <a
+        href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" 
+        class="btn btn-primary"
+        role="button" target="_blank">SED Vizier</a>
     </p>
-   <table class="table">
+   <table class="table" data-testid="classification-table">
             <thead>
                 <tr>
                 <th><b>Averaged Rescaled Probability</b></th>
@@ -274,7 +286,7 @@
         {% target_groups target %}
       </div>
 
-      <div class="tab-pane" id="spectroscopy">
+      <div class="tab-pane" id="spectroscopy" data-testid="spectroscopy-tab">
         <!--{% spectroscopy_for_target target %}-->
         <img src="{% static 'tom_common/img/draft_sed2.png' %}">
         <p>
@@ -282,7 +294,7 @@
         {% if "ztf" in target.name|lower %}
             <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>
         {% endif %}
-        <a href=" https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=2" class="btn btn-primary" role="button" >Vizier Gaia DR3</a> <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
+        <a href="https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=2" class="btn btn-primary" role="button" >Vizier Gaia DR3</a> <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
 </p>
       </div>
       {% include_app_tab_divs %}
