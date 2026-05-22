@@ -1,0 +1,68 @@
+services:
+  galactic-science-opm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+#    env_file: "opm-secrets.env"
+    depends_on:
+      - galactic-science-opm-db
+    volumes:
+      - ${DJANGO_STATIC_DIR:-./_static}:/galactic_science_opm/_static
+      - ${DJANGO_DATA_DIR:-./data}:/galactic_science_opm/data
+    environment:
+      DB_HOST: galactic-science-opm-db
+      DB_NAME: galactic_science_opm
+      DB_USER: ${PSQL_USER}
+      DB_PASSWORD: ${PSQL_PASS}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DJANGO_CSRF_TRUSTED_ORIGIN: ${DJANGO_CSRF_TRUSTED_ORIGIN}
+      E2E: 0
+      LOCAL: 0
+    command: /galactic_science_opm/entrypoint.sh
+    stop_grace_period: 1s
+
+  galactic-science-opm-db:
+    image: ${PSQL_IMAGE}
+    environment:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASS}
+      POSTGRES_DB: galactic_science_opm
+    volumes:
+      - ${OPM_PSQL_VOLUME}:/var/lib/postgresql/data
+
+## # The db_worker management command comes with the django-task INSTALLED_APP.
+## # This is for running long-running task in the background. For example, to 
+## # gather forced photometry.
+## 
+## galactic-science-opm-worker:
+##     build: .
+##     depends_on:
+##       - galactic-science-opm-migrate
+##       - galactic-science-opm-db
+##     environment:
+##       DB_HOST: galactic-science-opm-db
+##       DB_NAME: galactic_science_opm
+##       DB_USER: opm
+##       DB_PASSWORD: opm
+##     entrypoint: poetry run python manage.py db_worker -v3
+
+
+## # The readstreams management command comes from the tom_alertstreams
+## # INSTALLED_APP. This starts the configured alert stream listeners.
+## 
+## galactic-science-opm-alert-listener:
+##     build: .
+##     env_file: "opm-secrets.env"
+##     depends_on:
+##       - galactic-science-opm-migrate
+##       - galactic-science-opm-db
+##     environment:
+##       DB_HOST: galactic-science-opm-db
+##       DB_NAME: galactic_science_opm
+##       DB_USER: opm
+##       DB_PASSWORD: opm
+##     entrypoint: poetry run python manage.py readstreams -v3
+
+# volumes:

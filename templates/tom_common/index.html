@@ -69,14 +69,14 @@
   <div class="row justify-content-center">
     <div class="col-lg-10 mb-4">
       <div class="card shadow-sm">
-        <div class="card-header">
+        <div class="card-header" data-testid="featured-targets-list">
           Featured targets microlensing
         </div>
         <div class="card-body p-0">
           {% if featured_targets %}
             <ul class="list-group list-group-flush">
             {% for target in featured_targets %}
-              <li class="list-group-item">
+              <li class="list-group-item" data-testid="featured-target-element">
 
                 <!-- Top row: name, coords, class + broker buttons -->
                 <div class="d-flex justify-content-between align-items-center">
@@ -126,7 +126,7 @@
                   <div class="col-md-5">
                     {% galactic_thumb_info target 120 0.035 as thumb %}
                     {% if thumb.url %}
-                      <a href="{% url 'targets:detail' target.pk %}">
+                      <a href="{% url 'targets:detail' target.pk %}" data-testid="galactic_thumbnail">
                         <div class="gs-opm-thumb">
                           <img src="{{ thumb.url }}"
                                alt="Finder chart for {{ target.name }}"

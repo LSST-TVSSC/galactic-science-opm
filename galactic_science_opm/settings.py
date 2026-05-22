@@ -214,7 +214,7 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['console'],
-            'level': 'INFO'
+            'level': 'WARN'
         }
     }
 }
@@ -433,6 +433,8 @@ PLOTLY_THEME = 'plotly_white'
 # Setting for displaying pagination information (e.g., "(0-0 of 0)").
 # Set this to False if you have a particularly large DB and paginated views are slow.
 SHOW_PAGINATION_INFO = True
+# This is used to enable testing related things, such as certain endpoints.
+TESTING = False
 
 try:
     from local_settings import * # noqa

@@ -1,3 +1,6 @@
+from django.core import management
+from django.db import OperationalError, connections
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from custom_code.target_models import GalacticTarget
@@ -63,10 +66,53 @@ class HomeView(TemplateView):
         # This can be modifed with any selector function later.
         # Radar plot top events, for ZTF26 events, waiting for updates       
 
-        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF26').filter(average_master_probability__gt=0.)
-        prio_ids = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').values_list('target_id', flat=True).distinct()[:3]
+        distinct_ids = (
+            MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
+            .distinct("target_id")
+            .filter(target__name__icontains="ZTF26")
+            .filter(average_master_probability__gt=0.0)
+        )
+        prio_ids = (
+            MicrolensingRadarData.objects.filter(id__in=distinct_ids)
+            .order_by("-average_master_probability")
+            .values_list("target_id", flat=True)
+            .distinct()[:3]
+        )
         target_objects = GalacticTarget.objects.filter(id__in=prio_ids)
-        featured = (target_objects)
+        featured = target_objects
         context["featured_targets"] = featured
         return context
+
+def health(_request):
+    """
+    Very simple health endpoint to check when migrations and so on are done.
+    """
+    database_connection = connections["default"]
+    try:
+        database_connection.cursor()
+    except OperationalError:
+        return JsonResponse({"status": "unhealthy"}, status=503)
+    
+    return JsonResponse({"status": "healthy"}, status=200)
+
+def flush_and_seed(_request):
+    """
+    FOR TESTING ONLY!
+    This endpoint flushes the database and imports test data. 
+    It is only added to urlpatterns if SETTINGS.TESTING is True.
+    """
+    _ = management.call_command(
+        "flush",
+        '--noinput'
+    )
+    # mkistner: I am not quite sure if this is really needed
+    _ = management.call_command(
+        "migrate",
+        '--noinput'
+    )
+    _ = management.call_command(
+        "seed_e2e_data"
+    )
+    return JsonResponse({"status": "seeding_done"}, status=201)
+
 

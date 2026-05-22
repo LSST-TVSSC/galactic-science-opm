@@ -1,0 +1,32 @@
+services:
+  galactic-science-opm:
+    volumes:
+      - ${DJANGO_TEST_DATA_DIR}:/galactic_science_opm/test_data
+    depends_on: !override
+      - galactic-science-opm-db-test
+    environment:
+     E2E: 1
+     DJANGO_DEBUG: True
+     DB_HOST: galactic-science-opm-db-test
+     DJANGO_SETTINGS_MODULE: galactic_science_opm.settings_test
+
+  galactic-science-opm-db: !reset null
+
+  galactic-science-opm-db-test:
+    image: ${PSQL_IMAGE}
+    environment:
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASS}
+      POSTGRES_DB: galactic_science_opm
+    
+  e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    volumes:
+      - .:/code
+    depends_on:
+      - galactic-science-opm
+      - galactic-science-opm-db-test
+    environment:
+      BASE_URL: ${BASE_URL:-http://frontend-proxy:80}
