@@ -1,7 +1,11 @@
 from astroquery.vizier import Vizier
 from astropy.coordinates import Angle
 import astropy.units as u
+from astropy.time import Time
 from astropy.coordinates import SkyCoord
+from io import StringIO
+import pandas as pd
+import requests
 
 def get_glade_plus_count(coords):
     """
@@ -78,3 +82,56 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
         else:
             pass
     return result_string
+
+def query_ztf_lightcurve(
+ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r", query=False
+):
+    """
+    This function generates a pandas df formatted ZTF lightcurve using requests
+    based on RA and Dec in degrees and a search radius in arcseconds.
+    Optionally the start_mjd and passband can be given.
+
+    The output contains the concatenated timeseries ZTF data as pandas dataframe.
+
+    parameters:
+    ra_deg (float): right ascension in degrees.
+    dec_deg (float): declination in degrees.
+    radius (float): query radius in arcseconds.
+
+    optional parameters:
+    start_mjd (float): start mjd in days.
+    passband (str): ZTF passband, default r.
+
+    returns:
+    pandas dataframe of the lightcurve
+    """
+    if ra_deg >= 0.0:
+        ra_str = " {0:.4f}".format(ra_deg)
+    else:
+        ra_str = " {0:.4f}".format(ra_deg)
+    if dec_deg >= 0.0:
+        dec_str = " {0:.4f}".format(dec_deg)
+    else:
+        dec_str = " {0:.4f}".format(dec_deg)
+    radius_str = " {0:.4f}".format(radius_arcsec / 3600.0)
+    mjd_now_str = "{:.1f}".format(Time.now().mjd)
+    circle_position_string = "{}{}{}".format(ra_str, dec_str, radius_str)
+    start_mjd_str = "{0:.1f}".format(start_mjd)
+    if query == True:
+        print(
+            "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?POS=CIRCLE{}&BANDNAME={}&NOBS_MIN=3&TIME={}+{}&BAD_CATFLAGS_MASK=32768&FORMAT=csv".format(
+                circle_position_string, passband, start_mjd_str, mjd_now_str
+            )
+        )
+        return None
+    else:
+        pandas_df_lightcurve = pd.read_csv(
+            StringIO(
+                requests.get(
+                    "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?POS=CIRCLE{}&BANDNAME={}&NOBS_MIN=3&TIME={}+{}&BAD_CATFLAGS_MASK=32768&FORMAT=csv".format(
+                        circle_position_string, passband, start_mjd_str, mjd_now_str
+                    )
+                ).text
+            )
+        )
+    return pandas_df_lightcurve
