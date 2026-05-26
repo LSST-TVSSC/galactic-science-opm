@@ -106,7 +106,15 @@ class ANTARESBroker(GenericBroker):
                 event_name = locus.properties['survey']['ztf']['id'][0]
             else:    
                 event_name = locus.locus_id
-
+            
+            if 'tns_public_objects' in locus.catalogs:
+                try:
+                    catalog_data = locus.catalog_objects
+                    known_aliases = catalog_data['tns_public_objects'][0]['internal_names'].split(", ")
+                except Exception as e:
+                    print(f"No known aliases, exception {e}")
+            else:
+                known_aliases=[]
             qs = GalacticTarget.objects.filter(name=event_name)
             if len(qs) == 0:
                 s = SkyCoord(locus.coordinates.ra.deg, locus.coordinates.dec.deg, unit=(unit.deg, unit.deg), frame='icrs')
@@ -116,6 +124,16 @@ class ANTARESBroker(GenericBroker):
                     locus.coordinates.dec.deg,
                     debug=debug
                 )
+                try:
+                    for alias_name in known_aliases:
+                        target_tmp, result_tmp = validators.get_or_create_event(
+                            alias_name,
+                            locus.coordinates.ra.deg,
+                            locus.coordinates.dec.deg,
+                        debug=debug
+                    )
+                except Exception as e:
+                    print(f"Creating alias: {e}")
 
                 if result == 'new_target':
                     print('ANTARES microlensing filter harvester: added event '+event_name+' to OPM')
@@ -159,7 +177,7 @@ class ANTARESBroker(GenericBroker):
 
     def find_and_ingest_photometry(self, targets):
         print('ANTARES microlensing filter: ingesting photometry')
-        targets_ztf = [x for x in targets if 'ZTF' in x.name]
+        targets_ztf = [x for x in targets if 'ZTF' in "".join(x.names)]
         for target in targets_ztf:
             print('ANTARES microlensing filter with ZTF ALERCE harvester: ingesting photometry for event ' + target.name)
             try:
@@ -177,7 +195,8 @@ class ANTARESBroker(GenericBroker):
         from alerce.core import Alerce
         alerce = Alerce()
         photometry = []
-        ALERCE_name = target.name
+        target_name_ztf = [x for x in target.names if "ZTF" in x][0]
+        ALERCE_name = target_name_ztf
         detections_photometry = alerce.query_detections(ALERCE_name,
                                      format="pandas", survey = survey)
         #remove multiple detections

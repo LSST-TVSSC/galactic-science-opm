@@ -29,8 +29,17 @@ class Command(BaseCommand):
             print(f'Check lc_classifier_BHRF_forced_phot microlensing probability for event {target.name}')
             time_now = Time(datetime.datetime.now()).jd
             alerce = Alerce()
-            probabilities = alerce.query_probabilities(target.name,survey='ztf')
-            
+            try:
+                if "ZTF" in "".join( [x for x in target.names if "ZTF" in x]):
+                    target_name_ztf =  [x for x in target.names if "ZTF" in x][0]
+                    probabilities = alerce.query_probabilities(target_name_ztf,survey='ztf')
+                else:
+                    print(f"No probability ingested {target_name_ztf}")
+                    continue
+            except Exception as e:
+                print(f"No probability ingested {e}")
+                continue
+
             prob_pd = pd.DataFrame.from_dict(probabilities)
             prob_class1 = 0.
             prob_class2 = 0.
