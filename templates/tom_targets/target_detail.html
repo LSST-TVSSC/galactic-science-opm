@@ -225,7 +225,11 @@
          </div>
       </div>
 
-      <div class="tab-pane" id="manage-data">
+      <!-- 
+        mkistner: We do not seem to use this feature yet. But if this is not commented out,
+        it will load js9.
+      -->
+      <!-- <div class="tab-pane" id="manage-data">
         {% if user.is_authenticated %}
           {% upload_dataproduct object %}
         {% endif %}
@@ -238,7 +242,7 @@
       </div>
       <div class="tab-pane" id="manage-groups">
         {% target_groups target %}
-      </div>
+      </div> -->
  
    <div class="tab-pane" id="classification" data-testid="classifications-tab">
    <h4>Classifications</h4>
