@@ -34,6 +34,7 @@ class GalacticTarget(BaseTarget):
     expected_visits = models.IntegerField(default=-1)
     known_variability = models.CharField(max_length=150, default='None')
     known_extragalactic = models.CharField(max_length=150, choices=CatalogFlag.choices)
+    ztf_baseline_checked = models.BooleanField(default=False, help_text="DR ZTF checked?")
 
     class Meta:
         verbose_name = "target"

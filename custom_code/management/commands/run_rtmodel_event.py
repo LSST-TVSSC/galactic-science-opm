@@ -1,10 +1,11 @@
 from django.core.management.base import BaseCommand
 from tom_dataproducts.models import ReducedDatum
-from tom_targets.models import Target,TargetExtra
+from tom_targets.models import Target
 from django.conf import settings
 from django.db import transaction
-from astropy.time import Time, TimeDelta
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
+from astropy.time import Time
+from custom_code.target_models import GalacticTarget, MicrolensingModel
+from custom_code.utils.catalog_requests import query_ztf_lightcurve
 from astropy.time import Time, TimezoneInfo
 from astropy.coordinates import SkyCoord, EarthLocation
 import RTModel
@@ -15,7 +16,6 @@ import RTModel.plotmodel as plm
 import astropy.units as u
 import pandas as pd
 import tempfile
-import datetime
 from os import path
 from os import makedirs, listdir
 import numpy as np
@@ -109,6 +109,32 @@ class Command(BaseCommand):
         qs = GalacticTarget.objects.filter(name__icontains=str(options['event']))
         if len(qs)>0:
             target = Target.objects.get(name=str(options['event']))
+            if not target.ztf_baseline_checked:
+                baseline_photometry = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="r")
+                target.ztf_baseline_checked = True
+                target.save(update_fields=['ztf_baseline_checked'])
+                filter_definition = {"zg":"ZTF_g", "zr":"ZTF_r", "zi":"ZTF_i"}
+                for i, row in baseline_photometry.iterrows():
+                    jd = Time(row["mjd"], format='mjd', scale='utc')
+                    jd.to_datetime(timezone=TimezoneInfo())
+                    if "mag" in baseline_photometry.columns :
+                        if not pd.isna(row["mag"]) and row["mag"]<100.:
+                            datum = {'magnitude': row["mag"],
+                                    'filter': filter_definition[row["filtercode"]],
+                                    'error': row["magerr"]
+                                    }
+                    try:
+                        with transaction.atomic():
+                            rd, created = ReducedDatum.objects.get_or_create(
+                                timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                value=datum,
+                                source_name='ALERCE',
+                                source_location=target.name,
+                                data_type='photometry',
+                                target=target)
+                    except Exception as e:
+                        print(f'Unexpected exception {e}')
+            
             run_fit(target)
 
                 
