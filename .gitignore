@@ -141,3 +141,4 @@ data/*.png
 compose.yaml
 
 /database
+node_modules
