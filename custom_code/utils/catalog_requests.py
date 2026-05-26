@@ -84,8 +84,7 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
     return result_string
 
 def query_ztf_lightcurve(
-ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r", query=False
-):
+ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r"):
     """
     This function generates a pandas df formatted ZTF lightcurve using requests
     based on RA and Dec in degrees and a search radius in arcseconds.
@@ -117,14 +116,7 @@ ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r", query=False
     mjd_now_str = "{:.1f}".format(Time.now().mjd)
     circle_position_string = "{}{}{}".format(ra_str, dec_str, radius_str)
     start_mjd_str = "{0:.1f}".format(start_mjd)
-    if query == True:
-        print(
-            "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?POS=CIRCLE{}&BANDNAME={}&NOBS_MIN=3&TIME={}+{}&BAD_CATFLAGS_MASK=32768&FORMAT=csv".format(
-                circle_position_string, passband, start_mjd_str, mjd_now_str
-            )
-        )
-        return None
-    else:
+    try:
         pandas_df_lightcurve = pd.read_csv(
             StringIO(
                 requests.get(
@@ -134,4 +126,6 @@ ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r", query=False
                 ).text
             )
         )
+    except Exception as e:
+        print(f"Unexpected exception {e}")
     return pandas_df_lightcurve

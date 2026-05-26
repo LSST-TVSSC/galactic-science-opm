@@ -113,7 +113,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if str(options['event']) != "ZTF" and str(options['event']) != "LSST" :
             qs=GalacticTarget.objects.filter(name__icontains=str(options['event']))
-            print(qs)
             for target in qs:
                 run_fit(target)
         else:            
@@ -122,7 +121,7 @@ class Command(BaseCommand):
             for target_query in qs:
                 target = GalacticTarget.objects.filter(name__icontains=target_query.target.name).last()
                 if not target.ztf_baseline_checked:
-                    baseline_photometry = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="r",query=False)
+                    baseline_photometry = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="r")
                     target.ztf_baseline_checked = True
                     target.save(update_fields=['ztf_baseline_checked'])
                     filter_definition = {"zg":"ZTF_g", "zr":"ZTF_r", "zi":"ZTF_i"}

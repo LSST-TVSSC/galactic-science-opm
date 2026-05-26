@@ -110,7 +110,7 @@ class Command(BaseCommand):
         if len(qs)>0:
             target = Target.objects.get(name=str(options['event']))
             if not target.ztf_baseline_checked:
-                baseline_photometry = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="r",query=False)
+                baseline_photometry = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="r")
                 target.ztf_baseline_checked = True
                 target.save(update_fields=['ztf_baseline_checked'])
                 filter_definition = {"zg":"ZTF_g", "zr":"ZTF_r", "zi":"ZTF_i"}
