@@ -92,8 +92,15 @@
     <div class="tab-pane active" id="photometry" data-testid="photometry-tab">
       {% photometry_for_target target %}
       <p>
+
+        {% if "lsst" in target.name|lower %}
+        <a href="https://antares.noirlab.edu/loci/lookup/{{target.name|slice:'5:'}}" class="btn btn-primary" role="button"
+          target="_blank">ANTARES</a>
+        {% endif %}
+       {% if "ztf" in target.name|lower %}
         <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button"
           target="_blank">ALeRCE</a>
+        {% endif %}
         {% if "ztf" in target.name|lower %}
           <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" 
             target="_blank">fink</a>
@@ -238,8 +245,10 @@
 
    {% microlensing_radar target %}
     <p>
+     {% if "ztf" in target.name|lower %}
       <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button"
         target="_blank">ALeRCE</a>
+      {% endif %}      
       {% if "ztf" in target.name|lower %}
         <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>
       {% endif %}
@@ -290,7 +299,9 @@
         <!--{% spectroscopy_for_target target %}-->
         <img src="{% static 'tom_common/img/draft_sed2.png' %}">
         <p>
+        {% if "ztf" in target.name|lower %}
         <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> 
+        {% endif %}
         {% if "ztf" in target.name|lower %}
             <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>
         {% endif %}

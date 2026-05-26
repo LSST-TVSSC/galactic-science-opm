@@ -36,15 +36,19 @@ def microlensing_prob_view(request):
 def microlensing_rescaled_prob_view(request):
     #Temporary filter for ZTF 2026 events until LSST is online, included
 
-    distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.)
-    microlensing_objects = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:70]
+    distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.).exclude(target__known_variability__icontains="queried")
+    microlensing_objects = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:30]
     
     distinct_ids_queried = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.).filter(target__known_variability__icontains="queried")
     microlensing_objects_queried = MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried).order_by('-average_master_probability').distinct()[:30]
 
+    distinct_ids_queried_lsst = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='LSST').filter(average_master_probability__gt=0.).filter(target__known_variability__icontains="queried")
+    microlensing_objects_queried_lsst = MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried_lsst).order_by('-average_master_probability').distinct()[:30]
+
     context = {
         'microlensing_objects': microlensing_objects,
         'microlensing_objects_queried': microlensing_objects_queried,
+        'microlensing_objects_queried_lsst': microlensing_objects_queried_lsst
     }
 
     try:

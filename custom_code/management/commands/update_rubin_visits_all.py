@@ -18,7 +18,7 @@ class Command(BaseCommand):
         config = apps.get_app_config('custom_code')
         visit_map = config.nvisits_10yrs_map
       
-        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.)
+        distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='T').filter(average_master_probability__gt=0.)
         qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:100]
         for entry in qs:
             target = GalacticTarget.objects.filter(name__icontains=entry.target.name).last()

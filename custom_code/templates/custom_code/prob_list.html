@@ -29,9 +29,26 @@
                
             </tr>
         </thead>
+                <tbody>
+                {% for model in microlensing_objects_queried_lsst %}
+            <tr>
+                 <td> <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
+                     <a href="https://antares.noirlab.edu/loci/lookup/{{model.target|slice:'5:'}}">ANTARES</a>
+                </td>
+                <td ><b>{{model.average_master_probability|floatformat:4}}</b></td>
+                <td>{{model.target.known_variability}}</td>
+                <td>{{model.metric_nsquare|floatformat:3}}</td>
+                <td>{{model.metric_alerce|floatformat:3}}</td>
+                <td>{{model.metric_alerce_atat|floatformat:3}}</td>
+                <th> NA </th>
+                <td>{{model.metric_planet|floatformat:3}}</td>
+                <td>{{model.metric_bogus|floatformat:3}}</td>
+                <td>{{model.updated_at}}</td>
+            </tr>
+                {% endfor %}
+            </tbody>      
         <tbody>
                 {% for model in microlensing_objects_queried %}
-
             <tr>
                  <td> <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
                      <a href="https://alerce.online/object/{{model.target}}">ALeRCE</a> 
