@@ -15,35 +15,11 @@
     {% endblock %}
     <link rel="icon" type="image/x-icon" href="{% static 'tom_common/img/favicon-32.ico' %}" sizes="32x32" />
 
-    <script>
-      // mkistner: In order to be able to keep ploty as deferred, this workaround
-      // is needed. There is no way for us to wait for plotly to ready and then
-      // start the scripts. So this adds a mock Plotly to save the calls the plots 
-      // already make. Once this real plotly is there, I call it again with the
-      // stored calls. 
-      const __ari__pendingPlotlyCalls = []
-      window.Plotly = {
-        newPlot: function (...args) {
-          __ari__pendingPlotlyCalls.push(args);
-        },
-        __ari__dummpyProp: true
-      }
-      document.addEventListener('DOMContentLoaded', async () => {
-          while (window.Plotly.__ari__dummpyProp) {
-              await new Promise(r => setTimeout(r, 50));
-          }
-          
-          for (const pendingCall of __ari__pendingPlotlyCalls) {
-            Plotly.newPlot(...pendingCall)
-          }
-      });
-    </script>
     {% bootstrap_javascript jquery='True' %}
     <!-- htmx.min.js was downloaded manually and added to the project. see https://htmx.org/docs/#download-a-copy -->
     <script defer src="{% static 'tom_common/js/htmx.min.js' %}"></script>
     <!-- Loading AlpineJS from a CDN For now, todo solution for 3rd party static assets. -->
     <script defer src="{% static 'alpinejs.min.js' %}"></script>
-    <script defer src="{% static 'plotly-3.5.1.min.js' %}"></script>
 
     <title>{% tom_name %} | {% block title %}{% endblock %}</title>
   </head>

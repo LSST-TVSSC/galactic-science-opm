@@ -1,5 +1,5 @@
 {% extends 'tom_common/base.html' %}
-{% load bootstrap4 targets_extras dataproduct_extras %}
+{% load bootstrap4 targets_extras dataproduct_extras vite %}
 {% block title %}Targets{% endblock %}
 {% block content %}
 <div class="row content">
@@ -74,7 +74,11 @@
 
 </div>
 <div class="col-md-4" data-testid="skymap">
- {% aladin_skymap object_list %}
+  <style>
+    #sky_map {height: 500px;}
+  </style>
+  {% aladin_skymap object_list %}
 </div>
   </div>
+<script type="module" src="{% vite_asset 'src/pages/target-list.ts' %}"></script>
 {% endblock %}

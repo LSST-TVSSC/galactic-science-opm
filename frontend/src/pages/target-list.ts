@@ -1,0 +1,1 @@
+import "../components/aladin-skymap-element/aladin-skymap-element"

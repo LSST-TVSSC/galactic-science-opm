@@ -1,0 +1,7 @@
+{% load vite %}
+
+<plotly-chart-element id="facility_map_chart">
+    {{ figure | json_script:"facility_map" }}
+</plotly-chart-element>
+<script type="module" src="{% vite_asset 'src/pages/observations.ts' %}"></script>
+

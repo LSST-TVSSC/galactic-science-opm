@@ -5,7 +5,14 @@ export default defineConfig({
   build: {
     outDir: "../custom_code/static/custom_code/dist",
     emptyOutDir: true,
-    manifest: true
+    manifest: true,
+    rollupOptions: {
+      input: {
+        target_detail: "src/pages/target-detail.ts",
+        target_list: "src/pages/target-list.ts",
+        observations: "src/pages/observations.ts",
+      },
+    },
   },
   server: {
     port: 5173,

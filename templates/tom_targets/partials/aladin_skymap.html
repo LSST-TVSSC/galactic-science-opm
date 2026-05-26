@@ -1,134 +1,16 @@
 {% load static %}
-<script src="{% static 'aladinv3.js' %}"></script>
-
-<div id="aladin-lite-div" style="width:auto; height:700px; margin:auto; margin-top: 20px;" ></div>
-
-<script type="text/javascript">
-(async function loadAladin() {
-
-    A.init.then(() => {
-        window.aladin = A.aladin("#aladin-lite-div", {
-            survey: "P/DSS2/color",
-            fov: 360,
-            projection: "MOL",
-            showReticle: false,
-            showCooGrid: true,
-            showCooGridControl: true,
-        });
-
-        aladin.setCooGrid({ color: 'grey', labelSize: 10 });
-
-        // extract the targets from the context
-        var targets = {{ targets|safe }}; //targets cannot be a queryset; here it is a list of dictionaries
-
-        // define catalog for the targets
-        var catalogOptions = {
-            name: 'Targets',
-            color: 'blue',
-            sourceSize: 16};
-
-        // add targets to the catalog
-        for (var i = 0; i < targets.length; i++) {
-            var target = targets[i];
-            var targetCatalog = A.catalog({name: target.name , color: 'blue', sourceSize: 16});
-            aladin.addCatalog(targetCatalog);
-            popupInfo = ['RA: '.concat(target.ra, '<br>',  'Dec: ', target.dec)];
-            targetCatalog.addSources([A.marker(target.ra, target.dec, {popupTitle: target.name, popupDesc: popupInfo})]);
-        }
-
-        // extract Moon information from the context
-        const moonRaDeg = {{ moon_ra|safe }};
-        const moonDecDeg = {{ moon_dec|safe }};
-        const moonIllumination = {{ moon_illumination|safe }}.toFixed(3);
-        const moonGreyscale = 255 * moonIllumination;
-
-        // get a unicode representation of the Moon based on illumination fraction
-        var unicodeMoon;
-        if (moonIllumination <= 0.125 ) {
-            unicodeMoon = "\uD83C\uDF11";
-        } else if (moonIllumination <= 0.375) {
-            unicodeMoon = "\uD83C\uDF12";
-        } else if (moonIllumination <= 0.625) {
-            unicodeMoon = "\uD83C\uDF13";
-        } else if (moonIllumination <= 0.875) {
-            unicodeMoon = "\uD83C\uDF14";
-        } else if (moonIllumination <= 1.0) {
-            unicodeMoon = "\uD83C\uDF15";
-        }
-
-        // Create a text based symbol for the moon centered on the source coordinates
-        var drawMoon = function(source, canvasCtx) {
-            canvasCtx.globalAlpha = 1;
-            canvasCtx.font = '25px Arial';
-            canvasCtx.fillStyle = '#eee';
-            canvasCtx.textBaseline = 'middle';
-            canvasCtx.textAlign = 'center';
-            canvasCtx.fillText(unicodeMoon, source.x, source.y);
-        };
-
-        // create a catalog for the moon
-        const moonImage = A.catalog({shape: drawMoon, color: 'gray', name: 'Moon'});
-
-        const popupMoonDescription = `Illumination: ${moonIllumination} <br> RA: ${moonRaDeg.toFixed(4)} <br> Dec: ${moonDecDeg.toFixed(4)}`;
-
-        moonImage.addSources([A.marker(moonRaDeg, moonDecDeg,
-            {popupTitle: 'Moon (Geocentric)',
-            popupDesc: popupMoonDescription,
-            })]);
-
-        aladin.addCatalog(moonImage);
-
-        // now add the sun in its own catalog
-        const sunCatalog = A.catalog({
-            name: 'Sun',
-            shape: 'circle',
-            color: 'yellow',
-            sourceSize: 30}); // fontSize from Moon canvas plus 5 to match sizes
-
-        const sunRaDeg = {{ sun_ra|safe }};
-        const sunDecDeg = {{ sun_dec|safe }};
-
-        const popupSunDescription = `RA: ${sunRaDeg.toFixed(4)} <br> Dec: ${sunDecDeg.toFixed(4)}`;
-
-        sunCatalog.addSources([A.marker(sunRaDeg, sunDecDeg,
-            {popupTitle: 'Sun (Geocentric)',
-            popupDesc: popupSunDescription,
-            })]);
-
-        aladin.addCatalog(sunCatalog);
-
-        var mocFileUrl = "{% static 'tom_common/moc/base51_for_OPM_600visits.fits' %}";
-            var moc_base51_600visits = A.MOCFromURL(mocFileUrl, {
-                color: '#ffa040',
-                name: 'Rubin',
-                lineWidth: 2,
-                opacity: 0.4
-            });
-
-            aladin.addMOC(moc_base51_600visits);
-
-        var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_nolodust.fits' %}";
-            var moc_nolodust = A.MOCFromURL(mocFileUrl, {
-                color: '#ff0000',
-                lineWidth: 2,
-                name: 'Galactic Plane Survey',
-                opacity: 0.3
-            });
-
-            aladin.addMOC(moc_nolodust);
-
-        var mocFileUrl = "{% static 'tom_common/moc/gaia_nsquare_for_OPM_moc_nes.fits' %}";
-            var moc_nes = A.MOCFromURL(mocFileUrl, {
-                color: '#6666ff',
-                name: 'North Ecliptic Spur',
-                lineWidth: 2,
-                opacity: 0.3
-            });
-
-            aladin.addMOC(moc_nes);
-
-
-    }); // closes A.init.then(() { ...
-
-})();
+{{ targets|json_script:"target_data" }}
+<aladin-skymap-element id="sky_map"
+    moon='{"ra": {{ moon_ra|safe }}, "dec": {{ moon_dec|safe }}, "illumination": {{ moon_illumination|safe }}}'
+    sun='{"ra": {{ sun_ra|safe }}, "dec": {{ sun_dec|safe }}}'
+    surveys='[
+        {"url": "{% static "tom_common/moc/base51_for_OPM_600visits.fits" %}", "color": "#ffa040", "name": "Rubin"}, 
+        {"url": "{% static "tom_common/moc/gaia_nsquare_for_OPM_moc_nolodust.fits" %}", "color": "#ff0000", "name": "Galactic Plane Survey"}, 
+        {"url": "{% static "tom_common/moc/gaia_nsquare_for_OPM_moc_nes.fits" %}", "color": "#6666ff", "name": "North Ecliptic Spur"}
+    ]'>
+</aladin-skymap-element>
+<script>
+    const mainMap = document.querySelector("#sky_map");
+    const targets = JSON.parse(document.querySelector('#target_data').textContent);
+    mainMap.targets = targets;
 </script>

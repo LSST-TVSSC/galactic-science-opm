@@ -29,12 +29,19 @@ class CustomCodeConfig(AppConfig):
         # and plotly is not small.
         # This monkeypatches plotly offline to NOT return plotly, so we can serve
         # it ourselves.
+        # Further, this returns only the json from the backend to support loading
+        # the script and plot only when it is visible.
         import plotly.offline as offline
 
         _original_plot = offline.plot
 
-        def patched_plot(*args, **kwargs):
-            kwargs.setdefault("include_plotlyjs", False)
-            return _original_plot(*args, **kwargs)
+        def patched_plot(fig, *args, **kwargs):
+            
+            # mkistner: why the back and forth? because the data sometimes
+            # contains fields that are not serializable with python's
+            # json_script. This fixes that.
+            data_as_json = fig.to_json()
+            data = json.loads(data_as_json)
+            return data
 
         offline.plot = patched_plot
