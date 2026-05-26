@@ -1,6 +1,6 @@
-<!-- include Aladin Lite CSS file in the head section of your page -->
-<link rel="stylesheet" href="//aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
-<!-- insert this snippet where you want Aladin Lite viewer to appear and after the loading of jQuery -->
+{% load static %}
+<link rel="stylesheet" href="{% static 'aladin.min.css' %}"/>
+
 <h3>Survey View</h3>
 <div id="aladin-lite-div" style="width:300px;height:300px;" data-testid="aladin-container"></div>
 <div id="chart-form-div" style="width:300px;">
@@ -41,7 +41,8 @@
     </div>
   </form>
 </div>
-<script type="text/javascript" src="//aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
+<script src="{% static 'aladin.min.js' %}"></script>
+
 <script type="text/javascript">
 
     let aladin = A.aladin('#aladin-lite-div', {
@@ -50,7 +51,8 @@
       showReticle: false,
       target: "{{ target.ra }} {{ target.dec }}",
       showGotoControl: false,
-      showZoomControl: false
+      showZoomControl: false,
+      log: false
     });
 
     aladin.on('positionChanged', function() {
