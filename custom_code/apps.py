@@ -1,3 +1,4 @@
+import json
 import joblib
 from pathlib import Path
 from django.apps import AppConfig
@@ -22,3 +23,18 @@ class CustomCodeConfig(AppConfig):
             self.nside = hp.get_nside(self.nsquare_map)
 
             self.models_loaded = True
+
+        # mkistner: Many of the plots by tomtoolkit use plotly.offline and return
+        # the full plotly.js. With multiple charts, it gets included multiple times
+        # and plotly is not small.
+        # This monkeypatches plotly offline to NOT return plotly, so we can serve
+        # it ourselves.
+        import plotly.offline as offline
+
+        _original_plot = offline.plot
+
+        def patched_plot(*args, **kwargs):
+            kwargs.setdefault("include_plotlyjs", False)
+            return _original_plot(*args, **kwargs)
+
+        offline.plot = patched_plot
