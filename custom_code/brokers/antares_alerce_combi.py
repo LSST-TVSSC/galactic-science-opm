@@ -176,7 +176,7 @@ class ANTARESBroker(GenericBroker):
                 if "ant_mag" in lsst_df.columns:
                     if not pd.isna(row["ant_mag"]) and row["ant_mag"]<100.:
                         datum = {"magnitude": row["ant_mag"],
-                                "filter": f"lsst_{row["ant_passband"]}",
+                                "filter": f"lsst_{row['ant_passband']}",
                                 "error": row["ant_magerr"]
                                 }          
                         try:
