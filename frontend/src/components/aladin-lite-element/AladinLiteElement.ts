@@ -92,7 +92,7 @@ export class AladinLiteElement extends LitElement {
       box-sizing: border-box;
     }
 
-    #aladin-div {
+    ::slotted(#aladin-div) {
       flex: auto;
       width: 100%;
       height: 100%;
@@ -173,6 +173,11 @@ export class AladinLiteElement extends LitElement {
 
   protected firstUpdated(changedProperties: PropertyValues): void {
     super.firstUpdated(changedProperties);
+
+    const div = document.createElement("div");
+    div.id = "aladin-div";
+    this.appendChild(div);
+
     this.intersectionObserver = this.setUpIntersectionObserver();
   }
 
@@ -182,7 +187,10 @@ export class AladinLiteElement extends LitElement {
   }
 
   setUpIntersectionObserver() {
-    const target = this.shadowRoot?.querySelector("#aladin-div");
+    const target = this.shadowRoot
+      ?.querySelector("slot")
+      ?.assignedNodes({ flatten: true })
+      .find((n) => n.nodeName === "DIV");
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -191,7 +199,7 @@ export class AladinLiteElement extends LitElement {
       });
     });
 
-    if (target) observer.observe(target);
+    if (target) observer.observe(target as HTMLElement);
     return observer;
   }
 
@@ -212,13 +220,19 @@ export class AladinLiteElement extends LitElement {
 
   private init = false;
   private wasInView = false;
+  private annotationLayer: any;
 
   initialize() {
+    console.log("initializing...")
     import("aladin-lite").then((A) => {
       this.A = A.default;
       this.A.init.then(() => {
+        const slot = this.shadowRoot?.querySelector("slot");
+        const wrapper = slot
+          ?.assignedNodes({ flatten: true })
+          .find((n) => n.nodeName === "DIV");
         this.aladin = this.A.aladin(
-          this.shadowRoot?.querySelector("#aladin-div"),
+          wrapper,
           {
             survey: "P/DSS2/color",
             fov: this.getFovAsDegreesFromForm(),
@@ -319,15 +333,18 @@ export class AladinLiteElement extends LitElement {
     const viewSizePix = this.aladin.getSize();
     const cosDec = Math.cos((targetDec * Math.PI) / 180);
 
-    let layer = this.A.graphicOverlay({
-      name: "chart annotations",
-      color: color,
-      lineWidth: 2,
-    });
-    this.aladin.removeLayers();
-    this.aladin.addOverlay(layer);
+    if (!this.annotationLayer) {
+      this.annotationLayer = this.A.graphicOverlay({
+        name: "chart annotations",
+        color: color,
+        lineWidth: 2,
+      })
+      this.aladin.addOverlay(this.annotationLayer);
+    } else {
+      this.annotationLayer.removeAll()
+    }
 
-    layer.add(this.A.circle(targetRa, targetDec, fovDegrees / 30));
+    this.annotationLayer.add(this.A.circle(targetRa, targetDec, fovDegrees / 30));
 
     // mkistner: This feature does not work reliably with the most recent versions
     // of aladin.
@@ -363,7 +380,7 @@ export class AladinLiteElement extends LitElement {
         const scaleBarLength = Math.abs(
           scaleBarEndPix[0] - scaleBarStartPix[0],
         );
-        layer.add(
+        this.annotationLayer.add(
           new CustomAladinText(
             scaleBarStartPix[0] + scaleBarLength / 2,
             scaleBarStartPix[1] - scaleBarTextSpacing,
@@ -371,7 +388,7 @@ export class AladinLiteElement extends LitElement {
             { color: color },
           ),
         );
-        layer.add(this.A.polyline([scaleBarStart, scaleBarEnd]));
+        this.annotationLayer.add(this.A.polyline([scaleBarStart, scaleBarEnd]));
       }
     }
 
@@ -407,10 +424,10 @@ export class AladinLiteElement extends LitElement {
         this.aladin.getFrame(),
       );
 
-      layer.add(
+      this.annotationLayer.add(
         this.A.polyline([compassNorthArm, compassCenter, compassEastArm]),
       );
-      layer.add(
+      this.annotationLayer.add(
         new CustomAladinText(
           compassNorthArmPix[0],
           compassNorthArmPix[1] - compassTextSpacing,
@@ -418,7 +435,7 @@ export class AladinLiteElement extends LitElement {
           { color: color },
         ),
       );
-      layer.add(
+      this.annotationLayer.add(
         new CustomAladinText(
           compassEastArmPix[0] - compassTextSpacing,
           compassEastArmPix[1],
@@ -455,7 +472,7 @@ export class AladinLiteElement extends LitElement {
 
   render() {
     return html`
-      <div id="aladin-div"></div>
+      <slot></slot>
       <div id="chart-form-div">
         <div id="chart-form" class="inline-flex gap-s align-fe p-b-s">
           <div class="input-label-wrapper">
