@@ -114,26 +114,27 @@ class Command(BaseCommand):
                 target.ztf_baseline_checked = True
                 target.save(update_fields=['ztf_baseline_checked'])
                 filter_definition = {"zg":"ZTF_g", "zr":"ZTF_r", "zi":"ZTF_i"}
-                for i, row in baseline_photometry.iterrows():
-                    jd = Time(row["mjd"], format='mjd', scale='utc')
-                    jd.to_datetime(timezone=TimezoneInfo())
-                    if "mag" in baseline_photometry.columns :
-                        if not pd.isna(row["mag"]) and row["mag"]<100.:
-                            datum = {'magnitude': row["mag"],
-                                    'filter': filter_definition[row["filtercode"]],
-                                    'error': row["magerr"]
-                                    }
-                    try:
-                        with transaction.atomic():
-                            rd, created = ReducedDatum.objects.get_or_create(
-                                timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                value=datum,
-                                source_name='ALERCE',
-                                source_location=target.name,
-                                data_type='photometry',
-                                target=target)
-                    except Exception as e:
-                        print(f'Unexpected exception {e}')
+                if "mag" in baseline_photometry.columns and "mjd" in baseline_photometry.columns:
+                    for i, row in baseline_photometry.iterrows():
+                        jd = Time(row["mjd"], format='mjd', scale='utc')
+                        jd.to_datetime(timezone=TimezoneInfo())
+                        if "mag" in baseline_photometry.columns :
+                            if not pd.isna(row["mag"]) and row["mag"]<100.:
+                                datum = {'magnitude': row["mag"],
+                                        'filter': filter_definition[row["filtercode"]],
+                                        'error': row["magerr"]
+                                        }
+                        try:
+                            with transaction.atomic():
+                                rd, created = ReducedDatum.objects.get_or_create(
+                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                    value=datum,
+                                    source_name='ALERCE',
+                                    source_location=target.name,
+                                    data_type='photometry',
+                                    target=target)
+                        except Exception as e:
+                            print(f'Unexpected exception {e}')
             
             run_fit(target)
 
