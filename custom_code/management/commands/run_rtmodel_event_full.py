@@ -72,7 +72,7 @@ def run_fit(target):
                         filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
                                   header=custom_header, index=None, sep=' ', mode='a')
                 rtm = RTModel.RTModel(tempdirname)
-                rtm.config_InitCond(modelcategories = ['PS'])
+                rtm.config_InitCond(modelcategories = ['LS'])
             if len(data)>3:
                 rho_constraints = [['log_rho', -3., -10., 0.01],['log_tE', 1.6, -0.5, 0.5]]
                 rtm.set_constraints(rho_constraints)
@@ -94,7 +94,12 @@ def run_fit(target):
                                               err_t0 = model_results.model_parameters.t0_error,
                                               err_tE = model_results.model_parameters.tE_error,
                                               err_rho = model_results.model_parameters.rho_error, 
-                                              rho = model_results.model_parameters.rho)
+                                              rho = model_results.model_parameters.rho,
+                                              q = model_results.model_parameters.mass_ratio,
+                                              s = model_results.model_parameters.separation,
+                                              err_q = model_results.model_parameters.mass_ratio_error,
+                                              err_s = model_results.model_parameters.separation_error
+                                              )
                 except :
                     print("No FinalModel from RTModel")
 
