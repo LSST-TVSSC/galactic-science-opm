@@ -167,8 +167,29 @@ class ANTARESBroker(GenericBroker):
             else:
                 print('ANTARES microlensing filter: found ' + str(qs.count()) + ' targets with name ' + event_name)
                 target = qs[0]
-
-
+            
+            #direct ingest of locus lightcurve
+            lsst_df = locus.lightcurve[locus.lightcurve['ant_survey'] == 4]  
+            for i, row in lsst_df.iterrows():
+                jd = Time(row["ant_mjd"], format='mjd', scale='utc')
+                jd.to_datetime(timezone=TimezoneInfo())             
+                if "ant_mag" in lsst_df.columns:
+                    if not pd.isna(row["ant_mag"]) and row["ant_mag"]<100.:
+                        datum = {"magnitude": row["ant_mag"],
+                                "filter": f"lsst_{row["ant_passband"]}",
+                                "error": row["ant_magerr"]
+                                }          
+                        try:
+                            with transaction.atomic():
+                                rd, created = ReducedDatum.objects.update_or_create(
+                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                    value=datum,
+                                    source_name='ANTARES',
+                                    source_location=event_name,
+                                    data_type='photometry',
+                                    target=target)
+                        except MultipleObjectsReturned:
+                            print('ANTARES Microlensing filter HARVESTER: Found duplicated data for event '+target.name)
             list_of_targets.append(target)
 
         print('ANTARES microlensing filter: completed ingest of events, including ' + str(len(new_targets)) + ' new targets')
