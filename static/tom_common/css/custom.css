@@ -51,12 +51,11 @@
 }
 
 body {
-    font-family: 'Verdana', sans-serif; 
-    font-size: 1rem;
-    font-weight: 900;
-    line-height: 1.2;
-    color: #fff;
-    background-color: #000;
+  font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";  
+  line-height: 1.2;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #000;
 }
 
 a {
