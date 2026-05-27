@@ -184,7 +184,7 @@ class OGLEBroker(GenericBroker):
                     }
             try:
                 with transaction.atomic():
-                    rd, created = ReducedDatum.objects.get_or_create(
+                    rd, created = ReducedDatum.objects.update_or_create(
                         timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                         value=datum,
                         source_name='OGLE',

@@ -158,7 +158,7 @@ class ALERCEBroker(GenericBroker):
                     'error': row["sigmapsf_corr_ext"]
                     }
             try:
-                rd, created = ReducedDatum.objects.get_or_create(
+                rd, created = ReducedDatum.objects.update_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                     value=datum,
                     source_name='ALERCE_LSST',

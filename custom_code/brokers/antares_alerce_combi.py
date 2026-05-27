@@ -220,7 +220,7 @@ class ANTARESBroker(GenericBroker):
                             }          
                     try:
                         with transaction.atomic():
-                            rd, created = ReducedDatum.objects.get_or_create(
+                            rd, created = ReducedDatum.objects.update_or_create(
                                 timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                                 value=datum,
                                 source_name='ALERCE',
@@ -230,28 +230,28 @@ class ANTARESBroker(GenericBroker):
 
                     except MultipleObjectsReturned:
                         print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+        if "mag_corr" in forced_photometry.columns and "mjd" in forced_photometry.columns:
+            for i, row in forced_photometry.iterrows():
 
-        for i, row in forced_photometry.iterrows():
+                jd = Time(row["mjd"], format='mjd', scale='utc')
+                jd.to_datetime(timezone=TimezoneInfo())
+                if not pd.isna(row["mag_corr"]) and row["mag_corr"]<100.:
+                    datum = {'magnitude': row["mag_corr"],
+                            'filter': filter_definition[row["fid"]],
+                            'error': row["e_mag_corr_ext"]
+                            }
+                    try:
+                        with transaction.atomic():
+                            rd, created = ReducedDatum.objects.update_or_create(
+                                timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                value=datum,
+                                source_name='ALERCE',
+                                source_location=target.name,
+                                data_type='photometry',
+                                target=target)
 
-            jd = Time(row["mjd"], format='mjd', scale='utc')
-            jd.to_datetime(timezone=TimezoneInfo())
-            if not pd.isna(row["mag_corr"]) and row["mag_corr"]<100.:
-                datum = {'magnitude': row["mag_corr"],
-                        'filter': filter_definition[row["fid"]],
-                        'error': row["e_mag_corr_ext"]
-                        }
-                try:
-                    with transaction.atomic():
-                        rd, created = ReducedDatum.objects.get_or_create(
-                            timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                            value=datum,
-                            source_name='ALERCE',
-                            source_location=target.name,
-                            data_type='photometry',
-                            target=target)
-
-                except MultipleObjectsReturned:
-                    print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                    except MultipleObjectsReturned:
+                        print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
                 
 
         return 'OK'
