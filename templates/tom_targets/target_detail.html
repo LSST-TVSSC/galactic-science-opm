@@ -16,8 +16,9 @@
   };
 
   document.addEventListener("DOMContentLoaded", function() {
+    const DEFAULT_TAB = "photometry-tab"
     // Listen for tab changes.
-    document.querySelectorAll('#tabs .nav-link').forEach(tab => {
+    document.querySelectorAll('#tabs2 .nav-link').forEach(tab => {
       tab.addEventListener('click', function() {
         updateUrlWithTab(this.id.replace('-tab', ''));
       });
@@ -31,6 +32,9 @@
       if (tabElement) {
         tabElement.click();
       }
+    } else {
+      const tabElement = document.querySelector(`#${DEFAULT_TAB}`);
+      tabElement.click();
     }
   });
 </script>

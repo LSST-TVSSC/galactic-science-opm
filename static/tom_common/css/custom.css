@@ -38,6 +38,10 @@
     --spacing-800: 5rem;
 }
 
+:root {
+  --color-highlight-primary: #c50d29;
+}
+
 .navbar {
   background-position: center;
   background-repeat: no-repeat;
@@ -192,4 +196,19 @@ td, th {
 .section-title {
   font-weight: var(--font-size-800);  
   margin-block: var(--spacing-100) var(--spacing-025);
+}
+
+#tabs2 .nav-link {
+  background-color: var(--color-highlight-primary);
+  color: #f2d9dd;
+  text-decoration: none;
+}
+
+#tabs2 .nav-link.active {
+  color: #f2f2f2;
+  font-weight: bold;
+}
+
+#tabs2 .list-group-item-primary {
+  background-color: var(--color-highlight-primary);
 }

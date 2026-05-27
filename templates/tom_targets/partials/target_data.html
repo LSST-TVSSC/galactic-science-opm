@@ -32,32 +32,32 @@
     {% endif%}
   {% endfor %}
   
-<dd class="col-sm-6">Class</dd>
+<dt class="col-sm-6">Class</dt>
 <dd class="col-sm-6" >{{target.target_type}}</dd>
-<dd class="col-sm-6">Probability rescaled</dd>
+<dt class="col-sm-6">Probability rescaled</dt>
 {% with target|microlensing_radar_by_name as filtered_parameters %} 
 <dd class="col-sm-6" >{{filtered_parameters.average_master_probability|floatformat:3}}</dd>
 {% endwith %}
 </dl>
 <dl class="col-sm-12 row">
-    <ul class="nav flex-column" role="tablist" id="tabs2" style="background-color: #c50d29; color: #fff;">
-      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="imaging-tab" href="#imaging" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Imaging</a>
+    <ul class="nav flex-column" role="tablist" id="tabs2">
+      <li class="list-group-item list-group-item-primary">
+        <a class="nav-link" id="photometry-tab" href="#photometry" role="tab" data-toggle="tab">Photometry</a>
+      </li>      
+      <li class="list-group-item list-group-item-primary">
+        <a class="nav-link" id="imaging-tab" href="#imaging" role="tab" data-toggle="tab">Imaging</a>
       </li>   
-      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="photometry-tab" href="#photometry" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Photometry</a>
+      <li class="list-group-item list-group-item-primary">
+        <a class="nav-link" id="spectroscopy-tab" href="#spectroscopy" role="tab" data-toggle="tab">Spectroscopy</a>
       </li>      
-      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="spectroscopy-tab" href="#spectroscopy" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Spectroscopy</a>
+        <li class="list-group-item list-group-item-primary">
+        <a class="nav-link" id="classification-tab" href="#classification" role="tab" data-toggle="tab">Classifications</a>
       </li>      
-        <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="classification-tab" href="#classification" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;">Classifications</a>
-      </li>      
-      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="analysis-tab" href="#analysis" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Analysis</a>
+      <li class="list-group-item list-group-item-primary">
+        <a class="nav-link" id="analysis-tab" href="#analysis" role="tab" data-toggle="tab" >Analysis</a>
       </li>
-      <li class="list-group-item list-group-item-primary" style="background-color: #c50d29; color: #fff;">
-        <a class="nav-link" id="exchange-tab" href="#exchange" role="tab" data-toggle="tab" style="background-color: #c50d29; color: #fff;" >Observe/Exchange</a>
+      <li class="list-group-item list-group-item-primary">
+        <a class="nav-link" id="exchange-tab" href="#exchange" role="tab" data-toggle="tab" >Observe/Exchange</a>
       </li>
  
     </ul>
