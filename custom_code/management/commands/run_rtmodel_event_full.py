@@ -95,10 +95,11 @@ def run_fit(target):
                                               err_tE = model_results.model_parameters.tE_error,
                                               err_rho = model_results.model_parameters.rho_error, 
                                               rho = model_results.model_parameters.rho,
-                                              q = model_results.model_parameters.q,
-                                              s = model_results.model_parameters.s,
-                                              err_q = model_results.model_parameters.u0_error,
-                                              err_s = model_results.model_parameters.t0_error)
+                                              q = model_results.model_parameters.mass_ratio,
+                                              s = model_results.model_parameters.separation,
+                                              err_q = model_results.model_parameters.mass_ratio_error,
+                                              err_s = model_results.model_parameters.separation_error
+                                              )
                 except :
                     print("No FinalModel from RTModel")
 
