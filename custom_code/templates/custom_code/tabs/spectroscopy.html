@@ -1,6 +1,8 @@
-{% load tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags vite %}
+{% load tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags vite sed_plots_tags %}
 <div data-testid="spectroscopy-tab">
-        <img src="{% static 'tom_common/img/draft_sed2.png' %}">
+        <plotly-chart-element id="vizier_sed_chart">
+          {% vizier_sed target %}
+        </plotly-chart-element>
         <p>
           {% if "ztf" in target.name|lower %}
           <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button" target="_blank">ALeRCE</a> 
@@ -8,6 +10,6 @@
           {% if "ztf" in target.name|lower %}
               <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" target="_blank">fink</a>
           {% endif %}
-          <a href="https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=2" class="btn btn-primary" role="button" >Vizier Gaia DR3</a> <a href="https://vizier.cds.unistra.fr/vizier/sed/?-c={{ target.ra }},{{ target.dec }}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">SED Vizier</a>
+          <a href="https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=2" class="btn btn-primary" role="button" target="_blank">Vizier Gaia DR3</a>
         </p>
 </div>

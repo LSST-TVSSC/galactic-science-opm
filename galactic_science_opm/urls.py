@@ -27,6 +27,7 @@ urlpatterns = [
         name="target-detail",
     ),
     path('targets/<int:pk>/share/', GsoOpmTargetShareView.as_view(), name='share'),
+    path('sed-plots/', include('sed_plots.urls')),
     path('', include('tom_common.urls')),
     path('custom_code/model_list.html', views.microlensing_model_view, name='microlensing_model_view'),
     path('custom_code/prob_list_lsst.html', views.microlensing_rescaled_prob_view_lsst, name='microlensing_rescaled_prob_view_lsst'),

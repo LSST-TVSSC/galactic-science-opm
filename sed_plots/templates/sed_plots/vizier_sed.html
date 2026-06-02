@@ -1,0 +1,37 @@
+{% if warning_text %}
+  <p class="alert alert-{{ warning_level }}" role="alert" data-testid="vizier-sed-warning">
+    {{ warning_text }}
+  </p>
+{% endif %}
+
+{% if sed_error %}
+  <p class="alert alert-secondary" role="alert" data-testid="vizier-sed-error">
+    {{ sed_error }}
+  </p>
+{% endif %}
+
+{% if figure %}
+  {{ figure|json_script:"vizier_sed_data" }}
+  <div data-testid="vizier-sed-plot"></div>
+{% endif %}
+
+{% if queried_at %}
+  <p class="small text-muted mb-2">
+    Stored VizieR SED query: {{ queried_at }}
+  </p>
+{% endif %}
+
+<div class="mt-2">
+  {% if can_fetch_sed %}
+    <form method="post" action="{% url 'sed_plots:fetch_vizier_sed' target.id %}" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">
+        Fetch/store VizieR SED
+      </button>
+    </form>
+  {% endif %}
+
+  <a href="{{ sed_url }}" class="btn btn-primary" role="button" target="_blank" rel="noopener">
+    Open CDS VizieR SED
+  </a>
+</div>

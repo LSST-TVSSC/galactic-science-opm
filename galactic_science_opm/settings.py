@@ -70,7 +70,8 @@ INSTALLED_APPS = [
     'tom_dataproducts',
     'tom_registration',
     'custom_code',
-    'radar_plots'
+    'radar_plots',
+    'sed_plots'
 ]
 
 SITE_ID = 1
@@ -317,12 +318,14 @@ DATA_PRODUCT_TYPES = {
     'photometry': ('photometry', 'Photometry'),
     'fits_file': ('fits_file', 'FITS File'),
     'spectroscopy': ('spectroscopy', 'Spectroscopy'),
-    'image_file': ('image_file', 'Image File')
+    'image_file': ('image_file', 'Image File'),
+    'sed': ('sed', 'SED')
 }
 
 DATA_PROCESSORS = {
     'photometry': 'tom_dataproducts.processors.photometry_processor.PhotometryProcessor',
     'spectroscopy': 'tom_dataproducts.processors.spectroscopy_processor.SpectroscopyProcessor',
+    'sed': 'custom_code.processors.vizier_sed_processor.VizierSEDProcessor',
 }
 
 TOM_FACILITY_CLASSES = [
