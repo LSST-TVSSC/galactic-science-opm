@@ -4,8 +4,8 @@ export default defineConfig({
   base: '/static/custom_code/dist/',
   build: {
     outDir: "../custom_code/static/custom_code/dist",
+    manifest: 'vite-manifest.json',
     emptyOutDir: true,
-    manifest: true,
     rollupOptions: {
       input: {
         target_detail: "src/pages/target-detail.ts",

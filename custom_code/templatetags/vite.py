@@ -11,7 +11,7 @@ if settings.DEBUG:
     prefix = "custom_code"
 
 MANIFEST_PATH = pathlib.Path(os.path.join(
-    settings.BASE_DIR,prefix,"static/custom_code/dist/.vite/manifest.json"
+    settings.BASE_DIR,prefix,"static/custom_code/dist/vite-manifest.json"
 ))
 
 _manifest_cache = None
