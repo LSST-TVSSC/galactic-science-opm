@@ -13,6 +13,31 @@
     --dark: #343a40;
 }
 
+:root {
+
+    --font-size-100: 0.75rem;
+    --font-size-200: 0.875rem;
+    --font-size-300: 1rem;   
+    --font-size-400: 1.125rem;
+    --font-size-500: 1.25rem;
+    --font-size-600: 1.5rem; 
+    --font-size-700: 1.875rem;
+    --font-size-800: 2.25rem;
+    --font-size-900: 3rem;
+
+    --spacing-025: 0.25rem;
+    --spacing-050: 0.5rem;
+    --spacing-075: 0.75rem;
+    --spacing-100: 1rem;
+    --spacing-200: 1.25rem;
+    --spacing-300: 1.5rem;
+    --spacing-400: 2rem;
+    --spacing-500: 2.5rem;
+    --spacing-600: 3rem;
+    --spacing-700: 4rem;
+    --spacing-800: 5rem;
+}
+
 .navbar {
   background-position: center;
   background-repeat: no-repeat;
@@ -162,4 +187,9 @@ td, th {
 /* Front page, "View all targets" button: white by default, normal hover */
 .gs-opm-home .gs-opm-view-all-btn:not(:hover) {
   background-color: #ffffff;
+}
+
+.section-title {
+  font-weight: var(--font-size-800);  
+  margin-block: var(--spacing-100) var(--spacing-025);
 }
