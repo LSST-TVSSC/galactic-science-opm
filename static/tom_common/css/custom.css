@@ -15,27 +15,37 @@
 
 :root {
 
-    --font-size-100: 0.75rem;
-    --font-size-200: 0.875rem;
-    --font-size-300: 1rem;   
-    --font-size-400: 1.125rem;
-    --font-size-500: 1.25rem;
-    --font-size-600: 1.5rem; 
-    --font-size-700: 1.875rem;
-    --font-size-800: 2.25rem;
-    --font-size-900: 3rem;
+  /* colors from Uni HD style guide*/
+  --hd-color--seal-background: #c40c29;
+  --hd-color--seal-outline: #590e14;
+  --hd-color--sand: #f4f0e9;
+  
+  --hd-color--sand-light: #9d978d;
 
-    --spacing-025: 0.25rem;
-    --spacing-050: 0.5rem;
-    --spacing-075: 0.75rem;
-    --spacing-100: 1rem;
-    --spacing-200: 1.25rem;
-    --spacing-300: 1.5rem;
-    --spacing-400: 2rem;
-    --spacing-500: 2.5rem;
-    --spacing-600: 3rem;
-    --spacing-700: 4rem;
-    --spacing-800: 5rem;
+  --font-size-100: 0.75rem;
+  --font-size-200: 0.875rem;
+  --font-size-300: 1rem;   
+  --font-size-400: 1.125rem;
+  --font-size-500: 1.25rem;
+  --font-size-600: 1.5rem; 
+  --font-size-700: 1.875rem;
+  --font-size-800: 2.25rem;
+  --font-size-900: 3rem;
+
+  --spacing-025: 0.25rem;
+  --spacing-050: 0.5rem;
+  --spacing-075: 0.75rem;
+  --spacing-100: 1rem;
+  --spacing-200: 1.25rem;
+  --spacing-300: 1.5rem;
+  --spacing-400: 2rem;
+  --spacing-500: 2.5rem;
+  --spacing-600: 3rem;
+  --spacing-700: 4rem;
+  --spacing-800: 5rem;
+
+  --color-highlight-primary: #c50d29;
+
 }
 
 .navbar {
@@ -47,12 +57,11 @@
 }
 
 body {
-    font-family: 'Verdana', sans-serif; 
-    font-size: 1rem;
-    font-weight: 900;
-    line-height: 1.2;
-    color: #fff;
-    background-color: #000;
+  font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";  
+  line-height: 1.2;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #000;
 }
 
 a {
@@ -192,4 +201,19 @@ td, th {
 .section-title {
   font-weight: var(--font-size-800);  
   margin-block: var(--spacing-100) var(--spacing-025);
+}
+
+#tabs2 .nav-link {
+  background-color: var(--color-highlight-primary);
+  color: #f2d9dd;
+  text-decoration: none;
+}
+
+#tabs2 .nav-link.active {
+  color: #f2f2f2;
+  font-weight: bold;
+}
+
+#tabs2 .list-group-item-primary {
+  background-color: var(--color-highlight-primary);
 }

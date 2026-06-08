@@ -110,7 +110,7 @@ def test_authorized_user_can_visit(page: Page):
     photometry_tab = page.get_by_test_id("photometry-tab")
     expect(photometry_tab).to_be_visible()
     # mkistner: also not sure about this assertion...
-    light_curve_chart_container = photometry_tab.locator(".light-curve")
+    light_curve_chart_container = photometry_tab.locator("#photometry_chart")
     expect(light_curve_chart_container).to_be_visible()
     expect(light_curve_chart_container).not_to_be_empty()
     
@@ -137,7 +137,7 @@ def test_authorized_user_can_visit(page: Page):
     expect(classifications_tab).to_be_visible()
     ### chart
     # mkistner: I am not sure about this test; coupled to implementation detail
-    chart_container = classifications_tab.locator(".plotly-graph-div")
+    chart_container = classifications_tab.locator("#microlensing_radar_chart")
     expect(chart_container).to_be_visible()
     expect(chart_container).not_to_be_empty()
 

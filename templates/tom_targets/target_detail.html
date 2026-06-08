@@ -1,5 +1,5 @@
 {% extends 'tom_common/base.html' %}
-{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags %}
+{% load comments bootstrap4 tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags vite %}
 {% load radar_plots_tags %}
 {% block title %}Target {{ object.name }}{% endblock %}
 {% block additional_css %}
@@ -16,8 +16,9 @@
   };
 
   document.addEventListener("DOMContentLoaded", function() {
+    const DEFAULT_TAB = "photometry-tab"
     // Listen for tab changes.
-    document.querySelectorAll('#tabs .nav-link').forEach(tab => {
+    document.querySelectorAll('#tabs2 .nav-link').forEach(tab => {
       tab.addEventListener('click', function() {
         updateUrlWithTab(this.id.replace('-tab', ''));
       });
@@ -31,6 +32,9 @@
       if (tabElement) {
         tabElement.click();
       }
+    } else {
+      const tabElement = document.querySelector(`#${DEFAULT_TAB}`);
+      tabElement.click();
     }
   });
 </script>
@@ -90,7 +94,9 @@
     {% include_app_tabs %}
     <div class="tab-content">
     <div class="tab-pane active" id="photometry" data-testid="photometry-tab">
-      {% photometry_for_target target %}
+      <plotly-chart-element id="photometry_chart">
+        {% photometry_for_target target %}
+      </plotly-chart-element>
       <p>
 
         {% if "lsst" in target.name|lower %}
@@ -102,8 +108,8 @@
           target="_blank">ALeRCE</a>
         {% endif %}
         {% if "ztf" in target.name|lower %}
-          <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary" role="button" 
-            target="_blank">fink</a>
+        <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary"
+          role="button" target="_blank">fink</a>
         {% endif %}
         <a href="https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1"
           target="_blank" class="btn btn-primary" role="button">Vizier Gaia DR3</a>
@@ -115,30 +121,32 @@
       <div class="tab-pane" id="imaging" data-testid="imaging-tab">
         <h4>Imaging</h4>
         <div class="container">
-          <h1 class="mt-4">Imaging</h1>
-      
           <div class="row">
             <div class="col-md-4">
-              Template
+              <div>Template</div>
+              <div>-</div>
             </div>
             <div class="col-md-4">
-              Data Image
+              <div>Data Image</div>
+              <div>-</div>
             </div>
             <div class="col-md-4">
-              Difference Image
+              <div>Difference Image</div>
+              <div>-</div>
             </div>
           </div>
+
           <div class="row">
-            <div class="col-md-4" data-testid="survey-view">
-              {% aladin_finderchart object %}
+            <div class="col-md-8" data-testid="survey-view">
+              <div>Survey View</div>
+              <div data-testid="aladin-container">{% aladin_finderchart object %}</div>
             </div>
             <div class="col-md-4">
-              Sky position
-            </div>
-            <div class="col-md-4">
-              Last shared image
+              <div>Last shared image</div>
+              <div>-</div>
             </div>
           </div>
+
         </div>
       </div>
       <div class="tab-pane" id="exchange" data-testid="exchange-tab">
@@ -149,7 +157,9 @@
       
         <h4>Plan</h4>
         {% if object.type == 'SIDEREAL' %}
-          {% moon_distance object %}
+        <plotly-chart-element id="moon_distance_chart">
+            {% moon_distance object %}
+        </plotly-chart-element>
         {% elif target.type == 'NON_SIDEREAL' %}
           <p>Airmass plotting for non-sidereal targets is not currently supported. If you would like to add this functionality,
             please check out the <a href="https://github.com/TOMToolkit/tom_nonsidereal_airmass" target="_blank">non-sidereal
@@ -225,7 +235,11 @@
          </div>
       </div>
 
-      <div class="tab-pane" id="manage-data">
+      <!-- 
+        mkistner: We do not seem to use this feature yet. But if this is not commented out,
+        it will load js9.
+      -->
+      <!-- <div class="tab-pane" id="manage-data">
         {% if user.is_authenticated %}
           {% upload_dataproduct object %}
         {% endif %}
@@ -238,12 +252,15 @@
       </div>
       <div class="tab-pane" id="manage-groups">
         {% target_groups target %}
-      </div>
+      </div> -->
  
    <div class="tab-pane" id="classification" data-testid="classifications-tab">
    <h4>Classifications</h4>
 
-   {% microlensing_radar target %}
+   <plotly-chart-element id="microlensing_radar_chart">
+        {% microlensing_radar target %}
+    </plotly-chart-element>
+   
     <p>
      {% if "ztf" in target.name|lower %}
       <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button"
@@ -324,4 +341,5 @@
     </div>
   </div>
 </div>
+<script type="module" src="{% vite_asset 'src/pages/target-detail.ts' %}"></script>
 {% endblock %}

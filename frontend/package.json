@@ -1,0 +1,24 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "devDependencies": {
+    "prettier": "3.8.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.12"
+  },
+  "dependencies": {
+    "aladin-lite": "^3.8.2",
+    "lit": "^3.3.2",
+    "plotly.js-dist-min": "^3.5.1"
+  }
+}

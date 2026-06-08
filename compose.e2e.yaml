@@ -6,7 +6,6 @@ services:
       - galactic-science-opm-db-test
     environment:
      E2E: 1
-     DJANGO_DEBUG: True
      DB_HOST: galactic-science-opm-db-test
      DJANGO_SETTINGS_MODULE: galactic_science_opm.settings_test
 

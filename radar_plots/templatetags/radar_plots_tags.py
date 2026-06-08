@@ -71,6 +71,6 @@ def microlensing_radar(targets=None):
         font=dict(size=17)
     )
 
-    figure = offline.plot(fig, output_type='div', show_link=False)
+    figure = offline.plot(fig, output_type='div', show_link=False, include_plotlyjs=False)
 
     return {'figure': figure}

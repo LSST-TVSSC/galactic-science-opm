@@ -1,4 +1,1 @@
-<div class="section-title">Photometry</div>
-<div class="light-curve">
-  {{ plot|safe }}
-</div>
+{{ plot | json_script:"photometry_data" }}

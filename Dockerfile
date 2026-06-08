@@ -1,3 +1,15 @@
+# FRONTEND BUILD
+FROM node:22-alpine AS frontend
+
+WORKDIR /frontend
+
+COPY frontend/package*.json ./
+RUN npm install
+
+COPY frontend .
+RUN npm run build
+
+# Django build
 FROM python:3.11-slim
 LABEL maintainer="llindstrom@lco.global"
 LABEL maintainer="markus.hundertmark@uni-heidelberg.de"
@@ -26,6 +38,9 @@ poetry lock && \
 poetry install -vv --no-interaction
 
 COPY . .  
+
+# copy vite assets
+COPY --from=frontend /custom_code/static/custom_code/dist ./static/custom_code/dist
 
 RUN chmod +x /galactic_science_opm/entrypoint.sh
 RUN chmod +x /galactic_science_opm/wait-for-healthy.sh
