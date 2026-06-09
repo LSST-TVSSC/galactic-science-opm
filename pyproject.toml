@@ -5,10 +5,12 @@ description = "Galactic Science OPM/TOM for LSST Transients and Variable Stars S
 authors = [
     {name="Markus Hundertmark", email="<markus.hundertmark@uni-heidelberg.de>"},
     {name="William Lindstrom", email="<llindstrom@lco.global>"},
+    {name="Maximilian Kistner", email="<max.kistner@uni-heidelberg.de>"}
 ]
 maintainers = [
     {name="Markus Hundertmark", email="<markus.hundertmark@uni-heidelberg.de>"},
     {name="William Lindstrom", email="<llindstrom@lco.global>"},
+    {name="Maximilian Kistner", email="<max.kistner@uni-heidelberg.de>"}
 ]
 readme = "README.md"
 license = "GPL-3.0-only"

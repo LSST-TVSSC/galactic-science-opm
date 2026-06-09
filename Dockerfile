@@ -1,5 +1,8 @@
 # FRONTEND BUILD
 FROM node:22-alpine AS frontend
+LABEL maintainer="llindstrom@lco.global"
+LABEL maintainer="markus.hundertmark@uni-heidelberg.de"
+LABEL maintainer="max.kistner@uni-heidelberg.de"
 
 WORKDIR /frontend
 
@@ -11,8 +14,6 @@ RUN npm run build
 
 # Django build
 FROM python:3.11-slim
-LABEL maintainer="llindstrom@lco.global"
-LABEL maintainer="markus.hundertmark@uni-heidelberg.de"
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
