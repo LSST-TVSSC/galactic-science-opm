@@ -47,6 +47,7 @@
   --color-highlight-primary: #c50d29;
   --color-link: #709bc9;
   --color-link--hover: #36a9ff;
+
 }
 
 .navbar {
@@ -217,4 +218,13 @@ td, th {
 
 #tabs2 .list-group-item-primary {
   background-color: var(--color-highlight-primary);
+}
+
+.current-user td:first-child::before {
+  content: "";
+  height: var(--spacing-050);
+  width: var(--spacing-050);
+  background: var(--color-highlight-primary);
+  display: inline-block;
+  margin: 0 var(--spacing-025) 0 0;
 }
