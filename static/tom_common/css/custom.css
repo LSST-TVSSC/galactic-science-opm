@@ -45,7 +45,8 @@
   --spacing-800: 5rem;
 
   --color-highlight-primary: #c50d29;
-
+  --color-link: #709bc9;
+  --color-link--hover: #36a9ff;
 }
 
 .navbar {
@@ -65,12 +66,12 @@ body {
 }
 
 a {
-    color: #709bc9;
+    color: var(--color-link);
     background-color: transparent;
 }
 
 a:hover {
-    color: #3f4346;
+    color: var(--color-link--hover);
     text-decoration: underline;
 }
 
