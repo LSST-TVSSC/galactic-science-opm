@@ -14,19 +14,41 @@ Once installed, you can access and interact with the OPM through its web interfa
 ## Planned Features
 * **Communication with Other TOM Systems**: Interact with other TOM systems connected to observatories and proposals, enabling easy requesting of observations directly from the OPM interface.
 * **Requesting and interacting with HPC systems to fit events**: Interact safely with HPC centers to fit complicated microlensing events, i.e. binary and triple lens events
-# Quick start
 
-After cloning the repository and changing your directory in to the cloned repo:
+## Quick start (local docker-based dev setup)
+
+### Requirements
+
+- `docker` or other compatible solution such as `podman`
+- `nodejs` and `npm`
+    - best installed using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+### Steps
+
+1. Clone the repository and change your directory in to the cloned repo.
+
+2. Start the docker containers using the following command: 
 ```bash
-docker compose up -d
+docker compose -f compose.base.yaml -f compose.local.yaml up -d  
+# or the following, if there have been significant changes or it has been a while
+docker compose -f compose.base.yaml -f compose.local.yaml up -d --build
 ```
-will, according to the `compose.yaml` file,  build a docker image, run it in a container, using a Postgresql database running in another container. Point your browser to http://127.0.0.1:8000 for the Galactic Science OPM home page running locally.
+This will, according to the `compose.*.yaml` files, build a docker image, run it in a container, using a Postgresql database running in another container. 
 
-When the database is empty, you may want to create an admin user for your TOM. You can do so by running the Django `createsuperuser` management command in the the container. First 'exec' into the container:
+3. Change into the directory `frontend` and run:
+```sh
+npm install
+npx vite build
+```
+This builds the frontend assets.
+
+4. Point your browser to http://127.0.0.1:8000 for the Galactic Science OPM home page running locally.
+
+5. When the database is empty, you may want to create an admin user for your TOM. You can do so by running the Django `createsuperuser` management command in the the container. First 'exec' into the container:
 ```bash
 docker exec -it galactic-science-opm-galactic-science-opm-1 /bin/bash
 ```
-In the container's bash shell (that you just openned):
+In the container's bash shell (that you just opened):
 ```bash
 ./manage.py createsuperuser
 ```
@@ -34,33 +56,43 @@ Ctrl-d to leave the container. Log into the OPM with the credentials you just cr
 
 To stop the containers:
 ```bash
-docker compose down
+docker compose -f compose.base.yaml -f compose.local.yaml down 
 ```
 
-# Setting up for local development
+## Setting up for local development without docker
+
+### Requirements
+
+- a compatible version of Python
+- the package manager [poetry](https://python-poetry.org/docs/#installing-with-the-official-installer)
+- `nodejs` and `npm`
+    - best installed using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+### Steps
+
 After cloning the repository and changing your directory (`cd`-ing) into the cloned repo:
 
-## 1. Create a virtual environment
-Always work in a virtual enviroment. To create and activate one:
+#### 1. Create a virtual environment
+Always work in a virtual environment. To create and activate one:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
-## 2. Install the dependencies
+#### 2. Install the dependencies
 There are more than one way to do this. The `pyproject.toml` project description file is common to all of them. Here, we use `poetry`:
 ```bash
 poetry install
 ```
 
-## 3. Work in a branch for the development that you'll be doing
+#### 3. Work in a branch for the development that you'll be doing
 If you've just cloned the repo, you'll be in the `dev` branch. You'll want to do your development in a branch that can later be merged into the `dev` branch (and ultimately into the `main` branch for deployment). With the `-b` switch, `git checkout` creates a new branch.If the branch you want already exists, you don't need the `-b` switch.
 
 ```bash
 git checkout -b <name-of-your-branch>
 ```
 
-## 4. Spin up a database for your development OPM to use
+#### 4. Spin up a database for your development OPM to use
 We quote from [settings.py](https://github.com/LSST-TVSSC/galactic-science-opm/blob/c0d47f68bd4ed2d8721ef3b0cf900eb5ae75a81e/galactic_science_opm/settings.py#L113):
 ```python
 # Here is how to start a dockerized postgresql container compatible with the default
@@ -78,7 +110,16 @@ We quote from [settings.py](https://github.com/LSST-TVSSC/galactic-science-opm/b
 # Also, NOTE: the values in the configuration dictionary below are also referenced in the compose.yaml file!!
 ```
 
-## 5. Start the Django development server
+#### 5. Build the frontend assets
+
+Change into the directory `frontend` and run:
+```sh
+npm install
+npx vite build
+```
+This builds the frontend assets.
+
+#### 6. Start the Django development server
 ```bash
 ./manage.py runserver
 ```
