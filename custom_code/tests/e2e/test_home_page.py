@@ -124,5 +124,4 @@ def test_git_hash_is_visible(page: Page):
     home_page = HomePage(page, BASE_URL)
     home_page.open_it()
     commit_hash_container = home_page.get_commit_hash_container()
-    # must be set somewhere
     expect(commit_hash_container).to_contain_text(re.compile(f"{os.environ.get('GIT_COMMIT')}"))
