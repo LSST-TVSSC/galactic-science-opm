@@ -13,7 +13,8 @@ The components are written in typescript.
 - NodeJS
 - NPM
 
-best installed using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+best installed using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating),
+after that run `nvm install --lts` and `nvm use --lts`.
 
 ## Setup
 

@@ -39,7 +39,8 @@ interface. Here are some key features of the system:
 - `docker` or other compatible solution such as `podman`
 - `nodejs` and `npm`
   - best installed using
-    [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+    [nvm](https://github.com/nvm-sh/nvm#installing-and-updating), after that run
+    `nvm install --lts` and `nvm use --lts`
 
 ### Steps
 
