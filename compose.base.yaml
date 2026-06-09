@@ -20,6 +20,7 @@ services:
       DJANGO_CSRF_TRUSTED_ORIGIN: ${DJANGO_CSRF_TRUSTED_ORIGIN}
       E2E: 0
       LOCAL: 0
+      GIT_COMMIT: ${GIT_COMMIT:-n.a.}
     command: /galactic_science_opm/entrypoint.sh
     stop_grace_period: 1s
 

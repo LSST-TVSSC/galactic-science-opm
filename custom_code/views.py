@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core import management
 from django.db import OperationalError, connections
 from django.http import JsonResponse
@@ -7,15 +8,8 @@ from custom_code.target_models import GalacticTarget
 from custom_code.target_models import MicrolensingModel
 from custom_code.target_models import Classification
 from custom_code.target_models import MicrolensingRadarData
-from django.db.models import OuterRef, Subquery
 from django.views.generic import TemplateView
-from django.shortcuts import render, get_object_or_404
-import plotly.graph_objects as go
 from django.utils import timezone
-from datetime import datetime
-from plotly.offline import plot
-from os import path
-from itertools import chain
 
 def microlensing_model_view(request):
     microlensing_models = MicrolensingModel.objects.all()[:30]  # Get 30 MicrolensingModels
@@ -130,5 +124,10 @@ def flush_and_seed(_request):
         "seed_e2e_data"
     )
     return JsonResponse({"status": "seeding_done"}, status=201)
+
+def version(_request):
+    return JsonResponse({
+        "commit": settings.GIT_COMMIT,
+    })
 
 

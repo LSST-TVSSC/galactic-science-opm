@@ -104,6 +104,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'custom_code.context_processors.version_info',
             ],
         },
     },
@@ -441,6 +442,8 @@ BOOTSTRAP4 = {
     "javascript_url": os.path.join(STATIC_URL, "bootstrap.bundle.min.js"),
     "jquery_url": os.path.join(STATIC_URL, "jquery-3.5.1.min.js")
 }
+
+GIT_COMMIT = os.environ.get("GIT_COMMIT", "n.a.")
 
 try:
     from local_settings import * # noqa
