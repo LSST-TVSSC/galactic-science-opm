@@ -13,10 +13,13 @@ The components are written in typescript.
 - NodeJS
 - NPM
 
+best installed using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
 ## Setup
 
 1. Open your terminal in this folder (frontend)
 2. Run `npm install`: This installs all the needed packages.
+3. Run `npx vite build`: This builds the current assets.
 
 
 ## Development
