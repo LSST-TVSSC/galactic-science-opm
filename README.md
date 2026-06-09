@@ -37,10 +37,21 @@ interface. Here are some key features of the system:
 ### Requirements
 
 - `docker` or other compatible solution such as `podman`
-- `nodejs` and `npm`
-  - best installed using
-    [nvm](https://github.com/nvm-sh/nvm#installing-and-updating), after that run
-    `nvm install --lts` and `nvm use --lts`
+- `node`(NodeJS) and `npm`
+
+Both `node` and `npm` can be installed using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating),
+which is a Version Manager for NodeJS (similar to `pyenv`). 
+Once `nvm` is installed, run these two commands:        
+
+```sh
+nvm install --lts
+nvm use --lts
+```
+
+This will install `node` and `npm` in the current LTS version. You will not have
+to run these commands again, unless you want to use a different version of 
+`node` or `npm`.
+    
 
 ### Steps
 
@@ -48,23 +59,24 @@ interface. Here are some key features of the system:
 
 2. Start the docker containers using the following command:
 
-```bash
-docker compose -f compose.base.yaml -f compose.local.yaml up -d
-# or the following, if there have been significant changes or it has been a while
-docker compose -f compose.base.yaml -f compose.local.yaml up -d --build
-```
+    ```bash
+    docker compose -f compose.base.yaml -f compose.local.yaml up -d
+    # or the following, if there have been significant changes or it has been a while
+    docker compose -f compose.base.yaml -f compose.local.yaml up -d --build
+    ```
 
-This will, according to the `compose.*.yaml` files, build a docker image, run it
-in a container, using a Postgresql database running in another container.
+    This will, according to the `compose.*.yaml` files, build a docker image, run it
+    in a container, using a Postgresql database running in another container.
 
-3. Change into the directory `frontend` and run:
+3. Change into the directory `frontend` (`cd frontend`) and run:
 
-```sh
-npm install
-npx vite build
-```
+    **Make sure you installed `node` and `npm` as described in [Requirements](#requirements)**
+    ```sh
+    npm install
+    npx vite build
+    ```
 
-This builds the frontend assets.
+    This builds the frontend assets.
 
 4. Point your browser to http://127.0.0.1:8000 for the Galactic Science OPM home
    page running locally.
@@ -73,24 +85,24 @@ This builds the frontend assets.
    TOM. You can do so by running the Django `createsuperuser` management command
    in the the container. First 'exec' into the container:
 
-```bash
-docker exec -it galactic-science-opm-galactic-science-opm-1 /bin/bash
-```
+    ```bash
+    docker exec -it galactic-science-opm-galactic-science-opm-1 /bin/bash
+    ```
 
-In the container's bash shell (that you just opened):
+    In the container's bash shell (that you just opened):
 
-```bash
-./manage.py createsuperuser
-```
+    ```bash
+    ./manage.py createsuperuser
+    ```
 
-Ctrl-d to leave the container. Log into the OPM with the credentials you just
-created.
+    Ctrl-d to leave the container. Log into the OPM with the credentials you just
+    created.
 
-To stop the containers:
+    To stop the containers:
 
-```bash
-docker compose -f compose.base.yaml -f compose.local.yaml down
-```
+    ```bash
+    docker compose -f compose.base.yaml -f compose.local.yaml down
+    ```
 
 ## Setting up for local development without docker
 
@@ -99,9 +111,8 @@ docker compose -f compose.base.yaml -f compose.local.yaml down
 - a compatible version of Python
 - the package manager
   [poetry](https://python-poetry.org/docs/#installing-with-the-official-installer)
-- `nodejs` and `npm`
-  - best installed using
-    [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- `nodejs` and `npm`: See [Requirements](#requirements) for information on how to
+install these.
 
 ### Steps
 
@@ -161,8 +172,9 @@ We quote from
 
 #### 5. Build the frontend assets
 
-Change into the directory `frontend` and run:
+Change into the directory `frontend` (`cd frontend`) and run:
 
+**Make sure you installed `node` and `npm` as described in [Requirements](#requirements)!**
 ```sh
 npm install
 npx vite build
