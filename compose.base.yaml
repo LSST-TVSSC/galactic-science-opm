@@ -1,9 +1,9 @@
 services:
   galactic-science-opm:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
-#    env_file: "opm-secrets.env"
     depends_on:
       - galactic-science-opm-db
     volumes:
@@ -24,6 +24,7 @@ services:
     stop_grace_period: 1s
 
   galactic-science-opm-db:
+    restart: unless-stopped
     image: ${PSQL_IMAGE}
     environment:
       POSTGRES_USER: ${PSQL_USER}

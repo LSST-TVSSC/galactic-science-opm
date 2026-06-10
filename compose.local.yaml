@@ -1,6 +1,7 @@
 services:
 
   galactic-science-opm:
+    restart: unless-stopped
     volumes: !override
       - ${DJANGO_STATIC_DIR:-./_static}:/galactic_science_opm/_static
       - ${DJANGO_DATA_DIR:-./data}:/galactic_science_opm/data

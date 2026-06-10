@@ -1,5 +1,6 @@
 services:
   galactic-science-opm:
+    restart: unless-stopped
     volumes:
       - ${DJANGO_TEST_DATA_DIR}:/galactic_science_opm/test_data
     depends_on: !override
@@ -12,6 +13,7 @@ services:
   galactic-science-opm-db: !reset null
 
   galactic-science-opm-db-test:
+    restart: unless-stopped
     image: ${PSQL_IMAGE}
     environment:
       POSTGRES_USER: ${PSQL_USER}
