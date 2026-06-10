@@ -10,7 +10,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('event_name', help='Either event name or substring the events should contain')
-        parser.add_argument('n_event_pages', help='Number of events to be ingested, = number of pages')
         parser.add_argument('days', help='days firstmjd before now')
         parser.add_argument('--phot', help='Force ingest of full photometry [optional]: True or False')
 
@@ -22,8 +21,7 @@ class Command(BaseCommand):
             full_phot = True
         # If a number of events to select is given, make a list of all available events;
         # the random selection is applied later.  If a specific event name is given, fetch data for that event only
-        (list_of_targets, new_targets) = Alerce.fetch_alerts(events=int(str(options['n_event_pages'])),
-                                                             days=int(str(options['days'])))
+        (list_of_targets, new_targets) = Alerce.fetch_alerts(days=int(str(options['days'])))
         print('Identified '+str(len(list_of_targets))+' target(s) from ALeRCE')
         list_of_targets = [x for x in list_of_targets if str(options['event_name']) in x.name ] 
         new_targets = [x for x in new_targets if str(options['event_name']) in x.name ]

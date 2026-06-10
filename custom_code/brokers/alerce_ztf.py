@@ -35,34 +35,61 @@ class ALERCEBroker(GenericBroker):
     name = 'ALERCE'
     form = ALERCEQueryForm
 
-    def fetch_alerts(self, events=10,days=10,survey = 'ztf'):
+    def fetch_alerts(self, days=10,survey = 'ztf'):
         """Fetch data on microlensing events discovered by ALERCE"""
         from alerce.core import Alerce
         alerce = Alerce()
-        # Query the list of microlensing events, last 10d, 10 events page1
-        alerce_results = alerce.query_objects(
-            classifier="lc_classifier_BHRF_forced_phot",
-            class_name="Microlensing",
-            format="pandas",
-            firstmjd=float(int(Time.now().mjd)-days),
-            page_size=events,
-            order_by="probability",
-            order_mode="DESC",
-            survey = survey
-        )
-        (list_of_targets_microlensing, new_targets_microlensing) = self.ingest_events(alerce_results)
+        not_at_end_of_pages = True
+        current_page = 1
+        alerce_results = []
+        while not_at_end_of_pages:
+            alerce_results_page = alerce.query_objects(
+                classifier="lc_classifier_BHRF_forced_phot",
+                class_name="Microlensing",
+                format="pandas",
+                firstmjd=float(int(Time.now().mjd)-days),
+                page=current_page,
+                order_by="probability",
+                order_mode="DESC",
+                survey = survey
+            )
+            if alerce_results_page.empty:
+                not_at_end_of_pages = False
+            else:
+                alerce_results.append(alerce_results_page)
+                current_page += 1
 
-        alerce_results = alerce.query_objects(
-            classifier="lc_classifier_BHRF_forced_phot",
-            class_name="CV/Nova",
-            format="pandas",
-            firstmjd=float(int(Time.now().mjd)-days),
-            page_size=events,
-            order_by="probability",
-            order_mode="DESC",
-            survey = survey
-        )    
-        (list_of_targets_cv, new_targets_cv) = self.ingest_events(alerce_results)
+        if len(alerce_results) > 0:
+            alerce_results = pd.concat(alerce_results, ignore_index=True)
+            (list_of_targets_microlensing, new_targets_microlensing) = self.ingest_events(alerce_results)
+        else:
+            (list_of_targets_microlensing, new_targets_microlensing) = self.ingest_events(alerce_results_page)
+        #Add pagination
+        not_at_end_of_pages = True
+        current_page = 1
+        alerce_results = []
+        while not_at_end_of_pages:
+            alerce_results_page = alerce.query_objects(
+                classifier="lc_classifier_BHRF_forced_phot",
+                class_name="CV/Nova",
+                format="pandas",
+                firstmjd=float(int(Time.now().mjd)-days),
+                page=current_page,
+                order_by="probability",
+                order_mode="DESC",
+                survey = survey
+            )    
+            if alerce_results_page.empty:
+                not_at_end_of_pages = False
+            else:
+                alerce_results.append(alerce_results_page)
+                current_page += 1
+
+        if len(alerce_results) > 0:
+            alerce_results = pd.concat(alerce_results, ignore_index=True)
+            (list_of_targets_cv, new_targets_cv) = self.ingest_events(alerce_results)
+        else:
+            (list_of_targets_cv, new_targets_cv) = self.ingest_events(alerce_results_page)
 
         return (
             list_of_targets_microlensing + list_of_targets_cv, 
@@ -132,8 +159,8 @@ class ALERCEBroker(GenericBroker):
                             filtered_target.update(known_variability = result_var_vizier)
                         else:
                             filtered_target.update(known_variability = "None, queried")
-                    except:
-                        print('Vizier query failed for ' + target.name)
+                    except Exception as e:
+                        print(f'Vizier query failed for {target.name}, {e}')
 
             else:
                 print('ALERCE harvester: found ' + str(qs.count()) + ' targets with name ' + event_name)
