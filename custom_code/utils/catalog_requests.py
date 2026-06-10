@@ -55,7 +55,7 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
         return f"Error Vizier query: {e}"
 
     if not results:
-        return "No matching catalogs."
+        return "None, queried"
 
     result_string=""
     for catalog_name in results.keys():
