@@ -1,6 +1,7 @@
 services:
 
   frontend-proxy:
+    restart: unless-stopped
     image: nginx:latest
     ports:
       - "${EXT_PORT:-8000}:80"
