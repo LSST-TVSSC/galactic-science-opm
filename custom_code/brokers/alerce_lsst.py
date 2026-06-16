@@ -10,7 +10,7 @@ from astropy.coordinates import SkyCoord, Angle
 from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
 from astroquery.vizier import Vizier
-from custom_code.utils.catalog_requests import get_glade_plus_count
+from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG, get_glade_plus_count
 from custom_code.utils.catalog_requests import get_var_star_variability_analysis
 import healpy as hp
 from alerce.core import Alerce
@@ -105,7 +105,7 @@ class ALERCEBroker(GenericBroker):
                         if result_var_vizier!="" and result_var_vizier!=None:
                             filtered_target.update(known_variability = result_var_vizier)
                         else:
-                            filtered_target.update(known_variability = "None, queried")
+                            filtered_target.update(known_variability = NOT_IN_ANY_CATALOG)
                     except:
                         print('Vizier query failed for ' + target.name)
             else:
