@@ -11,6 +11,8 @@ from django.db.models import OuterRef, Subquery
 from django.views.generic import TemplateView
 from django.shortcuts import render, get_object_or_404
 import plotly.graph_objects as go
+from django.utils import timezone
+from datetime import datetime
 from plotly.offline import plot
 from os import path
 from itertools import chain
@@ -34,21 +36,31 @@ def microlensing_prob_view(request):
         return render(request, 'custom_code/prob_list.html', {'microlensing_objects_class1': microlensing_objects_class1})
 
 def microlensing_rescaled_prob_view(request):
-    #Temporary filter for ZTF 2026 events until LSST is online, included
+
+    def calculate_metadata(queryset):
+        """Prepare age for easier ranking"""
+        processed_list = []
+        for obj in queryset:
+            age_days = (timezone.now() - obj.target.created).days
+            processed_list.append({
+                'object': obj,
+                'age_days': age_days,
+            })
+        return processed_list
 
     distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.).exclude(target__known_variability__icontains="queried")
-    microlensing_objects = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:30]
+    microlensing_objects = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:35]
     
     distinct_ids_queried = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='ZTF').filter(average_master_probability__gt=0.).filter(target__known_variability__icontains="queried")
-    microlensing_objects_queried = MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried).order_by('-average_master_probability').distinct()[:30]
+    microlensing_objects_queried = MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried).order_by('-average_master_probability').distinct()[:35]
 
     distinct_ids_queried_lsst = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains='LSST').filter(average_master_probability__gt=0.).filter(target__known_variability__icontains="queried")
-    microlensing_objects_queried_lsst = MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried_lsst).order_by('-average_master_probability').distinct()[:30]
+    microlensing_objects_queried_lsst = MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried_lsst).order_by('-average_master_probability').distinct()[:35]
 
     context = {
-        'microlensing_objects': microlensing_objects,
-        'microlensing_objects_queried': microlensing_objects_queried,
-        'microlensing_objects_queried_lsst': microlensing_objects_queried_lsst
+        'microlensing_objects': calculate_metadata(microlensing_objects),
+        'microlensing_objects_queried': calculate_metadata(microlensing_objects_queried),
+        'microlensing_objects_queried_lsst': calculate_metadata(microlensing_objects_queried_lsst),
     }
 
     try:
