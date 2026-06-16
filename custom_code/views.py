@@ -11,6 +11,8 @@ from custom_code.target_models import MicrolensingRadarData
 from django.views.generic import TemplateView
 from django.utils import timezone
 
+from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
+
 def microlensing_model_view(request):
     microlensing_models = MicrolensingModel.objects.all()[
         :30
@@ -39,7 +41,7 @@ def microlensing_prob_view(request):
         .order_by("-prob_class1")
         .filter(prob_class1__gt=0.0)
     )
-   
+
     try:
         return render(
             request,
@@ -132,7 +134,8 @@ class HomeView(TemplateView):
         distinct_ids = (
             MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
             .distinct("target_id")
-            .filter(target__name__icontains="ZTF26")
+            .filter(Q(target__name__icontains="ZTF26") | Q(target__name__icontains="LSST"))
+            .filter(target__known_variability = NOT_IN_ANY_CATALOG)
             .filter(average_master_probability__gt=0.0)
         )
         prio_ids = (
