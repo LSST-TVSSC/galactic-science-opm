@@ -1,8 +1,6 @@
 from django.core.management.base import BaseCommand
 from custom_code.target_models import GalacticTarget, MicrolensingRadarData
 from custom_code.brokers import alerce_ztf
-import numpy as np
-from astropy import units as u
 
 class Command(BaseCommand):
 
