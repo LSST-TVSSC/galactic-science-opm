@@ -1,8 +1,11 @@
 from django.core.management.base import BaseCommand
 from tom_dataproducts.models import ReducedDatum
-from tom_targets.models import Target,TargetExtra
+from tom_targets.models import TargetExtra
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
 from astropy.time import Time, TimeDelta
 from custom_code.target_models import GalacticTarget, MicrolensingModel, MicrolensingRadarData
 from custom_code.utils.catalog_requests import query_ztf_lightcurve
@@ -21,6 +24,8 @@ from os import path
 from os import makedirs, listdir
 from django.db import connection, transaction
 from ._RTModel_results_cls import EventResults, ModelResults
+import sys
+
 
 def run_fit(target):
     if "ZTF" in target.name or "LSST" in target.name or "OGLE" in target.name:
@@ -116,10 +121,24 @@ class Command(BaseCommand):
             for target in qs:
                 run_fit(target)
         else:            
-            distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(target__name__icontains=str(options['event'])).filter(average_master_probability__gt=0.).filter(target__known_variability__icontains="queried")
-            qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:50]
-            for target_query in qs:
-                target = GalacticTarget.objects.filter(name__icontains=target_query.target.name).last()
+            #Check for updated events (last 3 days)
+            #Check for top 35 priority events
+            #Combine check and run fit
+            time_window = timezone.now() - timedelta(days=3)
+            new_or_modified_targets = GalacticTarget.objects.filter(
+            Q(modified__gte=time_window) | 
+            Q(reduceddatum__timestamp__gte=time_window)).filter(
+            name__icontains=str(options['event'])).filter(
+            known_variability__icontains="queried").distinct()
+            distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(
+            target__name__icontains=str(options['event'])).filter(
+            average_master_probability__gt=0.).filter(
+            target__known_variability__icontains="queried")
+            qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:35]
+            # extract target names, avoid duplicates via set
+            target_names = list(set([x.target.name for x in qs] + [x.name for x in new_or_modified_targets ] ))
+            for target_name in target_names:
+                target = GalacticTarget.objects.filter(name__icontains=target_name).last()
                 if not target.ztf_baseline_checked:
                     baseline_photometry_r = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="r")
                     baseline_photometry_g = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="g")
