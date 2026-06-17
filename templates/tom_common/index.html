@@ -1,65 +1,64 @@
 {% extends 'tom_common/base.html' %}
-{% load static comments targets_extras observation_extras dataproduct_extras tom_common_extras galactic_thumbs broker_links %}
+{% load static comments targets_extras observation_extras dataproduct_extras %}
+{% load tom_common_extras galactic_thumbs broker_links parameter_tags %}
 {% block title %}Home{% endblock %}
 {% block content %}
 <div class="gs-opm-home">
 <div class="container py-4">
 
     <!-- Hero: overall title + intro + logo + broker portals -->
-    <div class="row justify-content-center mb-4">
-      <div class="col-lg-10">
-        <!-- Overall title spanning both columns -->
-        <!-- exact title tbd -->
-        <h2 class="mb-4 text-center">
-          LSST Galactic Science Observing Priority Manager (OPM) 
-        </h2>
+    <div class="row justify-content-center mb-4 hero">
+      <div class="col mb-4">
 
-        <div class="row align-items-center">
-          <!-- Left: logo + intro text -->
-          <div class="col-md-7 text-center text-md-left">
-            <p class="mb-3">
-              <img src="{% static 'tom_common/img/MEDLogoBLK.jpg' %}"
-                   class="img-fluid mx-auto d-block"
-                   alt="LSST Galactic Science OPM logo">
-            </p>
+        <div class="title-image-wrapper">
+          <img src="{% static 'tom_common/img/MEDLogoBLK.png' %}"
+              class=""
+              alt="LSST Galactic Science OPM logo">
+          <h2 class="">
+            LSST Galactic Science OPM
+          </h2>
+        </div>
+
+        <div class="row">
+          
+          <div class="col-md-7">
 
             <p class="mb-2">
-              Welcome to the Galactic Science Observing Priority Manager for the LSST TVS
+              Welcome to the Galactic Science Observing Priority Manager (OPM) for the LSST TVS
               Science Collaboration, built using the
               <a href="https://tomtoolkit.github.io/" target="_blank" rel="noopener">
-                TOM Toolkit
-              </a>.
+                TOM Toolkit</a>.
             </p>
-            <p class="mb-0">
+            <p class="mb-4">
               Powered by the
               <a href="https://lsst-tvssc.github.io/taskForces/software_task_force.html"
                  target="_blank" rel="noopener"
                  title="TVS Software Taskforce">
-                TVS Software Taskforce
-              </a>.
+                TVS Software Taskforce</a>.
             </p>
           </div>
-
-          <!-- Right: Broker portals -->
-          <div class="col-md-5 mt-3 mt-md-0 gs-opm-broker-hero">
-            <center><h5>Broker portals</h5></center>
-            <p class="small text-muted">
+        </div>
+        <div class="row">
+          <div class="col-md-7">
+            <p class="small">
               Jump directly to external broker portals. Use the per-target buttons
               below to investigate specific events.
             </p>
 
-            <a href="https://fink-broker.org/" target="_blank" rel="noopener"
-               class="btn btn-sm btn-outline-primary btn-block mb-1">
-              Fink
-            </a>
-            <a href="https://alerce.online/" target="_blank" rel="noopener"
-               class="btn btn-sm btn-outline-primary btn-block mb-1">
-              ALeRCE
-            </a>
-            <a href="https://antares.noirlab.edu/loci/lookup/" target="_blank" rel="noopener"
-               class="btn btn-sm btn-outline-primary btn-block">
-              ANTARES
-            </a>
+            <div class="broker_links small">
+              <a href="https://fink-broker.org/" target="_blank" rel="noopener"
+                 class="">
+                Fink
+              </a>
+              <a href="https://alerce.online/" target="_blank" rel="noopener"
+                 class="">
+                ALeRCE
+              </a>
+              <a href="https://antares.noirlab.edu/loci/lookup/" target="_blank" rel="noopener"
+                 class="">
+                ANTARES
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -67,127 +66,118 @@
 
   <!-- Main section: single column with featured targets -->
   <div class="row justify-content-center">
-    <div class="col-lg-10 mb-4">
-      <div class="card shadow-sm">
-        <div class="card-header" data-testid="featured-targets-list">
-          Featured targets microlensing
-        </div>
-        <div class="card-body p-0">
+    <div class="col mb-4">
+
+      <section class="top-targets top-targets--microlensing">
+
+        <header>
+          <div class="section-title">Top {{featured_targets | length}} microlensing targets of <a href="/targets">{{ total_amount_of_targets }}</a></div>
+          <div class="links">
+            <a target="_blank" rel="noopener noreferrer" href="{% url 'microlensing_rescaled_prob_view' %}" class="btn btn-sm btn-primary">
+              View all targets (with ranking)
+            </a>
+          </div>
+        </header>
+
+        <div class="wrapper">
           {% if featured_targets %}
-            <ul class="list-group list-group-flush">
             {% for target in featured_targets %}
-              <li class="list-group-item" data-testid="featured-target-element">
+              <article class="opm-card">
+                <div class="target-finder-image">
+                  {% galactic_thumb_info target 175 0.035 as thumb %}
+                  {% if thumb.url %}
+                    <a href="{% url 'targets:detail' target.pk %}" data-testid="galactic_thumbnail">
+                      <div class="gs-opm-thumb">
+                        <img src="{{ thumb.url }}"
+                              alt="Finder chart for {{ target.name }}"
+                              width="120" height="120">
 
-                <!-- Top row: name, coords, class + broker buttons -->
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <a href="{% url 'targets:detail' target.pk %}">
-                      {{ target.name }}
+                        <div class="gs-opm-thumb-circle"></div>
+
+                        <div class="gs-opm-thumb-fov">
+                          FoV {{ thumb.fov_arcmin }}′
+                        </div>
+                      </div>
                     </a>
-                    <div class="small text-muted">
-                      RA: {{ target.ra }} &nbsp;
-                      Dec: {{ target.dec }}
-                      {% if target.classification %}
-                        | Class: {{ target.classification }}
-                      {% endif %}
+                  {% else %}
+                    <p class="">
+                      No finder chart available
+                    </p>
+                  {% endif %}
+                </div>
+                <div class="target-data">
+                  <header>
+                    <div class="target-rank">
+                      <div class="rank-icon">#</div>
+                      <div class="rank-number">{{ target.rank }}</div>
                     </div>
-                  </div>
-
-                  <div class="ml-3 text-nowrap">
+                    <div class="target-name">
+                      <a href="{% url 'targets:detail' target.pk %}">{{ target.name }}</a>
+                    </div>
+                  </header>
+                  <section>
+                    <div class="data-list">
+                      <div class="data-wrapper">
+                        <div class="data-label">RA</div>
+                        <div class="data-value">{{ target.ra }}</div>
+                      </div>
+                      <div class="data-wrapper">
+                        <div class="data-label">Dec</div>
+                        <div class="data-value">{{ target.dec }}</div>
+                      </div>
+                      {% if target.classification %}
+                        <div class="data-wrapper">
+                          <div class="data-label">Class</div>
+                          <div class="data-value">{{ target.classification }}</div>
+                        </div>
+                      {% endif %}
+                      {% with target|microlensing_parameters_by_name as filtered_parameters %}
+                        <div class="data-wrapper">
+                          <div class="data-label">u<sub>0</sub></div>
+                          <div class="data-value">{{filtered_parameters.u0 | floatformat:5}}</div>
+                        </div>
+                        <div class="data-wrapper">
+                          <div class="data-label">t<sub>E</sub>[days]</div>
+                          <div class="data-value">{{filtered_parameters.tE | floatformat:5}}</div>
+                        </div>
+                      {% endwith %}
+                    </div>
+                  </section>
+                  <footer>
+                    <div class="broker-links">
                       {% broker_target_url 'fink' target as fink_url %}
                       {% broker_target_url 'alerce' target as alerce_url %}
                       {% broker_target_url 'antares' target as antares_url %}
 
                       <a href="{{ fink_url }}"
                          target="_blank" rel="noopener"
-                         class="btn btn-sm btn-outline-primary mb-1"
                          title="Open Fink for {{ target.name }}">
                         Fink
                       </a>
 
                       <a href="{{ alerce_url }}"
                          target="_blank" rel="noopener"
-                         class="btn btn-sm btn-outline-primary mb-1"
                          title="Open ALeRCE for {{ target.name }}">
                         ALeRCE
                       </a>
 
                       <a href="{{ antares_url }}"
                          target="_blank" rel="noopener"
-                         class="btn btn-sm btn-outline-primary mb-1"
                          title="Open ANTARES for {{ target.name }}">
                         ANTARES
                       </a>
                   </div>
+                  </footer>
                 </div>
-
-                <!-- Second row: finder thumbnail + latest comments -->
-                <div class="mt-3 row">
-                  <div class="col-md-5">
-                    {% galactic_thumb_info target 120 0.035 as thumb %}
-                    {% if thumb.url %}
-                      <a href="{% url 'targets:detail' target.pk %}" data-testid="galactic_thumbnail">
-                        <div class="gs-opm-thumb">
-                          <img src="{{ thumb.url }}"
-                               alt="Finder chart for {{ target.name }}"
-                               class="img-thumbnail gs-opm-thumb-img"
-                               width="120" height="120">
-
-                          <!-- Red circle around target (assumed centred) -->
-                          <div class="gs-opm-thumb-circle"></div>
-
-                          <!-- FoV label, bottom-left -->
-                          <div class="gs-opm-thumb-fov">
-                            FoV {{ thumb.fov_arcmin }}′
-                          </div>
-                        </div>
-                      </a>
-                    {% else %}
-                      <p class="small text-muted mb-0">
-                        No finder chart available (RA/Dec missing).
-                      </p>
-                    {% endif %}
-                  </div>
-
-                  <div class="col-md-7">
-                    {% get_comment_list for target as comment_list %}
-                    {% if comment_list %}
-                      <p class="small mb-1"><strong>Latest comments</strong></p>
-                      <ul class="list-unstyled small mb-0">
-                        {% for comment in comment_list|slice:":3" %}
-                          <li class="mb-1">
-                            <strong>{{ comment.user.get_full_name|default:comment.user.username }}</strong>:
-                            {{ comment.comment|truncatechars:80 }}
-                          </li>
-                        {% endfor %}
-                      </ul>
-                    {% else %}
-                      <p class="small text-muted mb-0">
-                        No comments yet.
-                      </p>
-                    {% endif %}
-                  </div>
-                </div>
-
-              </li>
+              </article>
             {% endfor %}
-            </ul>
           {% else %}
-            <div class="p-3">
-              <p class="mb-0 text-muted">
-                No interesting targets available at the moment.
-              </p>
-            </div>
+            <p class="mb-0 text-muted">
+              No interesting targets available at the moment.
+            </p>
           {% endif %}
         </div>
-        <div class="card-footer text-right">
-          <a target="_blank" rel="noopener noreferrer" href="{% url 'microlensing_rescaled_prob_view' %}" class="btn btn-sm btn-outline-primary gs-opm-view-all-btn">
-            View all targets (with ranking)
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+      </section>
 
 </div> <!-- /container -->
 </div>

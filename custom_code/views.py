@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core import management
 from django.db import OperationalError, connections
+from django.db.models.functions import Rank
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,6 +9,7 @@ from custom_code.target_models import GalacticTarget
 from custom_code.target_models import MicrolensingModel
 from custom_code.target_models import Classification
 from custom_code.target_models import MicrolensingRadarData
+from django.db.models import Q, Window
 from django.views.generic import TemplateView
 from django.utils import timezone
 
@@ -130,7 +132,7 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        AMOUNT_OF_FEATURED_TARGETS = 4
         distinct_ids = (
             MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
             .distinct("target_id")
@@ -142,11 +144,22 @@ class HomeView(TemplateView):
             MicrolensingRadarData.objects.filter(id__in=distinct_ids)
             .order_by("-average_master_probability")
             .values_list("target_id", flat=True)
-            .distinct()[:3]
+            .distinct()[:AMOUNT_OF_FEATURED_TARGETS]
         )
-        target_objects = GalacticTarget.objects.filter(id__in=prio_ids)
+        target_objects = GalacticTarget.objects.filter(
+            id__in = prio_ids
+        ).annotate(
+            rank=Window(
+                expression=Rank(),
+                order_by="-rescaled_classification_radar_parameters__average_master_probability",
+            )
+        )
         featured = target_objects
-        context["featured_targets"] = featured
+        total = GalacticTarget.objects.filter(
+            Q(name__icontains="ZTF26") | Q(name__icontains="LSST"),
+        ).count()
+        context["featured_targets"] = featured[:AMOUNT_OF_FEATURED_TARGETS]
+        context["total_amount_of_targets"] = total
         return context
 
 def health(_request):
