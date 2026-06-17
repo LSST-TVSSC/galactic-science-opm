@@ -6,6 +6,9 @@
  .table tbody tr.highlight-urgent td {
  background-color: #3D463C !important;
 }
+ .table tbody tr.highlight-bogus td {
+ background-color: #463D3C !important;
+}
 </style>
 
   <div class="row justify-content-center">
@@ -26,13 +29,13 @@
                 <th>Targetname<br>Broker links</th>
                 <th>Probability-based<br>Rescaled Average</th> 
                 <th>Variability Flags<br> Vizier</th>
-                <th>Days Since<br> Created</th>
+                <th style="background-color:#3D463C">Days Since<br> Created<br> highlights &lt;7</th>
                 <th>Gaia N&sup2 <br> Rescaled</th>
                 <th>ALeRCE microlensing <br> BHRF Rescaled</th>
                 <th>ALeRCE microlensing <br> ATAT Direct</th>
                 <th>ANTARES microlensing <br> filter</th>
                 <th>Peak Planet Probability <br> from fit &psi; Rescaled</th>
-                <th>Bogus ALeRCE <br> stamp</th>
+                <th style="background-color:#463D3C">Bogus ALeRCE <br> stamp<br>highlights &gt;0.5</th>
                <th>Updated</th>
 
                
@@ -63,7 +66,7 @@
             <tbody>
             {% for item in microlensing_objects_queried %}
             {% with model=item.object %}
-            <tr class="{% if item.age_days < 7 %}highlight-urgent{% else %}normal-row{% endif %}">
+            <tr class="{% if model.metric_bogus > 0.5 %}highlight-bogus{% else %}{% if item.age_days < 7 %}highlight-urgent{% else %}normal-row{% endif %}{% endif %}">
                  <td> <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
                      <a href="https://alerce.online/object/{{model.target}}">ALeRCE</a> 
                      {% if "ztf" in model.target|lower %}

@@ -44,9 +44,11 @@ class Command(BaseCommand):
             if target_classification.exists():
                 time_now = Time(datetime.datetime.now()).jd
                 try:
-                    psip = psi_planet_priority_peak(microlensing_model.u0, microlensing_model.err_u0, sigma_threshold = 0)
+                    psip = psi_planet_priority_peak(microlensing_model.u0, microlensing_model.err_u0, sigma_threshold = 0.5)
                     reshaped_value = np.array([[psip]])
                     transformed_prob_planet = model_qt_psi.transform(reshaped_value)
+                    if np.isnan(transformed_prob_planet[[0]]):
+                        transformed_prob_planet = [[0]]
                 except:
                     transformed_prob_planet = [[0]]
 
