@@ -82,7 +82,7 @@
         <div class="wrapper">
           {% if featured_targets %}
             {% for target in featured_targets %}
-              <article class="opm-card">
+              <article class="opm-card" data-testid="featured-target-element">
                 <div class="target-finder-image">
                   {% galactic_thumb_info target 175 0.035 as thumb %}
                   {% if thumb.url %}

@@ -64,7 +64,8 @@ def test_shows_top_targets_in_descending_order(page: Page):
     home_page = HomePage(page, BASE_URL)
     home_page.open_it()
     featured_targets = page.get_by_test_id("featured-target-element")
-    expect(featured_targets).to_have_count(3)
+    NUMBER_OF_TOP_TARGETS = 4
+    expect(featured_targets).to_have_count(NUMBER_OF_TOP_TARGETS)
 
     for _i, target_data in enumerate(TOP_TARGETS):
         target_name, coordinates, pk = target_data["name"], target_data["coordinates"], target_data["pk"]
@@ -73,8 +74,8 @@ def test_shows_top_targets_in_descending_order(page: Page):
         expect(target).to_contain_text(target_name)
 
         ra, dec = coordinates
-        expect(target).to_contain_text(f"RA: {ra}")
-        expect(target).to_contain_text(f"Dec: {dec}")
+        expect(target).to_contain_text(f"RA {ra}")
+        expect(target).to_contain_text(f"Dec {dec}")
 
         image_wrapper = target.get_by_test_id("galactic_thumbnail")
         expect(image_wrapper).to_have_attribute(
@@ -85,8 +86,8 @@ def test_shows_top_targets_in_descending_order(page: Page):
         expect(image).to_have_attribute(
             "src",
             (
-                "https://alasky.u-strasbg.fr/hips-image-services/hips2fits?hips=CDS%2FP%2FDSS2%2Fcolor&width=120"
-                f"&height=120&fov=0.035&projection=TAN&coordsys=icrs&ra={ra}&dec={dec}&format=jpg"
+                "https://alasky.u-strasbg.fr/hips-image-services/hips2fits?hips=CDS%2FP%2FDSS2%2Fcolor&width=175"
+                f"&height=175&fov=0.035&projection=TAN&coordsys=icrs&ra={ra}&dec={dec}&format=jpg"
             )
         )
 
