@@ -47,6 +47,7 @@
   --color-highlight-primary: #c50d29;
   --color-link: #709bc9;
   --color-link--hover: #36a9ff;
+  --color-footer--tertiary: #aaaaaa;
 
 }
 
@@ -227,4 +228,15 @@ td, th {
   background: var(--color-highlight-primary);
   display: inline-block;
   margin: 0 var(--spacing-025) 0 0;
+}
+
+.deployed-commit-hash {
+  color: var(--color-footer--tertiary);
+  font-family: var(--font-family-monospace);
+  font-size: var(--font-size-100);
+}
+
+.deployed-commit-hash code {
+  color: inherit;
+  font-size: inherit;
 }

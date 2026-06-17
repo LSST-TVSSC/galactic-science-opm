@@ -31,3 +31,4 @@ services:
       - galactic-science-opm-db-test
     environment:
       BASE_URL: ${BASE_URL:-http://frontend-proxy:80}
+      GIT_COMMIT: ${GIT_COMMIT:-n.a.}

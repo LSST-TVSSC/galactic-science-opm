@@ -1,3 +1,4 @@
+import os
 import re
 from playwright.sync_api import Page, expect
 from custom_code.tests.e2e.data.test_data import BASE_URL, BROKER_LINKS, REGISTERABLE_USER, TOP_TARGETS, VALID_USER_CREDENTIALS
@@ -119,3 +120,8 @@ def test_shows_top_targets_in_descending_order(page: Page):
         expect(footer_privacy).to_be_visible()
         expect(footer_privacy).to_have_attribute("href", "https://www.uni-heidelberg.de/en/privacy-statement")
 
+def test_git_hash_is_visible(page: Page):
+    home_page = HomePage(page, BASE_URL)
+    home_page.open_it()
+    commit_hash_container = home_page.get_commit_hash_container()
+    expect(commit_hash_container).to_contain_text(re.compile(f"{os.environ.get('GIT_COMMIT')}"))

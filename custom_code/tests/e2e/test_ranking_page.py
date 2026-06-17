@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, date
 from playwright.sync_api import Page, expect
 from custom_code.tests.e2e.data.test_data import BASE_URL, BROKER_LINKS
 from custom_code.tests.e2e.pages.ranking_page import RankingPage
@@ -7,11 +8,18 @@ NUMBER_OF_ELEMENTS_WITH_CORRECT_PROBABILITY = 11
 
 def test_all_targets_are_displayed(page: Page):
     pks_per_row = (3,4,6)
+    creation_date = "2026-04-30"
+    as_date = datetime.strptime(creation_date, "%Y-%m-%d").date()
+    def days_ago(d):
+        return (date.today() - d).days
+
+    created_ago = days_ago(as_date)
     expected_rows = (
         (
             r"ZTF26aarbgfh\s+ALeRCE\s+fink\s+ANTARES",
             0.4639,
-            "None",
+            "None, queried",
+            created_ago,
             0.923,
             0.932,
             0.000,
@@ -23,7 +31,8 @@ def test_all_targets_are_displayed(page: Page):
         (
             r"ZTF26aaivmks\s+ALeRCE\s+fink\s+ANTARES",
             0.4616,
-            "None",
+            "None, queried",
+            created_ago,
             0.920,
             0.926,
             0.000,
@@ -35,7 +44,8 @@ def test_all_targets_are_displayed(page: Page):
         (
             r"ZTF26aajaofr\s+ALeRCE\s+fink\s+ANTARES",
             0.4580,
-            "None",
+            "None, queried",
+            created_ago,
             0.925,
             0.907,
             0.000,
