@@ -146,15 +146,9 @@ class HomeView(TemplateView):
             .values_list("target_id", flat=True)
             .distinct()[:AMOUNT_OF_FEATURED_TARGETS]
         )
-        target_objects = GalacticTarget.objects.filter(
-            id__in = prio_ids
-        ).annotate(
-            rank=Window(
-                expression=Rank(),
-                order_by="-rescaled_classification_radar_parameters__average_master_probability",
-            )
-        )
-        featured = target_objects
+
+        target_map = GalacticTarget.objects.in_bulk(prio_ids)
+        featured = [target_map[i] for i in prio_ids if i in target_map]
         total = GalacticTarget.objects.filter(
             Q(name__icontains="ZTF26") | Q(name__icontains="LSST"),
         ).count()

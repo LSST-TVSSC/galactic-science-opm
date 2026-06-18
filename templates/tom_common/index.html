@@ -109,7 +109,7 @@
                   <header>
                     <div class="target-rank">
                       <div class="rank-icon">#</div>
-                      <div class="rank-number">{{ target.rank }}</div>
+                      <div class="rank-number">{{ forloop.counter }}</div>
                     </div>
                     <div class="target-name">
                       <a href="{% url 'targets:detail' target.pk %}">{{ target.name }}</a>
