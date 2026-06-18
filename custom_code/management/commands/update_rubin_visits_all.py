@@ -8,7 +8,7 @@ from astroquery.vizier import Vizier
 from astropy.coordinates import SkyCoord, Angle
 import healpy as hp
 from custom_code.target_models import GalacticTarget, MicrolensingRadarData
-from custom_code.utils.catalog_requests import get_glade_plus_count
+from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG, get_glade_plus_count
 from custom_code.utils.catalog_requests import get_var_star_variability_analysis
 
 class Command(BaseCommand):
@@ -37,4 +37,4 @@ class Command(BaseCommand):
                     if result_var_vizier!="" and result_var_vizier!=None:
                         filtered_target.update(known_variability = result_var_vizier)
                     else:
-                        filtered_target.update(known_variability = "None, queried")
+                        filtered_target.update(known_variability = NOT_IN_ANY_CATALOG)

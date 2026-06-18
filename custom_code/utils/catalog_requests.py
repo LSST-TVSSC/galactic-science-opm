@@ -7,6 +7,8 @@ from io import StringIO
 import pandas as pd
 import requests
 
+NOT_IN_ANY_CATALOG = "None, queried"
+
 def get_glade_plus_count(coords):
     """
     Queries GLADE+ galaxy catalog VII/281 for given skzycoord
@@ -55,7 +57,7 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
         return f"Error Vizier query: {e}"
 
     if not results:
-        return "None, queried"
+        return NOT_IN_ANY_CATALOG
 
     result_string=""
     for catalog_name in results.keys():
