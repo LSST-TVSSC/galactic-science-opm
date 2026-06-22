@@ -142,7 +142,10 @@ class Command(BaseCommand):
                 if not target.ztf_baseline_checked:
                     baseline_photometry_r = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="r")
                     baseline_photometry_g = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="g")
-                    baseline_photometry = pd.concat([baseline_photometry_r,baseline_photometry_g], ignore_index=True)
+                    baseline_photometry_i = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="i")
+                    baseline_photometry = pd.concat([baseline_photometry_r,
+                                                     baseline_photometry_g,
+                                                     baseline_photometry_i], ignore_index=True)
                     target.ztf_baseline_checked = True
                     target.save(update_fields=['ztf_baseline_checked'])
                     filter_definition = {"zg":"ZTF_g", "zr":"ZTF_r", "zi":"ZTF_i"}

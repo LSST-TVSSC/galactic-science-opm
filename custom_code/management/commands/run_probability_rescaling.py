@@ -2,9 +2,7 @@ from django.core.management.base import BaseCommand
 from django.apps import apps
 from django.db import transaction
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification, MicrolensingRadarData
-from custom_code.match_managers import validators
 import numpy as np
-import pandas as pd
 import datetime
 from astropy.time import Time, TimezoneInfo
 from astropy.coordinates import SkyCoord
