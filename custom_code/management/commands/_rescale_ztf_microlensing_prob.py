@@ -6,7 +6,7 @@ import math
 import joblib
 import warnings
 
-def psi_planet_priority_peak(u0_pspl, u0_err, sigma_threshold = 1):
+def psi_planet_priority_peak(u0_pspl, u0_err, tE_pspl, err_tE, sigma_threshold = 1):
     """
     This function calculates the peak planet probabiltity for 
     microlensing events based on the planet probability psi
@@ -26,5 +26,8 @@ def psi_planet_priority_peak(u0_pspl, u0_err, sigma_threshold = 1):
     psip_std_dev = u0_err * np.abs(-0.5*(-2*u0 - (u0**2*(u0**2 + 4.0))**0.5*(1.0*u0**3 + 1.0*u0*(u0**2 + 4.0))/(u0**2*(u0**2 + 4.0)))/(0.5*u0**2 + 0.5*(u0**2*(u0**2 + 4.0))**0.5 + 1)**2 + 4.0*(-1.0*u0**3 - 1.0*u0*(u0**2 + 4.0))/(u0**2*(u0**2*(u0**2 + 4.0))**0.5*(u0**2 + 4.0)))
     if np.isnan(psip):
         return 0.0
+    #Cut related to 300d limit in ARTEMiS, and handling psip < 0
+    if psip -  sigma_threshold * psip_std_dev<0 or  tE_pspl + err_tE > 300.:
+        return 0.
 
     return psip -  sigma_threshold * psip_std_dev

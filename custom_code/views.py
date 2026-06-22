@@ -82,7 +82,7 @@ def microlensing_rescaled_prob_view(request):
     microlensing_objects = (
         MicrolensingRadarData.objects.filter(id__in=distinct_ids)
         .order_by("-average_master_probability")
-        .distinct()[:35]
+        .distinct()[:75]
     )
 
     distinct_ids_queried = (
@@ -95,7 +95,7 @@ def microlensing_rescaled_prob_view(request):
     microlensing_objects_queried = (
         MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried)
         .order_by("-average_master_probability")
-        .distinct()[:35]
+        .distinct()[:75]
     )
 
     distinct_ids_queried_lsst = (
@@ -108,7 +108,7 @@ def microlensing_rescaled_prob_view(request):
     microlensing_objects_queried_lsst = (
         MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried_lsst)
         .order_by("-average_master_probability")
-        .distinct()[:35]
+        .distinct()[:75]
     )
 
     context = {
