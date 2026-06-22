@@ -5,8 +5,6 @@ import numpy as np
 import pandas as pd
 import datetime
 from alerce.core import Alerce
-from astropy.time import Time
-from astropy import units as u
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Q
@@ -27,7 +25,6 @@ class Command(BaseCommand):
         ).filter(name__icontains=str(options['target_name_contains'])).distinct()
         for target in new_or_modified_targets:
             print(f'Check lc_classifier_BHRF_forced_phot microlensing probability for event {target.name}')
-            time_now = Time(datetime.datetime.now()).jd
             alerce = Alerce()
             try:
                 if "ZTF" in "".join( [x for x in target.names if "ZTF" in x]):
@@ -39,28 +36,45 @@ class Command(BaseCommand):
             except Exception as e:
                 print(f"No probability ingested {e}")
                 continue
+            try:
+                best_class = max([(item['probability'],item['class_name'],
+                                  item['classifier_name']) for item in probabilities if
+                                  'lc_classifier_BHRF_forced_phot' == item['classifier_name']])[1]
+                print(best_class)
+                with transaction.atomic():
+                    GalacticTarget.objects.filter(name=target).update(target_type=f"{best_class} candidate")
+            except Exception as e:
+                print(f"Exception: {e}")
+                best_class = ""
 
-            prob_pd = pd.DataFrame.from_dict(probabilities)
-            prob_class1 = 0.
-            prob_class2 = 0.
-            try:
-                stochastic_bhrf_prob = prob_pd.loc[prob_pd['classifier_name'] == 'lc_classifier_BHRF_forced_phot']
-                prob_class1 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
-                prob_class2 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'CV/Nova']['probability'].iloc[0])
-            except Exception as e:
-                print(f"Classification missing, Exception: {e}")
-            prob_class3 = 0.
-            try:
-                bogus_prob = prob_pd.loc[prob_pd['classifier_name'] == 'stamp_classifier']
-                prob_class3 = float(bogus_prob[bogus_prob['class_name'] == 'bogus']['probability'].iloc[0])
-            except Exception as e:
-                print(f"Classification missing, Exception: {e}")
-            prob_class4 = 0.
-            try:
-                forced_atat_prob = prob_pd.loc[prob_pd['classifier_name'] == 'LC_classifier_ATAT_forced_phot(beta)']
-                prob_class4 = float(forced_atat_prob[forced_atat_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
-            except Exception as e:
-                print(f"Classification missing, Exception: {e}")
+            if "Microlensing" in best_class:
+                prob_pd = pd.DataFrame.from_dict(probabilities)
+                prob_class1 = 0.
+                prob_class2 = 0.
+                try:
+                    stochastic_bhrf_prob = prob_pd.loc[prob_pd['classifier_name'] == 'lc_classifier_BHRF_forced_phot']
+                    prob_class1 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
+                    prob_class2 = float(stochastic_bhrf_prob[stochastic_bhrf_prob['class_name'] == 'CV/Nova']['probability'].iloc[0])
+                except Exception as e:
+                    print(f"Classification missing, Exception: {e}")
+                prob_class3 = 0.
+                try:
+                    bogus_prob = prob_pd.loc[prob_pd['classifier_name'] == 'stamp_classifier']
+                    prob_class3 = float(bogus_prob[bogus_prob['class_name'] == 'bogus']['probability'].iloc[0])
+                except Exception as e:
+                    print(f"Classification missing, Exception: {e}")
+                prob_class4 = 0.
+                try:
+                    forced_atat_prob = prob_pd.loc[prob_pd['classifier_name'] == 'LC_classifier_ATAT_forced_phot(beta)']
+                    prob_class4 = float(forced_atat_prob[forced_atat_prob['class_name'] == 'Microlensing']['probability'].iloc[0])
+                except Exception as e:
+                    print(f"Classification missing, Exception: {e}")
+            else:
+                #Mostly affects ANTARES filter events with differing ALeRCE classification
+                prob_class1 = 1e-99
+                prob_class2 = 0.
+                prob_class3 = 0.
+                prob_class4 = 0.
 #            try:
                 #For ZTF events ingest fink probability as maximum probability 
                 #attach it to the ALeRCE query to avoid repeating the galactic target filter.
