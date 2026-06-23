@@ -77,10 +77,18 @@ class Command(BaseCommand):
                                               )
             # add new classifications
             try:
-                _, classifications = create_and_attach_classifications_to_target(probabilities=probabilities, target=target)
-                print(f"Added {len(classifications)} for target {target}.")
+                _, new_classification, updated_classifications = (
+                    create_and_attach_classifications_to_target(
+                        probabilities=probabilities, target=target
+                    )
+                )
+                print(
+                    f"Added {len(new_classification)} and updated {len(updated_classifications)} classifications for target {target}."
+                )
             except Exception as e:
-                print(f"Something went wrong creating and attaching classifications for target {target}")
+                print(
+                    f"Something went wrong creating and attaching classifications for target {target}"
+                )
                 print(e)
 
             
