@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from custom_code.helpers import create_and_attach_classifications_to_target
 from custom_code.target_models import GalacticTarget, Classification
 from django.db import transaction
 import numpy as np
