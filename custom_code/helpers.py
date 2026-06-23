@@ -5,10 +5,10 @@ def create_and_attach_classifications_to_target(target, probabilities):
     sources, classifications_new, classifications_updated = [], [], []
     for prob in probabilities:
         classification_source, created_source = ClassificationSource.objects.get_or_create(
-            publication="ALeRCE_ZTF",
+            classification_origin="ALeRCE_ZTF",
             classifier_name=prob["classifier_name"],
-            name=prob["class_name"],
-            version=prob["classifier_version"],
+            class_name=prob["class_name"],
+            classifier_version=prob["classifier_version"],
         )
         try:
             classification = ClassificationGeneralized.objects.get(

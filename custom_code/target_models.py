@@ -111,12 +111,12 @@ class Classification(models.Model):
 
 class ClassificationSource(models.Model):
     classifier_name = models.CharField(max_length=100)
-    name = models.CharField(max_length=100)
-    version = models.CharField(max_length=100, default="n.a.")
-    publication = models.CharField(max_length=100)
+    classification_origin = models.CharField(max_length=100)
+    classifier_version = models.CharField(max_length=100, default="n.a.")
+    class_name = models.CharField(max_length=100)
 
     def __str__(self):
-        s = f"{self.publication}: {self.classifier_name} (version: {self.version}) -> {self.name}"
+        s = f"{self.classification_origin}: {self.classifier_name} (version: {self.classifier_version}) -> {self.class_name}"
         return s
 
 

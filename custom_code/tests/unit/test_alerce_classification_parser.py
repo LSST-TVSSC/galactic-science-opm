@@ -4,8 +4,6 @@ from django.test import TestCase
 
 from custom_code.helpers import create_and_attach_classifications_to_target
 from custom_code.target_models import (
-    ClassificationGeneralized,
-    ClassificationSource,
     GalacticTarget,
 )
 
