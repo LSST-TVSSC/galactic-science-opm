@@ -109,6 +109,38 @@ class Classification(models.Model):
         s = f'{self.target}, {self.source}, {self.class1}, {self.prob_class1}'
         return s
 
+class ClassificationSource(models.Model):
+    classifier_name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    version = models.CharField(max_length=100, default="n.a.")
+    publication = models.CharField(max_length=100)
+
+    def __str__(self):
+        s = f"{self.publication}: {self.classifier_name} (version: {self.version}) -> {self.name}"
+        return s
+
+
+class ClassificationGeneralized(models.Model):
+
+    target = models.ForeignKey(
+        GalacticTarget,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="classifications",
+    )
+    source = models.ForeignKey(to=ClassificationSource, related_name="members", on_delete=models.CASCADE)
+    name = models.CharField(max_length=70)
+    probability = models.FloatField(default=0, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        get_latest_by = "updated_at"
+
+    def __str__(self):
+        s = f"{self.target}, {self.source}, {self.name}, {self.probability}"
+        return s
+    
 class MicrolensingModel(models.Model):
     """Class providing the parameters of a microlensing model fit"""
 

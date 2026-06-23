@@ -23,6 +23,11 @@ class Command(BaseCommand):
             Q(modified__gte=time_window) | 
             Q(reduceddatum__timestamp__gte=time_window)
         ).filter(name__icontains=str(options['target_name_contains'])).distinct()
+
+        if len(new_or_modified_targets) == 0:
+            print("Neither new nor modified targets to check were found. Stopping.")
+            return
+        
         for target in new_or_modified_targets:
             print(f'Check lc_classifier_BHRF_forced_phot microlensing probability for event {target.name}')
             alerce = Alerce()
@@ -110,5 +115,13 @@ class Command(BaseCommand):
                                                         )
             except Exception as e:
                 print(f"Exception: {e}")
+
+            # add new classifications 
+            try:
+                _, classifications = create_and_attach_classifications_to_target(probabilities=probabilities, target=target)
+                print(f"Added {len(classifications)} for target {target}.")
+            except Exception as e:
+                print(f"Something went wrong creating and attaching classifications for target {target}")
+                print(e)
             
         print('probabilities created/updated.')

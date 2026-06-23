@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from custom_code.helpers import create_and_attach_classifications_to_target
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
 from custom_code.match_managers import validators
 import numpy as np
@@ -20,6 +21,10 @@ class Command(BaseCommand):
         #requires existing targets, LSST ids will not be identifiable
         qs = GalacticTarget.objects.filter(name__icontains=str(options['target_name_contains']))
         target_list = list(set(qs))
+        if len(target_list) == 0:
+            print(f"Target list for name '{options["target_name_contains"]}' was empty. Stopping.")
+            return
+
         for target in target_list:
             print('Check lc_classifier_BHRF_forced_phot microlensing probability for event ' + target.name)
             time_now = Time(datetime.datetime.now()).jd
@@ -70,5 +75,13 @@ class Command(BaseCommand):
                                               class3='bogus',
                                               prob_class3 = prob_class3
                                               )
+            # add new classifications
+            try:
+                _, classifications = create_and_attach_classifications_to_target(probabilities=probabilities, target=target)
+                print(f"Added {len(classifications)} for target {target}.")
+            except Exception as e:
+                print(f"Something went wrong creating and attaching classifications for target {target}")
+                print(e)
+
             
         print('probabilities created/updated.')
