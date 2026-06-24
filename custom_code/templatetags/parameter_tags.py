@@ -1,7 +1,6 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
-from custom_code.target_models import Classification
-from custom_code.target_models import MicrolensingModel
+from custom_code.target_models import Classification, MicrolensingStatisticalModel
 from custom_code.target_models import MicrolensingRadarData
 
 
@@ -10,7 +9,7 @@ register = template.Library()
 @register.filter
 def microlensing_parameters_by_name(name):
     try:
-        return MicrolensingModel.objects.filter(target=name).latest()
+        return MicrolensingStatisticalModel.objects.filter(target=name).latest()
     except ObjectDoesNotExist:
         return None
 

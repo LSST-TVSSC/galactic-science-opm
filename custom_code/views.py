@@ -5,7 +5,7 @@ from django.db.models.functions import Rank
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from custom_code.target_models import GalacticTarget
+from custom_code.target_models import GalacticTarget, MicrolensingStatisticalModel
 from custom_code.target_models import MicrolensingModel
 from custom_code.target_models import Classification
 from custom_code.target_models import MicrolensingRadarData
@@ -16,7 +16,7 @@ from django.utils import timezone
 from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
 
 def microlensing_model_view(request):
-    microlensing_models = MicrolensingModel.objects.all()[
+    microlensing_models = MicrolensingStatisticalModel.objects.all()[
         :30
     ]
     try:

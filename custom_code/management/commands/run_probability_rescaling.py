@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.apps import apps
 from django.db import transaction
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification, MicrolensingRadarData
+from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification, MicrolensingRadarData, MicrolensingStatisticalModel
 import numpy as np
 import datetime
 from astropy.time import Time, TimezoneInfo
@@ -31,11 +31,11 @@ class Command(BaseCommand):
         nside  = config.nside
 
         for target in target_list:
-            microlensing_model = MicrolensingModel.objects.filter(target=target)
+            microlensing_model = MicrolensingStatisticalModel.objects.filter(target=target)
             if not microlensing_model.exists():
                 continue
             else:
-                microlensing_model = MicrolensingModel.objects.filter(target=target).latest()
+                microlensing_model = MicrolensingStatisticalModel.objects.filter(target=target).latest()
 
             target_classification = Classification.objects.filter(target=target)
 

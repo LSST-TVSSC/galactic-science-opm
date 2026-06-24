@@ -1,3 +1,7 @@
+import os
+from pathlib import Path
+
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from tom_dataproducts.models import ReducedDatum
 from tom_targets.models import TargetExtra
@@ -7,7 +11,7 @@ from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 from astropy.time import Time, TimeDelta
-from custom_code.target_models import GalacticTarget, MicrolensingModel, MicrolensingRadarData
+from custom_code.target_models import GalacticTarget, MicrolensingModel, MicrolensingRadarData, MicrolensingStatisticalModel, StatisticalModelImage
 from custom_code.utils.catalog_requests import query_ztf_lightcurve
 from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation
@@ -98,16 +102,28 @@ def run_fit(target):
                            model_results.model_parameters.u0_error > 0.) or "LSST" in target.name :
                             plm.plotmodel(eventname=event_path, modelfile=model_path)
                             plt.savefig(saving_path, bbox_inches='tight',dpi=90)
+                            plt.close()
                         with transaction.atomic():
-                            m = MicrolensingModel.objects.update_or_create(target=target,
-                                                  u0 = model_results.model_parameters.u0,
-                                                  t0 = model_results.model_parameters.t0,
-                                                  tE = model_results.model_parameters.tE,
-                                                  err_u0 = model_results.model_parameters.u0_error,
-                                                  err_t0 = model_results.model_parameters.t0_error,
-                                                  err_tE = model_results.model_parameters.tE_error,
-                                                  err_rho = model_results.model_parameters.rho_error, 
-                                                  rho = model_results.model_parameters.rho)
+                            ml_model = MicrolensingStatisticalModel.objects.create(
+                                target=target,
+                                u0=model_results.model_parameters.u0,
+                                t0=model_results.model_parameters.t0,
+                                tE=model_results.model_parameters.tE,
+                                err_u0=model_results.model_parameters.u0_error,
+                                err_t0=model_results.model_parameters.t0_error,
+                                err_tE=model_results.model_parameters.tE_error,
+                                err_rho=model_results.model_parameters.rho_error,
+                                rho=model_results.model_parameters.rho,
+                            )
+                            image_path = Path(saving_path)
+                            with image_path.open(mode="rb") as f:
+                                image = File(f, name=image_path.name)
+                                StatisticalModelImage.objects.create(
+                                    statistical_model=ml_model, image=image
+                                )
+                                os.remove(saving_path)
+
+
                     except :
                         print("No FinalModel from RTModel")
 
