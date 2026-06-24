@@ -124,8 +124,9 @@ def run_fit(target):
                                 os.remove(saving_path)
 
 
-                    except :
+                    except Exception as e:
                         print("No FinalModel from RTModel")
+                        print(e)
 
 
 class Command(BaseCommand):
