@@ -3,7 +3,6 @@ from django.apps import apps
 from django.db import transaction
 from custom_code.target_models import GalacticTarget, Classification, MicrolensingRadarData, MicrolensingParameterModel
 import numpy as np
-import datetime
 import healpy as hp
 from ._rescale_ztf_microlensing_prob import psi_planet_priority_peak
 
@@ -37,7 +36,6 @@ class Command(BaseCommand):
             target_classification = Classification.objects.filter(target=target)
 
             if target_classification.exists():
-                time_now = Time(datetime.datetime.now()).jd
                 try:
                     psip = psi_planet_priority_peak(microlensing_model.u0, microlensing_model.err_u0,
                                                     microlensing_model.tE, microlensing_model.err_tE, 
