@@ -108,7 +108,7 @@ def microlensing_rescaled_prob_view(request):
     microlensing_objects_queried_lsst = (
         MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried_lsst)
         .order_by("-average_master_probability")
-        .distinct()[:75]
+        .distinct()[:10]
     )
 
     context = {
@@ -125,7 +125,46 @@ def microlensing_rescaled_prob_view(request):
         return render(request, 'custom_code/prob_list.html', context)
     except ObjectDoesNotExist:
         return render(request, 'custom_code/prob_list.html', context)
-    
+
+
+def microlensing_rescaled_prob_view_lsst(request):
+
+    def calculate_metadata(queryset):
+        """Prepare age for easier ranking"""
+        processed_list = []
+        for obj in queryset:
+            age_days = (timezone.now() - obj.target.created).days
+            processed_list.append(
+                {
+                    "object": obj,
+                    "age_days": age_days,
+                }
+            )
+        return processed_list
+
+
+    distinct_ids_queried_lsst = (
+        MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
+        .distinct("target_id")
+        .filter(target__name__icontains="LSST")
+        .filter(average_master_probability__gt=0.0)
+    )
+    microlensing_objects_queried_lsst = (
+        MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried_lsst)
+        .order_by("-average_master_probability")
+        .distinct()[:150]
+    )
+
+    context = {
+        "microlensing_objects_queried_lsst": calculate_metadata(
+            microlensing_objects_queried_lsst
+        ),
+    }
+
+    try:
+        return render(request, 'custom_code/prob_list_lsst.html', context)
+    except ObjectDoesNotExist:
+        return render(request, 'custom_code/prob_list_lsst.html', context)
 
 class HomeView(TemplateView):
     template_name = "tom_common/index.html"
