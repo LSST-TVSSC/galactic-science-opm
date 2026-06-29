@@ -37,7 +37,7 @@ def test_authorized_user_can_visit(page: Page):
         ('Names', "ZTF26aarbgfh"),
         ('RA', '18:18:18.673'),
         ('Dec', '00:08:13.669'),
-        ('Class', 'Microlensing candidate'),
+        ('Class ALeRCE BHRF', 'Microlensing candidate'),
         ('Probability rescaled', '0.464'),
     )
     EXPECTED_PARAMETERS = (
