@@ -177,7 +177,7 @@ class MicrolensingModel(models.Model):
     class Meta:
         get_latest_by = "updated_at"
 
-class BaseStatisticalModel(models.Model):
+class BaseParameterModel(models.Model):
 
     target = models.ForeignKey(
         GalacticTarget,
@@ -191,7 +191,7 @@ class BaseStatisticalModel(models.Model):
     class Meta:
         get_latest_by = 'updated_at'
 
-class MicrolensingStatisticalModel(BaseStatisticalModel):
+class MicrolensingParameterModel(BaseParameterModel):
 
     t0 = models.FloatField(default=0)
     err_t0 = models.FloatField(default=0)
@@ -231,7 +231,7 @@ def image_directory_path(instance, filename):
 
 class StatisticalModelImage(models.Model):
     statistical_model = models.ForeignKey(
-        to=BaseStatisticalModel,
+        to=BaseParameterModel,
         on_delete=models.CASCADE,
         related_name="images"
     )

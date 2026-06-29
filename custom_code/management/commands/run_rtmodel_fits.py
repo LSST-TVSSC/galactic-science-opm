@@ -4,16 +4,14 @@ from pathlib import Path
 from django.core.files import File
 from django.core.management.base import BaseCommand
 from tom_dataproducts.models import ReducedDatum
-from tom_targets.models import TargetExtra
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 from astropy.time import Time, TimeDelta
-from custom_code.target_models import GalacticTarget, MicrolensingModel, MicrolensingRadarData, MicrolensingStatisticalModel, StatisticalModelImage
+from custom_code.target_models import GalacticTarget, MicrolensingRadarData, MicrolensingParameterModel, StatisticalModelImage
 from custom_code.utils.catalog_requests import query_ztf_lightcurve
-from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation
 import RTModel
 import matplotlib
@@ -21,15 +19,12 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import RTModel.plotmodel as plm
 import astropy.units as u
-from astropy.time import Time, TimezoneInfo
+from astropy.time import TimezoneInfo
 import pandas as pd
 import tempfile
 from os import path
 from os import makedirs, listdir
-from django.db import connection, transaction
-from ._RTModel_results_cls import EventResults, ModelResults
-import sys
-
+from ._RTModel_results_cls import ModelResults
 
 def run_fit(target):
     if "ZTF" in target.name or "LSST" in target.name or "OGLE" in target.name:
@@ -104,7 +99,7 @@ def run_fit(target):
                             plt.savefig(saving_path, bbox_inches='tight',dpi=90)
                             plt.close()
                         with transaction.atomic():
-                            ml_model = MicrolensingStatisticalModel.objects.create(
+                            ml_model = MicrolensingParameterModel.objects.create(
                                 target=target,
                                 u0=model_results.model_parameters.u0,
                                 t0=model_results.model_parameters.t0,

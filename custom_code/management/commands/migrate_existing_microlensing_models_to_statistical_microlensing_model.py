@@ -9,13 +9,13 @@ from django.core.management.base import BaseCommand
 from custom_code.target_models import (
     GalacticTarget,
     MicrolensingModel,
-    MicrolensingStatisticalModel,
+    MicrolensingParameterModel,
     StatisticalModelImage,
 )
 
 
 class Command(BaseCommand):
-    help = "Migrates existing MicrolensingModel to MicrolensingStatisticalModel"
+    help = "Migrates existing MicrolensingModel to MicrolensingParameterModel"
 
     def add_arguments(self, parser):
         pass
@@ -38,7 +38,7 @@ class Command(BaseCommand):
             latest_model = microlensing_models_for_target.latest()
 
             path_to_current_image = path.join(settings.MEDIA_ROOT, f"{target.name}.png")  
-            ml_model = MicrolensingStatisticalModel.objects.create(
+            ml_model = MicrolensingParameterModel.objects.create(
                 target=target,
                 u0=latest_model.u0,
                 t0=latest_model.t0,

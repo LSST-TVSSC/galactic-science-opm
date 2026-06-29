@@ -1,22 +1,20 @@
 from django.conf import settings
 from django.core import management
 from django.db import OperationalError, connections
-from django.db.models.functions import Rank
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from custom_code.target_models import GalacticTarget, MicrolensingStatisticalModel
-from custom_code.target_models import MicrolensingModel
+from custom_code.target_models import GalacticTarget, MicrolensingParameterModel
 from custom_code.target_models import Classification
 from custom_code.target_models import MicrolensingRadarData
-from django.db.models import Q, Window
+from django.db.models import Q
 from django.views.generic import TemplateView
 from django.utils import timezone
 
 from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
 
 def microlensing_model_view(request):
-    microlensing_models = MicrolensingStatisticalModel.objects.all()[
+    microlensing_models = MicrolensingParameterModel.objects.all()[
         :30
     ]
     try:
