@@ -76,8 +76,11 @@ def run_fit(target):
                         filtered_df = df[df['filter'] == category]
                         if len(filtered_df)>2:
                             custom_header = ["Mag", "err", "HJD-2450000"]
-                            filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
-                                  header=custom_header, index=None, sep=' ', mode='a')
+                            try:
+                                filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
+                                      header=custom_header, index=None, sep=' ', mode='a')
+                            except Exception as e:
+                                print(f"Cannot write filtered dataframe {e}")
                     rtm = RTModel.RTModel(tempdirname)
                     rtm.config_InitCond(modelcategories = ['PS'])
                 if len(data)>3:
@@ -90,9 +93,9 @@ def run_fit(target):
                         model_name = listdir(path.join(tempdirname,"FinalModels"))
                         model_path = path.join(tempdirname,"FinalModels",model_name[0])
                         model_results = ModelResults(model_path)
-                        if model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5. and \
+                        if (model_results.model_parameters.u0_error+model_results.model_parameters.u0 < 5. and \
                            model_results.model_parameters.tE > 0. and \
-                           model_results.model_parameters.u0_error > 0. :
+                           model_results.model_parameters.u0_error > 0.) or "LSST" in target.name :
                             plm.plotmodel(eventname=event_path, modelfile=model_path)
                             plt.savefig(saving_path, bbox_inches='tight',dpi=90)
                         with transaction.atomic():
@@ -134,7 +137,10 @@ class Command(BaseCommand):
             target__name__icontains=str(options['event'])).filter(
             average_master_probability__gt=0.).filter(
             target__known_variability__icontains="queried")
-            qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:35]
+            if str(options['event']) == "LSST":
+                qs = MicrolensingRadarData.objects.filter(target__name__icontains=str(options['event'])).distinct()
+            else:
+                qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:35]
             # extract target names, avoid duplicates via set
             target_names = list(set([x.target.name for x in qs] + [x.name for x in new_or_modified_targets ] ))
             for target_name in target_names:

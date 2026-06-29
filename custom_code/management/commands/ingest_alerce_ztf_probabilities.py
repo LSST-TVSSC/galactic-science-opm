@@ -36,16 +36,24 @@ class Command(BaseCommand):
                 if "ZTF" in "".join( [x for x in target.names if "ZTF" in x]):
                     target_name_ztf =  [x for x in target.names if "ZTF" in x][0]
                     probabilities = alerce.query_probabilities(target_name_ztf,survey='ztf')
+                elif "LSST" in "".join( [x for x in target.names if "LSST" in x]):
+                    target_name_lsst =  [x for x in target.names if "LSST" in x][0]
+                    probabilities = alerce.query_probabilities(target_name_lsst[5:],survey='lsst')
                 else:
-                    print(f"No probability ingested {target_name_ztf}")
+                    print(f"No probability ingested {target.names}")
                     continue
             except Exception as e:
                 print(f"No probability ingested {e}")
                 continue
             try:
-                best_class = max([(item['probability'],item['class_name'],
-                                  item['classifier_name']) for item in probabilities if
-                                  'lc_classifier_BHRF_forced_phot' == item['classifier_name']])[1]
+                if "ZTF" in "".join( [x for x in target.names if "ZTF" in x]):
+                    best_class = max([(item['probability'],item['class_name'],
+                                      item['classifier_name']) for item in probabilities if
+                                      'lc_classifier_BHRF_forced_phot' == item['classifier_name']])[1]
+                else:
+                    best_class = max([(item['probability'],item['class_name'],
+                                      item['classifier_name']) for item in probabilities if
+                                      'stamp_classifier_rubin_beta' == item['classifier_name']])[1]
                 print(best_class)
                 with transaction.atomic():
                     GalacticTarget.objects.filter(name=target).update(target_type=f"{best_class} candidate")
