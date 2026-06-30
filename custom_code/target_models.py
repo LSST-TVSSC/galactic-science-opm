@@ -1,6 +1,10 @@
+import hashlib
+from pathlib import Path
+
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from tom_targets.base_models import BaseTarget
+from django.apps import apps
 
 class GalacticTarget(BaseTarget):
     """
@@ -74,6 +78,25 @@ class GalacticTarget(BaseTarget):
             for tn in self.aliases.all():
                 if survey in tn.name:
                     survey_name = tn.name
+
+    def latest_parameter_models(self):
+        latest = []
+
+        for model in apps.get_models():
+            if (
+                issubclass(model, BaseParameterModel)
+                and model is not BaseParameterModel
+            ):
+                instance = (
+                    model.objects
+                    .filter(target=self)
+                    .order_by("-updated_at")
+                    .first()
+                )
+                if instance:
+                    latest.append(instance)
+        
+        return latest
 
 class Classification(models.Model):
     """
@@ -170,8 +193,69 @@ class MicrolensingModel(models.Model):
     blend_mag = models.FloatField(default=0)
     err_blend_mag = models.FloatField(default=0)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        get_latest_by = "updated_at"
+
+class BaseParameterModel(models.Model):
+
+    target = models.ForeignKey(
+        GalacticTarget,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="statistical_models",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
         get_latest_by = 'updated_at'
+
+class MicrolensingParameterModel(BaseParameterModel):
+
+    t0 = models.FloatField(default=0)
+    err_t0 = models.FloatField(default=0)
+    u0 = models.FloatField(default=0)
+    err_u0 = models.FloatField(default=0)
+    tE = models.FloatField(default=0)
+    err_tE = models.FloatField(default=0)
+    piEN = models.FloatField(default=0)
+    err_piEN = models.FloatField(default=0)
+    piEE = models.FloatField(default=0)
+    err_piEE = models.FloatField(default=0)
+    rho = models.FloatField(default=0)
+    err_rho = models.FloatField(default=0)
+    s = models.FloatField(default=0)
+    err_s = models.FloatField(default=0)
+    q = models.FloatField(default=0)
+    err_q = models.FloatField(default=0)
+    alpha = models.FloatField(default=0)
+    err_alpha = models.FloatField(default=0)
+    source_mag = models.FloatField(default=0)
+    err_source_mag = models.FloatField(default=0)
+    blend_mag = models.FloatField(default=0)
+    err_blend_mag = models.FloatField(default=0)
+
+
+def image_directory_path(instance, filename):
+    ext = Path(filename).suffix
+    file_obj = instance.image.file
+    pos = file_obj.tell() 
+    h = hashlib.sha256()
+    for chunk in file_obj.chunks():
+        h.update(chunk)
+
+    file_obj.seek(pos)
+    digest = h.hexdigest()
+    return f"{digest[:2]}/{digest[2:4]}/{digest[4:6]}/{digest}{ext}"
+
+class StatisticalModelImage(models.Model):
+    statistical_model = models.ForeignKey(
+        to=BaseParameterModel,
+        on_delete=models.CASCADE,
+        related_name="images"
+    )
+    image = models.ImageField(upload_to=image_directory_path)
 
 class MicrolensingRadarData(models.Model):
     """

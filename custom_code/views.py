@@ -1,22 +1,20 @@
 from django.conf import settings
 from django.core import management
 from django.db import OperationalError, connections
-from django.db.models.functions import Rank
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from custom_code.target_models import GalacticTarget
-from custom_code.target_models import MicrolensingModel
+from custom_code.target_models import GalacticTarget, MicrolensingParameterModel
 from custom_code.target_models import Classification
 from custom_code.target_models import MicrolensingRadarData
-from django.db.models import Q, Window
+from django.db.models import Q
 from django.views.generic import TemplateView
 from django.utils import timezone
 
 from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
-
+from tom_targets.views import TargetDetailView
 def microlensing_model_view(request):
-    microlensing_models = MicrolensingModel.objects.all()[
+    microlensing_models = MicrolensingParameterModel.objects.all()[
         :30
     ]
     try:
@@ -193,6 +191,14 @@ class HomeView(TemplateView):
         ).count()
         context["featured_targets"] = featured[:AMOUNT_OF_FEATURED_TARGETS]
         context["total_amount_of_targets"] = total
+        return context
+
+
+class GsoOpmTargetDetailView(TargetDetailView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        target = self.object
+        context["latest_parameter_models"] = target.latest_parameter_models()
         return context
 
 def health(_request):

@@ -170,8 +170,20 @@
       </div>
       <div class="tab-pane" id="analysis" data-testid="analysis-tab">
         <h4>Analysis (detailed parameter summary)</h4>
-        {% get_media_prefix as MEDIA_PREFIX %}
-        <img src="{{MEDIA_PREFIX}}{{target.name}}.png" width=50% alt="{{ target.name }} not plotted: u&#8320; + &sigma;&#7524;&#8320; below 5 ">
+        <div class="statistical-model-images">
+          {% if not latest_parameter_models %}
+              <p class="notice">Target '{{ target.name }}' not further analyzed so far. </p> 
+          {% else %}
+            {% for model in latest_parameter_models  %}
+              {% if not model.images.all %}
+                <p class="notice">{{ target.name }} not plotted: u&#8320; + &sigma;&#7524;&#8320; below 5</p> 
+              {% else %}
+                {% for image in model.images.all %}
+                  <img src="{{ image.image.url }}">
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+        </div>
         <div class="row">
         <table class="table" data-testid="analysis-table_parameters">
             <thead>
@@ -212,6 +224,7 @@
                 </tr>
             </tbody>
         </table>
+        {% endif %}
          </div>
      <div class="row">
      <table class="table" data-testid="analysis-table_magnitude">

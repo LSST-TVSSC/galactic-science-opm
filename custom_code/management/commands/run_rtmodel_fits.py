@@ -1,15 +1,17 @@
+import os
+from pathlib import Path
+
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from tom_dataproducts.models import ReducedDatum
-from tom_targets.models import TargetExtra
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 from astropy.time import Time, TimeDelta
-from custom_code.target_models import GalacticTarget, MicrolensingModel, MicrolensingRadarData
+from custom_code.target_models import GalacticTarget, MicrolensingRadarData, MicrolensingParameterModel, StatisticalModelImage
 from custom_code.utils.catalog_requests import query_ztf_lightcurve
-from astropy.time import Time
 from astropy.coordinates import SkyCoord, EarthLocation
 import RTModel
 import matplotlib
@@ -17,15 +19,12 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import RTModel.plotmodel as plm
 import astropy.units as u
-from astropy.time import Time, TimezoneInfo
+from astropy.time import TimezoneInfo
 import pandas as pd
 import tempfile
 from os import path
 from os import makedirs, listdir
-from django.db import connection, transaction
-from ._RTModel_results_cls import EventResults, ModelResults
-import sys
-
+from ._RTModel_results_cls import ModelResults
 
 def run_fit(target):
     if "ZTF" in target.name or "LSST" in target.name or "OGLE" in target.name:
@@ -98,18 +97,31 @@ def run_fit(target):
                            model_results.model_parameters.u0_error > 0.) or "LSST" in target.name :
                             plm.plotmodel(eventname=event_path, modelfile=model_path)
                             plt.savefig(saving_path, bbox_inches='tight',dpi=90)
+                            plt.close()
                         with transaction.atomic():
-                            m = MicrolensingModel.objects.update_or_create(target=target,
-                                                  u0 = model_results.model_parameters.u0,
-                                                  t0 = model_results.model_parameters.t0,
-                                                  tE = model_results.model_parameters.tE,
-                                                  err_u0 = model_results.model_parameters.u0_error,
-                                                  err_t0 = model_results.model_parameters.t0_error,
-                                                  err_tE = model_results.model_parameters.tE_error,
-                                                  err_rho = model_results.model_parameters.rho_error, 
-                                                  rho = model_results.model_parameters.rho)
-                    except :
+                            ml_model = MicrolensingParameterModel.objects.create(
+                                target=target,
+                                u0=model_results.model_parameters.u0,
+                                t0=model_results.model_parameters.t0,
+                                tE=model_results.model_parameters.tE,
+                                err_u0=model_results.model_parameters.u0_error,
+                                err_t0=model_results.model_parameters.t0_error,
+                                err_tE=model_results.model_parameters.tE_error,
+                                err_rho=model_results.model_parameters.rho_error,
+                                rho=model_results.model_parameters.rho,
+                            )
+                            image_path = Path(saving_path)
+                            with image_path.open(mode="rb") as f:
+                                image = File(f, name=image_path.name)
+                                StatisticalModelImage.objects.create(
+                                    statistical_model=ml_model, image=image
+                                )
+                                os.remove(saving_path)
+
+
+                    except Exception as e:
                         print("No FinalModel from RTModel")
+                        print(e)
 
 
 class Command(BaseCommand):
