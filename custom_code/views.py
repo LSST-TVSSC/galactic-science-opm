@@ -199,7 +199,6 @@ class GsoOpmTargetDetailView(TargetDetailView):
         context = super().get_context_data(**kwargs)
         target = self.object
         context["latest_parameter_models"] = target.latest_parameter_models()
-        print(context["latest_parameter_models"])
         return context
 
 def health(_request):
