@@ -16,11 +16,16 @@ Including another URLconf
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from custom_code.views import HomeView
+from custom_code.views import GsoOpmTargetDetailView, HomeView
 from custom_code import views
 
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
+    path(
+        "targets/<int:pk>/",
+        GsoOpmTargetDetailView.as_view(),
+        name="target-detail",
+    ),
     path('', include('tom_common.urls')),
     path('custom_code/model_list.html', views.microlensing_model_view, name='microlensing_model_view'),
     path('custom_code/prob_list_lsst.html', views.microlensing_rescaled_prob_view_lsst, name='microlensing_rescaled_prob_view_lsst'),

@@ -4,6 +4,7 @@ from pathlib import Path
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from tom_targets.base_models import BaseTarget
+from django.apps import apps
 
 class GalacticTarget(BaseTarget):
     """
@@ -77,6 +78,25 @@ class GalacticTarget(BaseTarget):
             for tn in self.aliases.all():
                 if survey in tn.name:
                     survey_name = tn.name
+
+    def latest_parameter_models(self):
+        latest = []
+
+        for model in apps.get_models():
+            if (
+                issubclass(model, BaseParameterModel)
+                and model is not BaseParameterModel
+            ):
+                instance = (
+                    model.objects
+                    .filter(target=self)
+                    .order_by("-updated_at")
+                    .first()
+                )
+                if instance:
+                    latest.append(instance)
+        
+        return latest
 
 class Classification(models.Model):
     """

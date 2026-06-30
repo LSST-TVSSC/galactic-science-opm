@@ -12,7 +12,7 @@ from django.views.generic import TemplateView
 from django.utils import timezone
 
 from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
-
+from tom_targets.views import TargetDetailView
 def microlensing_model_view(request):
     microlensing_models = MicrolensingParameterModel.objects.all()[
         :30
@@ -191,6 +191,15 @@ class HomeView(TemplateView):
         ).count()
         context["featured_targets"] = featured[:AMOUNT_OF_FEATURED_TARGETS]
         context["total_amount_of_targets"] = total
+        return context
+
+
+class GsoOpmTargetDetailView(TargetDetailView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        target = self.object
+        context["latest_parameter_models"] = target.latest_parameter_models()
+        print(context["latest_parameter_models"])
         return context
 
 def health(_request):
