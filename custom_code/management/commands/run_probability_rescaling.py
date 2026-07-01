@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.apps import apps
 from django.db import transaction
-from custom_code.target_models import GalacticTarget, Classification, MicrolensingRadarData, MicrolensingParameterModel
+from custom_code.target_models import GalacticTarget, Classification, MicrolensingRadarData
+from custom_code.target_models import MicrolensingParameterModel, ClassificationGeneralized, ClassificationSource
 import numpy as np
 import healpy as hp
 from ._rescale_ztf_microlensing_prob import psi_planet_priority_peak
@@ -25,8 +26,80 @@ class Command(BaseCommand):
         hpx_map = config.nsquare_map
         visit_map = config.nvisits_10yrs_map
         nside  = config.nside
-
         for target in target_list:
+            
+            class_versions = (
+                ClassificationGeneralized.objects
+                .filter(target_id=target)
+                .filter(source__classifier_name="lc_classifier_BHRF_forced_phot")
+                .values_list('source__classifier_version', flat=True)
+                .distinct()
+            )
+
+            if len(class_versions)>0:
+                highest_version = max(
+                    class_versions, 
+                    key=lambda v: [int(x) for x in v.split('.')]
+                )
+                
+                latest_probabilities = (
+                    ClassificationGeneralized.objects
+                    .filter(target_id=target)
+                    .filter(source__classifier_name="lc_classifier_BHRF_forced_phot")
+                    .filter(source__classifier_version=str(highest_version))
+                    .order_by('name', '-updated_at').distinct('name')
+                )           
+                ratio_numerator = 0.
+                ratio_denominator = 0.
+                try:
+                    for entry in latest_probabilities:
+                        if entry.source.class_name != "Microlensing":
+                            ratio_denominator += float(entry.probability)
+                        else:
+                            ratio_numerator = float(entry.probability)
+                
+                    if ratio_denominator == 0.:
+                        prob_contrast = 1.
+                    else:
+                        ratio = ratio_numerator/ratio_denominator
+                        prob_contrast = ratio/(1+ratio)
+                except Exception as e:
+                    print("no microlensing prob contrast available.")
+                    prob_contrast = 0.
+            else:
+                prob_contrast = 0.
+
+            class_versions = (
+                ClassificationGeneralized.objects
+                .filter(target_id=target)
+                .filter(source__classifier_name="microlensing_filter")
+                .values_list('source__classifier_version', flat=True)
+                .distinct()
+            )
+
+            if len(class_versions)>0:
+                
+                try:
+                    highest_version = max(
+                        class_versions, 
+                        key=lambda v: [int(x) for x in v.split('.')]
+                    )
+                except:
+                    highest_version = "unknown"
+                 
+                latest_probabilities = (
+                    ClassificationGeneralized.objects
+                    .filter(target_id=target)
+                    .filter(source__classifier_name="microlensing_filter")
+                    .filter(source__classifier_version=str(highest_version))
+                    .order_by('name', '-updated_at').distinct('name')
+                )    
+                prob_red_chisqr_antares = 0.       
+                try:
+                    prob_red_chisqr_antares = min(latest_probabilities[0].probability,1/latest_probabilities[0].probability)
+                except Exception as e:
+                    print("no microlensing red_chisqr available.")
+
             microlensing_model = MicrolensingParameterModel.objects.filter(target=target)
             if not microlensing_model.exists():
                 continue
@@ -89,15 +162,18 @@ class Command(BaseCommand):
                                                         metric_fink= transformed_prob_fink[0][0],
                                                         metric_alerce= transformed_prob_alerce[0][0],
                                                         metric_alerce_atat= transformed_prob_alerce_atat[0][0],
-                                                        metric_antares= transformed_prob_antares,
+                                                        metric_antares = prob_red_chisqr_antares,
                                                         metric_nsquare = transformed_prob_nsquare,
                                                         metric_planet = transformed_prob_planet[0][0],
                                                         metric_bogus = prob_bogus,
+                                                        metric_probability_ratio = prob_contrast,
                                                         average_master_probability=np.mean([transformed_prob_planet[0][0],
                                                                                             transformed_prob_nsquare,
                                                                                             transformed_prob_antares,
                                                                                             transformed_prob_alerce[0][0],
                                                                                             transformed_prob_alerce_atat[0][0],
+                                                                                            prob_contrast,
+                                                                                            prob_red_chisqr_antares
                                                                                             ])
                                                         )
                 except:

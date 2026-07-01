@@ -37,3 +37,38 @@ def create_and_attach_classifications_to_target(target, probabilities):
 
     return sources, classifications_new, classifications_updated
 
+
+def create_and_attach_classifications_to_target_antares(target, antares_probability, antares_version):
+    sources, classifications_new, classifications_updated = [], [], []
+    classification_source, created_source = ClassificationSource.objects.get_or_create(
+        classification_origin="ANTARES",
+        classifier_name="microlensing_filter",
+        class_name="microlensing",
+        classifier_version=antares_version,
+    )
+    try:
+        classification = ClassificationGeneralized.objects.get(
+            target=target,
+            source=classification_source,
+            name="microlensing"
+        )
+        classification.probability = antares_probability
+        classification.save()
+        created_classification = False
+    except ClassificationGeneralized.DoesNotExist:
+        classification = ClassificationGeneralized.objects.create(
+            target=target,
+            source=classification_source,
+            name="microlensing",
+            probability=antares_probability,
+        )
+        created_classification = True
+
+    if created_source:
+        sources.append(classification_source)
+    if created_classification:
+        classifications_new.append(classification)
+    else:
+        classifications_updated.append(classification)
+    return sources, classifications_new, classifications_updated
+

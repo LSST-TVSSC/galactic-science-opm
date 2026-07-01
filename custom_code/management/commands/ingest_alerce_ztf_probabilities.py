@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from custom_code.helpers import create_and_attach_classifications_to_target
+from custom_code.helpers import create_and_attach_classifications_to_target_antares
 from custom_code.target_models import GalacticTarget, Classification
 from django.db import transaction
 import numpy as np
@@ -9,6 +10,7 @@ from alerce.core import Alerce
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Q
+from antares_client.search import get_by_lsst_dia_object_id, get_by_ztf_object_id
 
 class Command(BaseCommand):
     help = 'Populate the database with catalogs of known events and handle duplicates'
@@ -36,9 +38,37 @@ class Command(BaseCommand):
                 if "ZTF" in "".join( [x for x in target.names if "ZTF" in x]):
                     target_name_ztf =  [x for x in target.names if "ZTF" in x][0]
                     probabilities = alerce.query_probabilities(target_name_ztf,survey='ztf')
+                    try: 
+                        antares_locus =  get_by_ztf_object_id(str(target_name_ztf))
+                        if "feature_antares_devkit_version" in antares_locus.properties:
+                            antares_version = antares_locus.properties["feature_antares_devkit_version"]
+                        else:
+                            antares_version = "0.0"
+                        antares_probability = 0.0          
+                        chi2_red_keys = [antares_locus.properties[x] for x in antares_locus.properties if "chi2" in x and "microlensing" in x]
+                        if len(chi2_red_keys)>0:
+                            print(chi2_red_keys,target)
+                            antares_probability = np.mean(chi2_red_keys)
+                    except Exception as e:
+                        print(f"Could not ingest ANTARES filter data {e}.")
+
                 elif "LSST" in "".join( [x for x in target.names if "LSST" in x]):
                     target_name_lsst =  [x for x in target.names if "LSST" in x][0]
                     probabilities = alerce.query_probabilities(target_name_lsst[5:],survey='lsst')
+                    try: 
+                        antares_locus = get_by_lsst_dia_object_id(str(target_name_lsst[5:]))
+                        if "feature_antares_devkit_version" in antares_locus.properties:
+                            antares_version = antares_locus.properties["feature_antares_devkit_version"]
+                        else:
+                            antares_version = "unknown"
+                        antares_probability = 0.0                       
+                        chi2_red_keys = [antares_locus.properties[x] for x in antares_locus.properties if "chi2" in x and "microlensing" in x]
+                        if len(chi2_red_keys)>0:
+                            print(chi2_red_keys,target)
+
+                            antares_probability = np.mean(chi2_red_keys)
+                    except Exception as e:
+                        print(f"Could not ingest ANTARES filter data {e}.")
                 else:
                     print(f"No probability ingested {target.names}")
                     continue
@@ -125,7 +155,7 @@ class Command(BaseCommand):
             except Exception as e:
                 print(f"Exception: {e}")
 
-            # add new classifications
+            # add new classifications ALeRCE
             try:
                 _, new_classification, updated_classifications = (
                     create_and_attach_classifications_to_target(
@@ -138,6 +168,19 @@ class Command(BaseCommand):
             except Exception as e:
                 print(
                     f"Something went wrong creating and attaching classifications for target {target}"
+                )
+                print(e)
+            # add new classifications ANTARES microlensing filter        
+            try:
+                _, new_classification, updated_classifications = (
+                    create_and_attach_classifications_to_target_antares(target,antares_probability,antares_version)
+                )
+                print(
+                    f"Added {len(new_classification)} and updated {len(updated_classifications)} classifications for target {target} ANTARES filter."
+                )
+            except Exception as e:
+                print(
+                    f"Something went wrong creating and attaching classifications for target {target} ANTARES filter"
                 )
                 print(e)
             
