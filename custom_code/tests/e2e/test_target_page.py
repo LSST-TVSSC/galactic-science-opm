@@ -1,4 +1,5 @@
 import os
+import filecmp
 import re
 from playwright.sync_api import Page, expect
 from custom_code.tests.e2e.data.test_data import BASE_URL, TOP_TARGETS, VALID_USER_CREDENTIALS
@@ -189,6 +190,19 @@ def test_authorized_user_can_visit(page: Page):
     expect(exchange_tab).to_be_visible()
 
 
+def test_authorized_user_can_download_lightcurve_data(page: Page):
+
+    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+    EXPECTED_ZIP = os.path.join(BASE_PATH, "data", "expected_lightcurves.zip")
+    
+    target_page = TargetPage(page, BASE_URL, TEST_TARGET["pk"])
+    target_page.open_it()
+    target_page.login(*VALID_USER_CREDENTIALS)
+
+    path_actual_zip = target_page.export_data()
+    result = (filecmp.cmp(path_actual_zip, EXPECTED_ZIP))
+    assert result
+    os.remove(path_actual_zip)
 
 
 
