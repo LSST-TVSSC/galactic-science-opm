@@ -76,7 +76,7 @@ class Command(BaseCommand):
                 .values_list('source__classifier_version', flat=True)
                 .distinct()
             )
-
+            prob_red_chisqr_antares = 0. 
             if len(class_versions)>0:
                 
                 try:
@@ -93,8 +93,7 @@ class Command(BaseCommand):
                     .filter(source__classifier_name="microlensing_filter")
                     .filter(source__classifier_version=str(highest_version))
                     .order_by('name', '-updated_at').distinct('name')
-                )    
-                prob_red_chisqr_antares = 0.       
+                )          
                 try:
                     prob_red_chisqr_antares = min(latest_probabilities[0].probability,1/latest_probabilities[0].probability)
                 except Exception as e:
