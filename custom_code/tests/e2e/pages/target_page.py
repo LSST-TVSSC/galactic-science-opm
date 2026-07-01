@@ -18,7 +18,7 @@ class TargetPage:
     def export_data(self):
         BASE_PATH = os.path.dirname(os.path.abspath(__file__))
         with self.page.expect_download() as download:
-            self.page.get_by_role("button", name="Download lightcurve data for target").click()
+            self.page.get_by_role("link", name="Download lightcurve data for target").click()
         
         path_to_download = os.path.join(BASE_PATH, download.value.suggested_filename)
         # Wait for the download process to complete and save the downloaded file somewhere

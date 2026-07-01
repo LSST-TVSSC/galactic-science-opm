@@ -1,6 +1,7 @@
 import os
 import filecmp
 import re
+import zipfile
 from playwright.sync_api import Page, expect
 from custom_code.tests.e2e.data.test_data import BASE_URL, TOP_TARGETS, VALID_USER_CREDENTIALS
 from custom_code.tests.e2e.pages.target_page import TargetPage
@@ -192,18 +193,20 @@ def test_authorized_user_can_visit(page: Page):
 
 def test_authorized_user_can_download_lightcurve_data(page: Page):
 
-    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-    EXPECTED_ZIP = os.path.join(BASE_PATH, "data", "expected_lightcurves.zip")
-    
+    EXPTECTED_CONTENTS = ['ZTF26aarbgfh_ZTF_r.txt', 'ZTF26aarbgfh_ZTF_g.txt'] 
     target_page = TargetPage(page, BASE_URL, TEST_TARGET["pk"])
     target_page.open_it()
     target_page.login(*VALID_USER_CREDENTIALS)
 
-    path_actual_zip = target_page.export_data()
-    result = (filecmp.cmp(path_actual_zip, EXPECTED_ZIP))
-    assert result
-    os.remove(path_actual_zip)
+    expect(page).to_have_title(re.compile(r".*Target ZTF26aarbgfh"))
+    page.get_by_role("tab", name="Exchange").click()
 
+    path_actual_zip = target_page.export_data()
+    assert path_actual_zip == "/code/custom_code/tests/e2e/pages/lightcurves_export_ZTF26aarbgfh.zip"
+
+    with zipfile.ZipFile(path_actual_zip) as generated_zip:
+        names = generated_zip.namelist()
+        assert set(names) == set(EXPTECTED_CONTENTS)
 
 
 
