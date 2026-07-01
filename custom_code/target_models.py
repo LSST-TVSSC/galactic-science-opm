@@ -266,6 +266,7 @@ class MicrolensingRadarData(models.Model):
     metric_antares float Rescaled probability from the ANTARES broker
     metric_fink float Rescaled probability from the Fink broker
     metric_planet float  Rescaled planet probability Fit and Phi function (Dominik et al.)
+    metric_probability_ratio ratio/(1+ratio) where ratio p_microlensing/p_all_others
     metric_nsquare float Rescaled rank from Gaia Nsquare map
     metric_bogus float Real bogus probability, tbd
     """
@@ -276,6 +277,7 @@ class MicrolensingRadarData(models.Model):
     metric_alerce_atat = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
     metric_antares = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
     metric_nsquare = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
+    metric_probability_ratio = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
     metric_planet = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
     metric_bogus = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
     average_master_probability = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])

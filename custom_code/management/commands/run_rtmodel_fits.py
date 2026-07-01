@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-
+from django.db.models.functions import Now
 from django.core.files import File
 from django.core.management.base import BaseCommand
 from tom_dataproducts.models import ReducedDatum
@@ -73,7 +73,7 @@ def run_fit(target):
                     unique_categories = df['filter'].unique()
                     for category in unique_categories:
                         filtered_df = df[df['filter'] == category]
-                        if len(filtered_df)>2:
+                        if len(filtered_df)>2 and len(str(category))<100:
                             custom_header = ["Mag", "err", "HJD-2450000"]
                             try:
                                 filtered_df.to_csv(path.join(data_dir,f"{category}.dat"), columns= ['magnitude','error','timestamp'], 
@@ -150,14 +150,16 @@ class Command(BaseCommand):
             average_master_probability__gt=0.).filter(
             target__known_variability__icontains="queried")
             if str(options['event']) == "LSST":
-                qs = MicrolensingRadarData.objects.filter(target__name__icontains=str(options['event'])).distinct()
+                qs = MicrolensingRadarData.objects.filter(
+                    target__name__icontains=str(options['event'])).distinct()
             else:
                 qs = MicrolensingRadarData.objects.filter(id__in=distinct_ids).order_by('-average_master_probability').distinct()[:35]
             # extract target names, avoid duplicates via set
             target_names = list(set([x.target.name for x in qs] + [x.name for x in new_or_modified_targets ] ))
             for target_name in target_names:
                 target = GalacticTarget.objects.filter(name__icontains=target_name).last()
-                if not target.ztf_baseline_checked:
+                #2d buffer: to ensure broker match against ZTF and/or baseline phot has sufficient time
+                if not target.ztf_baseline_checked and target.created < (timezone.now() - timedelta(days=2)):
                     baseline_photometry_r = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="r")
                     baseline_photometry_g = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="g")
                     baseline_photometry_i = query_ztf_lightcurve(target.ra,target.dec,2.,start_mjd=58500.0, passband="i")

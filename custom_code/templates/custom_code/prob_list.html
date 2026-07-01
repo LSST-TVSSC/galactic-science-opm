@@ -32,6 +32,7 @@
                 <th style="background-color:#3D463C">Days Since<br> Created<br> highlights &lt;7</th>
                 <th>Gaia N&sup2 <br> Rescaled</th>
                 <th>ALeRCE microlensing <br> BHRF Rescaled</th>
+                <th>ALeRCE microlensing <br> BHRF Constrast</th>
                 <th>ALeRCE microlensing <br> ATAT Direct</th>
                 <th>ANTARES microlensing <br> filter</th>
                 <th>Peak Planet Probability <br> from fit &psi; Rescaled</th>
@@ -55,8 +56,9 @@
                 <td>{{item.age_days}}</td>
                 <td>{{model.metric_nsquare|floatformat:3}}</td>
                 <td>{{model.metric_alerce|floatformat:3}}</td>
+                <td>{{model.metric_probability_ratio|floatformat:3}}</td>
                 <td>{{model.metric_alerce_atat|floatformat:3}}</td>
-                <td> NA </td>
+                <td>{{model.metric_antares|floatformat:3}} </td>
                 <td>{{model.metric_planet|floatformat:3}}</td>
                 <td>{{model.metric_bogus|floatformat:3}}</td>
                 <td>{{model.updated_at}}</td>
@@ -80,8 +82,9 @@
                 <td>{{item.age_days}}</td>
                 <td>{{model.metric_nsquare|floatformat:3}}</td>
                 <td>{{model.metric_alerce|floatformat:3}}</td>
+                <td>{{model.metric_probability_ratio|floatformat:3}}</td>
                 <td>{{model.metric_alerce_atat|floatformat:3}}</td>
-                <td> NA </td>
+                <td>{{model.metric_antares|floatformat:3}} </td>
                 <td>{{model.metric_planet|floatformat:3}}</td>
                 <td>{{model.metric_bogus|floatformat:3}}</td>
                 <td>{{model.updated_at}}</td>
@@ -106,8 +109,9 @@
                 <td>{{item.age_days}}</td>
                 <td>{{model.metric_nsquare|floatformat:3}}</td>
                 <td>{{model.metric_alerce|floatformat:3}}</td>
+                <td>{{model.metric_probability_ratio|floatformat:3}}</td>
                 <td>{{model.metric_alerce_atat|floatformat:3}}</td>
-                <td> NA </td>
+                <td>{{model.metric_antares|floatformat:3}} </td>
                 <td>{{model.metric_planet|floatformat:3}}</td>
                 <td>{{model.metric_bogus|floatformat:3}}</td>
                 <td>{{model.updated_at}}</td>
