@@ -1,7 +1,14 @@
+import io
+import os
+import tempfile
+import zipfile
+from astropy.time import Time
+import numpy as np
+from tom_dataproducts.models import ReducedDatum
 from django.conf import settings
 from django.core import management
 from django.db import OperationalError, connections
-from django.http import JsonResponse
+from django.http import FileResponse, JsonResponse
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from custom_code.target_models import GalacticTarget, MicrolensingParameterModel
@@ -200,6 +207,71 @@ class GsoOpmTargetDetailView(TargetDetailView):
         target = self.object
         context["latest_parameter_models"] = target.latest_parameter_models()
         return context
+
+# mkistner: This was taken from here: 
+# https://github.com/LCOGT/mop/blob/600eed8c6d420c709a13bb2310e6310e9248a2b7/mop/toolbox/fittools.py
+def repackage_lightcurves(qs):
+    """Function to sort through a QuerySet of the ReducedDatums for a given event and repackage the data as a
+     dictionary of individual lightcurves in PyLIMA-compatible format for different facilities.
+     Note that not all of the QuerySet of ReducedDatums may be photometry, so some sorting is required.
+     """
+
+    datasets = {}
+
+    for rd in qs:
+        if rd.data_type == 'photometry' and rd.source_name != 'Interferometry_predictor':
+            # Identify different lightcurves from the filter label given
+            passband = rd.value['filter']
+            if passband in datasets.keys():
+                lc = datasets[passband]
+            else:
+                lc = []
+
+            # Append the datapoint to the corresponding dataset
+            try:
+                lc.append([Time(rd.timestamp).jd, rd.value['magnitude'], rd.value['error']])
+            except:
+                lc.append([Time(rd.timestamp).jd, rd.value['magnitude'], 1.0])
+
+            datasets[passband] = lc
+
+    # Count the total number of datapoints available, and convert the
+    # accumulated lightcurves into numpy arrays:
+    ndata = 0
+    for passband, lc in datasets.items():
+        ndata += len(lc)
+        datasets[passband] = np.array(lc)
+
+    return datasets, ndata
+
+# mkistner: the export part was adapted from here:
+# https://github.com/LCOGT/mop/blob/600eed8c6d420c709a13bb2310e6310e9248a2b7/mop/management/commands/download_event_lc_data.py
+def download_lightcurve_data_for_target(_, pk):
+
+    with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as tmp:
+        tmp_path = tmp.name
+
+    qs = GalacticTarget.objects.filter(id=pk)
+    target = qs[0]
+
+    red_data = ReducedDatum.objects.filter(target=target).order_by("timestamp")
+    (datasets, _) = repackage_lightcurves(red_data)
+
+    try:
+        with zipfile.ZipFile(tmp_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for data_id, lc in datasets.items():
+                file_path = target.name +'_'+data_id+'.txt'
+                file_contents = ""
+                file_contents += ('# JD   mag   mag_error  dataset_ID\n')
+                for i in range(0,len(lc),1):
+                    file_contents += (str(lc[i,0])+' '+str(lc[i,1])+' '+str(lc[i,2])+' '+data_id+'\n')
+                zf.writestr(file_path, file_contents)
+                
+        response = FileResponse(open(tmp_path, 'rb'), as_attachment=True, filename=f"lightcurves_export_{target.name}.zip")
+        response['Content-Type'] = 'application/zip'
+        return response
+    finally:
+        os.unlink(tmp_path)
 
 def health(_request):
     """

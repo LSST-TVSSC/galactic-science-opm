@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, date
+from datetime import datetime
 from zoneinfo import ZoneInfo
 from playwright.sync_api import Page, expect
 from custom_code.tests.e2e.data.test_data import BASE_URL, BROKER_LINKS
@@ -9,26 +9,27 @@ NUMBER_OF_ELEMENTS_WITH_CORRECT_PROBABILITY = 11
 
 def test_all_targets_are_displayed(page: Page):
     pks_per_row = (3,4,6)
-    creation_date = "2026-04-30"
-    today = datetime.now(ZoneInfo("UTC")).date()
-    as_date = datetime.strptime(creation_date, "%Y-%m-%d").date()
+    creation_date = "2026-04-30, 6:53 AM"
+    today = datetime.now(ZoneInfo("UTC"))
+    as_date = datetime.strptime(creation_date, "%Y-%m-%d, %I:%M %p").replace(tzinfo=ZoneInfo("UTC"))
     def days_ago(d):
         return (today - d).days
 
     created_ago = days_ago(as_date)
     expected_rows = (
         (
-            r"ZTF26aarbgfh\s+ALeRCE\s+fink\s+ANTARES",
-            0.4639,
-            "None, queried",
-            created_ago,
-            0.923,
-            0.932,
-            0.000,
-            "NA",
-            0.000,
-            0.085,
-            "April 30, 2026, 6:53 a.m.",
+            r"ZTF26aarbgfh\s+ALeRCE\s+fink\s+ANTARES", #name
+            0.4639, # prob rescaled average
+            "None, queried", # variability flags
+            created_ago, # days since created
+            0.923, # gaia nsup2 
+            0.932, # bhrf rescaled
+            0.000, # bhrf contrast
+            0.000, # atat direct 
+            0.000, # microlensing filter
+            0.000, # psi rescaled
+            0.085, # bogus
+            "April 30, 2026, 6:53 a.m.", # updated
         ),
         (
             r"ZTF26aaivmks\s+ALeRCE\s+fink\s+ANTARES",
@@ -38,7 +39,8 @@ def test_all_targets_are_displayed(page: Page):
             0.920,
             0.926,
             0.000,
-            "NA",
+            0.000,
+            0.000,
             0.000,
             0.166,
             "April 30, 2026, 6:53 a.m.",
@@ -51,7 +53,8 @@ def test_all_targets_are_displayed(page: Page):
             0.925,
             0.907,
             0.000,
-            "NA",
+            0.000,
+            0.000,
             0.000,
             0.139,
             "April 30, 2026, 6:53 a.m.",
