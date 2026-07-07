@@ -65,14 +65,20 @@ class ANTARESBroker(GenericBroker):
                                 "tags": "microlensing_candidate"
                             }
                         }
-                    ]
+                    ],
+#                    "must_not": [
+#                {
+#                    "exists": {
+#                        "field": "properties.ztf_object_id"
+#                    }
+#                }
+#                 ]
                 }
             }
         }
         print(f"Searching for microlensing candidates between MJD {mjd_start} and {mjd_end}...")
         # compile results, consider to move logic to ingest events, to enable iterating over loci
         locus_results = list(search(query))
-        
         if not locus_results:
             print("ANTARES: No new alerts found.")
             return [], []
@@ -99,12 +105,15 @@ class ANTARESBroker(GenericBroker):
         
         if not locus_list:
             return [], []
-
+         
         for locus in locus_list:
             if locus.properties['survey']['lsst']['dia_object_id'] != []:
                 event_name = f"LSST_{locus.properties['survey']['lsst']['dia_object_id'][0]}"
             elif locus.properties['survey']['ztf']['id'] != []:
                 event_name = locus.properties['survey']['ztf']['id'][0]
+                if not "ZTF26" in event_name:
+                    print(f"Skipping {event_name}")
+                    continue
             else:    
                 event_name = locus.locus_id
             
@@ -156,7 +165,7 @@ class ANTARESBroker(GenericBroker):
 
                     try:
                         if "ZTF" in target.name or "LSST_" in target.name:
-                           result_var_vizier=get_var_star_variability_analysis(target.ra, target.dec)
+                            result_var_vizier=get_var_star_variability_analysis(target.ra, target.dec)
                         if result_var_vizier!="" and result_var_vizier!=None:
                             filtered_target.update(known_variability = result_var_vizier)
                         else:
@@ -211,11 +220,11 @@ class ANTARESBroker(GenericBroker):
                                     + target.name + ', skipping ingest ',e)
         targets_lsst = [x for x in targets if 'LSST' in "".join(x.names)]
         for target in targets_lsst:
-            print('ANTARES microlensing filter with ZTF ALERCE harvester: ingesting photometry for event ' + target.name)
+            print('ANTARES microlensing filter with LSST ALERCE harvester: ingesting photometry for event ' + target.name)
             try:
                 detections_photometry, forced_photometry, forced_photometry_lsst = self.read_ALERCE_lightcurve(target,survey = "lsst")
                 status = self.ingest_ALERCE_photometry(target, detections_photometry, forced_photometry, forced_photometry_lsst)
-                print('ANTARES microlensing filter harvester: completed read and ingested photometry for event ' + target.name)
+                print(f'ANTARES microlensing filter harvester: completed read and ingested photometry for event {target.name} {status}')
             except Exception as e:
                 print('ANTARES microlensing filter harvester: WARNING reading photometry failed for '
                                     + target.name + ', skipping ingest ',e)
@@ -228,17 +237,22 @@ class ANTARESBroker(GenericBroker):
         alerce = Alerce()
         detections_photometry = pd.DataFrame()
         forced_photometry = pd.DataFrame()
-        target_name_ztf = [x for x in target.names if "ZTF" in x][0]
-        ALERCE_name = target_name_ztf
-        detections_photometry = alerce.query_detections(ALERCE_name,
-                                     format="pandas", survey = survey)
-        #remove multiple detections
-        detections_photometry = detections_photometry.drop_duplicates(subset="mjd")
-        forced_photometry = alerce.query_forced_photometry(ALERCE_name,
-                                     format="pandas", survey = survey)
+        if survey ==  'ztf':
+            try:
+                target_name_ztf = [x for x in target.names if "ZTF" in x][0]
+                ALERCE_name = target_name_ztf
+                detections_photometry = alerce.query_detections(ALERCE_name,
+                                            format="pandas", survey = survey)
+                #remove multiple detections
+                detections_photometry = detections_photometry.drop_duplicates(subset="mjd")
+                forced_photometry = alerce.query_forced_photometry(ALERCE_name,
+                                            format="pandas", survey = survey)
+            except:
+                print(f"No ZTF photometry, {e}")
+
         forced_photometry_lsst = pd.DataFrame()
         if survey == "lsst":
-            try:
+            try:                
                 target_name_lsst = [x for x in target.names if "LSST" in x][0]
                 ALERCE_name = target_name_lsst[5:]
                 #detections should have been ingested via ANTARES
@@ -294,13 +308,15 @@ class ANTARESBroker(GenericBroker):
 
                     except MultipleObjectsReturned:
                         print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+        #ingest forced photometry with separate filtername
         if "scienceFlux" in forced_photometry_lsst.columns and "mjd" in forced_photometry_lsst.columns:
             for i, row in forced_photometry_lsst.iterrows():
                 jd = Time(row["mjd"], format='mjd', scale='utc')
                 jd.to_datetime(timezone=TimezoneInfo())
+                #does not match what we see on ALeRCE
                 if not pd.isna(-2.5*log10(row["scienceFlux"])+31.4):
                     datum = {'magnitude': -2.5*log10(row["scienceFlux"])+31.4,
-                            'filter': f"lsst_{row['band_name']}",
+                            'filter': f"lsst_forced_{row['band_name']}",
                             'error': 2.5 / log(10) * (row["scienceFluxErr"] / row["scienceFlux"])
                             }
                     try:
