@@ -143,10 +143,24 @@ class Command(BaseCommand):
                     transformed_prob_alerce_atat = [[0]]
 
                 try:
-                    prob_bogus = target_classification.filter(source="ALeRCE_ZTF").latest().prob_class3
+                    prob_bogus = target_classification.filter(source="ALeRCE_ZTF").latest().prob_class3                    
                 except:
                     prob_bogus = 0
 
+                try:
+                    if prob_bogus==0:
+                        latest_probabilities = (
+                        ClassificationGeneralized.objects
+                        .filter(target_id=target)
+                        .filter(source__classifier_name="stamp_classifier_rubin_beta_20260421")
+                        .order_by('name', '-updated_at').distinct('name')             
+                        )
+                        for entry in latest_probabilities:
+                            if entry.source.class_name == "bogus":
+                                prob_bogus = float(entry.probability) 
+                except Exception as e:
+                    print("no bogus available.")
+                
 
                 try:
                     pixel_index = hp.ang2pix(nside, target.ra, target.dec, lonlat=True, nest=True)                   

@@ -102,6 +102,7 @@
         {% if "lsst" in target.name|lower %}
         <a href="https://antares.noirlab.edu/loci/lookup/{{target.name|slice:'5:'}}" class="btn btn-primary" role="button"
           target="_blank">ANTARES</a>
+        <a href="https://lsst.alerce.online/object/{{ target.name|slugify|slice:'5:' }}?oid={{ target.name|slugify|slice:'5:' }}&survey=lsst&page=1" class="btn btn-primary" role="button">ALeRCE</a>
         {% endif %}
        {% if "ztf" in target.name|lower %}
         <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button"

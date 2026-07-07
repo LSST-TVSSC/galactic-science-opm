@@ -44,7 +44,8 @@
 
            {% for item in microlensing_objects_queried_lsst %}
            {% with model=item.object %}
-           <tr class="{% if item.age_days < 7 %}highlight-urgent{% else %}normal-row{% endif %}">
+           
+           <tr class="{% if model.metric_bogus > 0.5 %}highlight-bogus{% else %}{% if item.age_days < 7 %}highlight-urgent{% else %}normal-row{% endif %}{% endif %}">
                  <td> <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
                     <a href="https://lsst.alerce.online/object/{{ model.target|slugify|slice:'5:' }}?oid={{ model.target|slugify|slice:'5:' }}&survey=lsst&page=1">ALeRCE</a>
                      <a href="https://antares.noirlab.edu/loci/lookup/{{ model.target|slugify|slice:'5:' }}">ANTARES</a>
