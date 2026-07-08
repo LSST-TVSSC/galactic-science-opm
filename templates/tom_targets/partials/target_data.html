@@ -40,26 +40,8 @@
 {% endwith %}
 </dl>
 <dl class="col-sm-12 row">
-    <ul class="nav flex-column" role="tablist" id="tabs2">
-      <li class="list-group-item list-group-item-primary">
-        <a class="nav-link" id="photometry-tab" href="#photometry" role="tab" data-toggle="tab">Photometry</a>
-      </li>      
-      <li class="list-group-item list-group-item-primary">
-        <a class="nav-link" id="imaging-tab" href="#imaging" role="tab" data-toggle="tab">Imaging</a>
-      </li>   
-      <li class="list-group-item list-group-item-primary">
-        <a class="nav-link" id="spectroscopy-tab" href="#spectroscopy" role="tab" data-toggle="tab">Spectroscopy</a>
-      </li>      
-        <li class="list-group-item list-group-item-primary">
-        <a class="nav-link" id="classification-tab" href="#classification" role="tab" data-toggle="tab">Classifications</a>
-      </li>      
-      <li class="list-group-item list-group-item-primary">
-        <a class="nav-link" id="analysis-tab" href="#analysis" role="tab" data-toggle="tab" >Analysis</a>
-      </li>
-      <li class="list-group-item list-group-item-primary">
-        <a class="nav-link" id="exchange-tab" href="#exchange" role="tab" data-toggle="tab" >Observe/Exchange</a>
-      </li>
- 
+    <ul class="nav flex-column" id="target-tabs" role="tablist">
+        {% include_app_tabs %}
     </ul>
 </dl>
 

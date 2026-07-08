@@ -344,18 +344,20 @@ td, th {
   margin-block: var(--spacing-100) var(--spacing-025);
 }
 
-#tabs2 .nav-link {
+#target-tabs .nav-link {
   background-color: var(--color-highlight-primary);
   color: #f2d9dd;
   text-decoration: none;
+  padding: var(--space-050);
+  border-bottom: 1px solid var(--uni-hd-seal-700);
 }
 
-#tabs2 .nav-link.active {
+#target-tabs .nav-link.active {
   color: #f2f2f2;
   font-weight: bold;
 }
 
-#tabs2 .list-group-item-primary {
+#target-tabs .list-group-item-primary {
   background-color: var(--color-highlight-primary);
 }
 
@@ -586,4 +588,13 @@ header .section-title {
 .btn-outline-secondary:hover {
   color: var(--gso-color-secondary--hover);
   border-color: var(--gso-color-secondary--hover);
+}
+
+.target-data dt {
+  color: var(--gso-color-secondary);
+  font-weight: var(--gso-font-weight-default);
+  font-size: var(--font-size-200);
+}
+.target-data dd {
+  overflow-wrap: break-word;
 }

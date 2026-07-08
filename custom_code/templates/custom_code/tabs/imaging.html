@@ -1,0 +1,32 @@
+{% load tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags vite %}
+<div data-testid="imaging-tab">
+        <h4>Imaging</h4>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-4">
+              <div>Template</div>
+              <div>-</div>
+            </div>
+            <div class="col-md-4">
+              <div>Data Image</div>
+              <div>-</div>
+            </div>
+            <div class="col-md-4">
+              <div>Difference Image</div>
+              <div>-</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-8" data-testid="survey-view">
+              <div>Survey View</div>
+              <div data-testid="aladin-container">{% aladin_finderchart object %}</div>
+            </div>
+            <div class="col-md-4">
+              <div>Last shared image</div>
+              <div>-</div>
+            </div>
+          </div>
+
+        </div>
+</div>
