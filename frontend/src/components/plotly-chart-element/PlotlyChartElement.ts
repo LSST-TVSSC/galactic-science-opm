@@ -79,7 +79,10 @@ export class PlotlyChartElement extends LitElement {
         .find((n) => n.nodeName === "DIV");
       plotly.newPlot(wrapper, {
         data: this.config.data,
-        layout: this.config.layout,
+        layout: {...this.config.layout, autosize: true},
+        config: {
+          responsive: true 
+        }
       });
     });
   }

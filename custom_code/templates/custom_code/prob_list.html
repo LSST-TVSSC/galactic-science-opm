@@ -12,16 +12,18 @@
 </style>
 
   <div class="row justify-content-center">
+    <div class="section-title">
+        Public ranking based on averaged and rescaled probabilities of a quantile transform
+    </div>
+
     <div data-testid="baade-map">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                Public ranking based on averaged and rescaled probabilities of a quantile transform.
-            </div>
-            <img src="{% static 'tom_common/img/rescale_baade.png' %} " style="width: 77%; height: 77%" class="img-fluid mx-auto d-block"
+        <div class="black-bg">
+            <img src="{% static 'tom_common/img/rescale_baade.png' %}" class="img-fluid mx-auto d-block"
                 alt="Rescaled probability">
         </div>
     </div>
-<ul>    
+
+    <div class="table-wrapper overflow-x-auto">
     <table class="table table-dark table-striped" data-testid="ranking_table">
 
         <thead>
@@ -122,5 +124,5 @@
 
         </tbody>
     </table>    
-</ul>
+  </div>
 {% endblock %}

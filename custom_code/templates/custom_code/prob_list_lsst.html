@@ -12,14 +12,10 @@
 </style>
 
   <div class="row justify-content-center">
-    <div data-testid="baade-map">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                Public microlensing LSST candidates
-            </div>
-        </div>
+    <div class="section-title">
+        Public microlensing LSST candidates
     </div>
-<ul>    
+    <div class="table-wrapper overflow-x-auto">
     <table class="table table-dark table-striped" data-testid="ranking_table">
 
         <thead>
@@ -66,5 +62,5 @@
             {% endfor %}
             </tbody>      
             </table>    
-</ul>
+    </div>
 {% endblock %}

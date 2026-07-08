@@ -1,4 +1,4 @@
-{% load bootstrap4 %}
+{% load django_bootstrap5 %}
 {% if not user.is_authenticated %}
     <li class="nav-item">
         <a class="btn btn-outline-info" title="signup" href="{% url 'registration:register' %}">Register</a>

@@ -1,5 +1,5 @@
 {% extends 'tom_common/base.html' %}
-{% load bootstrap4 targets_extras crispy_forms_tags %}
+{% load django_bootstrap5 targets_extras crispy_forms_tags %}
 {% block title %}New Target{% endblock %}
 {% block content %}
 {% if not object %}
@@ -20,13 +20,13 @@
 {% bootstrap_field form.type %}
 <div class="form-row">
     <div class="col">
-        {% bootstrap_field form.name size="large" show_help=False %}
+        {% bootstrap_field form.name size="lg" show_help=False %}
     </div>
 </div>
 <div class="row" x-data="{open: false}">
     <div class="col mb-2">
         <span @click="open = ! open" class="text-primary pointer" x-text="open ? '▾ Aliases' : '▸ Aliases'"></span>
-        <div x-show="open" class="border p-3 bg-light" x-transition>
+        <div x-show="open" class="border p-3 " x-transition>
             {% bootstrap_formset_errors names_form %}
             {% bootstrap_formset names_form %}
         </div>
@@ -35,7 +35,7 @@
 <div class="row" x-data="{open: false}">
     <div class="col mb-2">
         <span @click="open = ! open" class="text-primary pointer" x-text="open ? '▾ Tags' : '▸ Tags'"></span>
-        <div x-show="open" class="border p-3 bg-light" x-transition>
+        <div x-show="open" class="border p-3 " x-transition>
             {% bootstrap_formset_errors extra_form %}
             {% bootstrap_formset extra_form %}
         </div>

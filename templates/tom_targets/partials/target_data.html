@@ -1,42 +1,42 @@
 {% load tom_common_extras targets_extras parameter_tags %}
-<dl class="row" data-testid="target-info">
+<dl class="row target-data" data-testid="target-info">
   {% for target_name in target.names %}
     {% if forloop.first %}
-      <dt class="col-sm-6">Names</dt>
+      <dt class="">Names</dt>
     {% else %}
-      <dt class="col-sm-6">&nbsp;</dt>
+      <dt class="">&nbsp;</dt>
     {% endif %}
-    <dd class="col-sm-6">{{ target_name }}</dd>
+    <dd class="">{{ target_name }}</dd>
   {% endfor %}
   {% for key, value in target.as_dict.items %}
 
     {% if key == 'ra' %}
-      <dt class="col-sm-6">RA&nbsp;</dt>
-      <dd class="col-sm-6">{{ value|deg_to_sexigesimal:"hms" }}</dd>
+      <dt class="">RA&nbsp;</dt>
+      <dd class="">{{ value|deg_to_sexigesimal:"hms" }}</dd>
     {% endif%}
     {% if key == 'dec' %}
-      <dt class="col-sm-6">Dec&nbsp;</dt>
-      <dd class="col-sm-6">{{ value|deg_to_sexigesimal:"hms" }}</dd>
+      <dt class="">Dec&nbsp;</dt>
+      <dd class="">{{ value|deg_to_sexigesimal:"hms" }}</dd>
     {% endif%}
     {% if key == 'expected_visits' %}
-      <dt class="col-sm-6">LSST xobs (10 yrs) </dt>
-      <dd class="col-sm-6">{{ value }}</dd>
+      <dt class="">LSST xobs (10 yrs) </dt>
+      <dd class="">{{ value }}</dd>
     {% endif%}
     {% if key == 'known_extragalactic' %}
-      <dt class="col-sm-6">Extragalactic</dt>
-      <dd class="col-sm-6">{{ value }}</dd>
+      <dt class="">Extragalactic</dt>
+      <dd class="">{{ value }}</dd>
     {% endif%}
         {% if key == 'known_variability' %}
-      <dt class="col-sm-6">Variability Flags</dt>
-      <dd class="col-sm-6">{{ value }}</dd>
+      <dt class="">Variability Flags</dt>
+      <dd class="">{{ value }}</dd>
     {% endif%}
   {% endfor %}
   
-<dt class="col-sm-6">Class ALeRCE BHRF/LSST stamp</dt>
-<dd class="col-sm-6" >{{target.target_type}}</dd>
-<dt class="col-sm-6">Probability rescaled</dt>
+<dt class="">Class ALeRCE BHRF/LSST stamp</dt>
+<dd class="" >{{target.target_type}}</dd>
+<dt class="">Probability rescaled</dt>
 {% with target|microlensing_radar_by_name as filtered_parameters %} 
-<dd class="col-sm-6" >{{filtered_parameters.average_master_probability|floatformat:3}}</dd>
+<dd class="" >{{filtered_parameters.average_master_probability|floatformat:3}}</dd>
 {% endwith %}
 </dl>
 <dl class="col-sm-12 row">
@@ -47,16 +47,16 @@
 
 <dl class="row">
 {% for key, value in extras.items %}
-  <dt class="col-sm-6">{{ key }}</dt>
-  <dd class="col-sm-6">{{ value }}</dd>
+  <dt class="">{{ key }}</dt>
+  <dd class="">{{ value }}</dd>
 {% endfor %}
 </dl>
 {% if target.tags %}
 <p>Tags</p>
 <dl class="row">
 {% for key, value in target.tags.items %}
-  <dt class="col-sm-6">{{ key }}</dt>
-  <dd class="col-sm-6">{{ value }}</dd>
+  <dt class="">{{ key }}</dt>
+  <dd class="">{{ value }}</dd>
 {% endfor %}
 </dl>
 {% endif %}
