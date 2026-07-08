@@ -4,7 +4,7 @@ import tempfile
 import zipfile
 from astropy.time import Time
 import numpy as np
-from tom_dataproducts.models import ReducedDatum
+from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
 from django.conf import settings
 from django.core import management
 from django.db import OperationalError, connections
@@ -219,9 +219,9 @@ def repackage_lightcurves(qs):
     datasets = {}
 
     for rd in qs:
-        if rd.data_type == 'photometry' and rd.source_name != 'Interferometry_predictor':
+        if rd.source_name != 'Interferometry_predictor':
             # Identify different lightcurves from the filter label given
-            passband = rd.value['filter']
+            passband = rd.bandpass
             if passband in datasets.keys():
                 lc = datasets[passband]
             else:
@@ -229,9 +229,9 @@ def repackage_lightcurves(qs):
 
             # Append the datapoint to the corresponding dataset
             try:
-                lc.append([Time(rd.timestamp).jd, rd.value['magnitude'], rd.value['error']])
+                lc.append([Time(rd.timestamp).jd, rd.brightness, rd.brightness_error])
             except:
-                lc.append([Time(rd.timestamp).jd, rd.value['magnitude'], 1.0])
+                lc.append([Time(rd.timestamp).jd, rd.brightness, 1.0])
 
             datasets[passband] = lc
 
@@ -254,7 +254,7 @@ def download_lightcurve_data_for_target(_, pk):
     qs = GalacticTarget.objects.filter(id=pk)
     target = qs[0]
 
-    red_data = ReducedDatum.objects.filter(target=target).order_by("timestamp")
+    red_data = PhotometryReducedDatum.objects.filter(target=target).order_by("timestamp")
     (datasets, _) = repackage_lightcurves(red_data)
 
     try:

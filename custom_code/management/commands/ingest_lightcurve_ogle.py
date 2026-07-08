@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
-from tom_dataproducts.models import ReducedDatum
+from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
 from custom_code.match_managers import validators
 import numpy as np
 import pandas as pd
@@ -34,12 +34,13 @@ class Command(BaseCommand):
                         'error': float(row[2]),
                         }
             try:
-                rd, created = ReducedDatum.objects.get_or_create(
+                rd, created = PhotometryReducedDatum.objects.get_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                    value=datum,
+                    brightness = datum["magnitude"],
+                    brightness_error = datum["error"],
+                    bandpass = datum["filter"],
                     source_name='UPLOAD',
                     source_location=target.name,
-                    data_type='photometry',
                     target=target)
 
             except Exception as e:

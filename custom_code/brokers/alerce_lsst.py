@@ -5,7 +5,7 @@ from django.apps import apps
 from django.db import transaction
 from custom_code.target_models import GalacticTarget
 from custom_code.match_managers import validators
-from tom_dataproducts.models import ReducedDatum
+from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
 from astropy.coordinates import SkyCoord, Angle
 from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
@@ -158,12 +158,13 @@ class ALERCEBroker(GenericBroker):
                     'error': row["sigmapsf_corr_ext"]
                     }
             try:
-                rd, created = ReducedDatum.objects.update_or_create(
+                rd, created = PhotometryReducedDatum.objects.update_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                    value=datum,
+                    brightness = datum["magnitude"],
+                    brightness_error = datum["error"],
+                    bandpass = datum["filter"],
                     source_name='ALERCE_LSST',
                     source_location=target.name,
-                    data_type='photometry',
                     target=target)
 
             except MultipleObjectsReturned:
@@ -178,12 +179,13 @@ class ALERCEBroker(GenericBroker):
                     'error': row["e_mag_corr_ext"]
                     }
             try:
-                rd, created = ReducedDatum.objects.get_or_create(
+                rd, created = PhotometryReducedDatum.objects.get_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                    value=datum,
+                    brightness = datum["magnitude"],
+                    brightness_error = datum["error"],
+                    bandpass = datum["filter"],
                     source_name='ALERCE_LSST',
                     source_location=target.name,
-                    data_type='photometry',
                     target=target)
 
             except MultipleObjectsReturned:

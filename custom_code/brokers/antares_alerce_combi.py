@@ -5,7 +5,7 @@ from django import forms
 from django.apps import apps
 from custom_code.target_models import GalacticTarget
 from custom_code.match_managers import validators
-from tom_dataproducts.models import ReducedDatum
+from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
 from astropy.coordinates import SkyCoord, Angle
 from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
@@ -191,12 +191,14 @@ class ANTARESBroker(GenericBroker):
                                 }          
                         try:
                             with transaction.atomic():
-                                rd, created = ReducedDatum.objects.update_or_create(
+                                rd, created = PhotometryReducedDatum.objects.update_or_create(
                                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                                     value=datum,
+                                    brightness = datum["magnitude"],
+                                    brightness_error = datum["error"],
+                                    bandpass = datum["filter"],
                                     source_name='ANTARES',
                                     source_location=event_name,
-                                    data_type='photometry',
                                     target=target)
                         except MultipleObjectsReturned:
                             print('ANTARES Microlensing filter HARVESTER: Found duplicated data for event '+target.name)
@@ -277,12 +279,13 @@ class ANTARESBroker(GenericBroker):
                             }          
                     try:
                         with transaction.atomic():
-                            rd, created = ReducedDatum.objects.update_or_create(
+                            rd, created = PhotometryReducedDatum.objects.update_or_create(
                                 timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                value=datum,
+                                brightness = datum["magnitude"],
+                                brightness_error = datum["error"],
+                                bandpass = datum["filter"],
                                 source_name='ALERCE',
                                 source_location=target.name,
-                                data_type='photometry',
                                 target=target)
 
                     except MultipleObjectsReturned:
@@ -298,12 +301,13 @@ class ANTARESBroker(GenericBroker):
                             }
                     try:
                         with transaction.atomic():
-                            rd, created = ReducedDatum.objects.update_or_create(
+                            rd, created = PhotometryReducedDatum.objects.update_or_create(
                                 timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                value=datum,
+                                brightness = datum["magnitude"],
+                                brightness_error = datum["error"],
+                                bandpass = datum["filter"],
                                 source_name='ALERCE',
                                 source_location=target.name,
-                                data_type='photometry',
                                 target=target)
 
                     except MultipleObjectsReturned:
