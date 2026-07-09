@@ -93,7 +93,7 @@ def microlensing_rescaled_prob_view(request):
     distinct_ids_queried = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
-        .filter(target__name__icontains="ZTF")
+        .filter(target__name__icontains="ZTF26")
         .filter(average_master_probability__gt=0.0)
         .filter(target__known_variability__icontains="queried")
     )

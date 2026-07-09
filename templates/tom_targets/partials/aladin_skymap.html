@@ -4,9 +4,9 @@
     moon='{"ra": {{ moon_ra|safe }}, "dec": {{ moon_dec|safe }}, "illumination": {{ moon_illumination|safe }}}'
     sun='{"ra": {{ sun_ra|safe }}, "dec": {{ sun_dec|safe }}}'
     surveys='[
-        {"url": "{% static "tom_common/moc/base51_for_OPM_600visits.fits" %}", "color": "#ffa040", "name": "Rubin"}, 
-        {"url": "{% static "tom_common/moc/gaia_nsquare_for_OPM_moc_nolodust.fits" %}", "color": "#ff0000", "name": "Galactic Plane Survey"}, 
-        {"url": "{% static "tom_common/moc/gaia_nsquare_for_OPM_moc_nes.fits" %}", "color": "#6666ff", "name": "North Ecliptic Spur"}
+        {"url": "{% static "tom_common/moc/baseline5_3_2_1visit_10years.fits" %}", "color": "#ffa040", "name": "Rubin"}, 
+        {"url": "{% static "tom_common/moc/baseline5_3_2_2000visit_10years.fits" %}", "color": "#6666ff", "name": "Rubin >2000 visits in 10yrs"},
+        {"url": "{% static "tom_common/moc/baseline5_3_2_500visit_10years.fits" %}", "color": "#ff0000", "name": "Rubin >500 visits in 10yrs"}
     ]'>
 </aladin-skymap-element>
 <script>
