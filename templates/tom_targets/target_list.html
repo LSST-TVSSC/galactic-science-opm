@@ -28,7 +28,6 @@
           <a class="dropdown-item" href="{% url 'targets:import' %}" title="Import Targets">Import Targets</a>
         </div>
         <button onclick="document.getElementById('invisible-export-button').click()" class="btn btn-primary">Export Filtered Targets</button>
-        <button type="submit" class="btn btn-outline-secondary my-1" name="merge">Merge selected targets</button>
          <!-- use an invisible button, because the key "Enter" event will triggered the first submit button and we want the default action to be applying filter -->
       </span>
       </div>
@@ -40,6 +39,7 @@
       <button id="optionSelectAll" type="button" class="btn btn-link" onClick="select_all('{{ target_count }}')"></button>
       <form id="grouping-form" action="{% url 'targets:add-remove-grouping' %}" method="POST">
         {% csrf_token %}
+        <button type="submit" class="btn btn-outline-secondary my-1" name="merge">Merge selected targets</button>
         <div class="d-flex flex-column my-1">
           <div>Add/Remove from grouping</div>
           <div class="d-flex flex-row my-2">
