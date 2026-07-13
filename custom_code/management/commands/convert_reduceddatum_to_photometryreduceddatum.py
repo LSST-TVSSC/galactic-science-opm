@@ -49,7 +49,7 @@ def convert_all_reduceddatum_to_photometryreduceddatum():
 
     # insert remaining ones
     if conversion_candiates:
-        created = PhotometryReducedDatum.objects.bulk_create(conversion_candiates)
+        created = PhotometryReducedDatum.objects.bulk_create(conversion_candiates, ignore_conflicts=True)
         creation_counter += len(created)
         print(f"Created {creation_counter} of {number_of_reduceddatums}...")
 
