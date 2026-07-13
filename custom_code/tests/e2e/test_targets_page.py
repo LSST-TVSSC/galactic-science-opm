@@ -2,7 +2,7 @@ import filecmp
 import os
 import re
 from playwright.sync_api import Page, expect
-
+import pytest
 from custom_code.tests.e2e.data.test_data import BASE_URL, TEST_TARGETS, VALID_USER_CREDENTIALS
 from custom_code.tests.e2e.pages.targets_page import TargetsPage
 
@@ -160,6 +160,7 @@ def test_authorized_user_can_upload_targets(page: Page):
     message_container = (page.get_by_text(f"Targets created: {NUMBER_OF_TARGETS_IN_CSV}"))
     expect(message_container).to_be_visible()
 
+@pytest.mark.skip(reason="Was removed from tomtoolkit it seems")
 def test_authorized_user_can_search_catalogs(page: Page):
     SEARCH_TERM = "FOO"
     CATALOG = "Simbad"
@@ -171,6 +172,7 @@ def test_authorized_user_can_search_catalogs(page: Page):
     message_container = (page.get_by_text(f"Object not found"))
     expect(message_container).to_be_visible()
 
+@pytest.mark.skip(reason="Was removed from tomtoolkit in commit 28490ac")
 def test_authorized_user_update_broker_data(page: Page):
     
     target_page = TargetsPage(page, BASE_URL)
