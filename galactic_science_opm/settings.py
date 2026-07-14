@@ -456,6 +456,15 @@ BOOTSTRAP4 = {
 
 GIT_COMMIT = os.environ.get("GIT_COMMIT", "n.a.")
 
+DATA_SHARING = {
+    'mop-tom': {
+        'DISPLAY_NAME': os.getenv('MOP_TOM_DISPLAY_NAME', 'MOP'),
+        'BASE_URL': os.getenv('MOP_TOM_BASE_URL'),
+        'USERNAME': os.getenv('MOP_TOM_USERNAME'),
+        'PASSWORD': os.getenv('MOP_TOM_PASSWORD'),
+    }
+}
+
 try:
     from local_settings import * # noqa
 except ImportError:
