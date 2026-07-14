@@ -1,0 +1,80 @@
+{% load tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags vite %}
+<div data-testid="analysis-tab">
+        <h4>Analysis (detailed parameter summary)</h4>
+        <div class="statistical-model-images">
+          {% if not latest_parameter_models %}
+              <p class="notice">Target '{{ target.name }}' not further analyzed so far. </p> 
+          {% else %}
+            {% for model in latest_parameter_models  %}
+              {% if not model.images.all %}
+                <p class="notice">{{ target.name }} not plotted: u&#8320; + &sigma;&#7524;&#8320; below 5</p> 
+              {% else %}
+                {% for image in model.images.all %}
+                  <img src="{{ image.image.url }}">
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+        </div>
+        <div class="row">
+        <table class="table" data-testid="analysis-table_parameters">
+            <thead>
+                <tr>
+                    <th>t<sub>0</sub> [HJD]</th>
+                    <th>u<sub>0</sub></th>
+                    <th>t<sub>E</sub> [days]</th>
+                    <th>&pi;<sub>EE</sub></th>
+                    <th>&pi;<sub>EN</sub></th>
+                    <th>&rho;</th>
+                    <th>s</th>
+                    <th>q</th>
+                    <th>&alpha;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                  {% with target|microlensing_parameters_by_name as filtered_parameters %}
+                    <td>{{ filtered_parameters.t0|floatformat:3 }}&#8723;</br>
+                        {{ filtered_parameters.err_t0|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.u0|floatformat:4 }}&#8723;<br/>
+                        {{ filtered_parameters.err_u0|floatformat:4 }}</td>
+                    <td>{{ filtered_parameters.tE|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_tE|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.piEE|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_piEN|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.piEE|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_piEE|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.rho|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_rho|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.s|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_s|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.q|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.q_error|floatformat:3 }}</td>
+                    <td>{{ filtered_parameters.alpha|floatformat:3 }}&#8723;<br/>
+                        {{ filtered_parameters.err_alpha|floatformat:3 }}</td>
+                  {% endwith %}
+                </tr>
+            </tbody>
+        </table>
+        {% endif %}
+         </div>
+     <div class="row">
+     <table class="table" data-testid="analysis-table_magnitude">
+         <thead>
+            <tr>
+                <th>Source magnitude</th>
+                <th>Blend magnitude</th>
+                <th>Baseline magnitude</th>
+                <th>Current magnitude</th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr>
+                <td>{{ target.source_magnitude }}&#8723;{{ target.source_mag_error }}</td>
+                <td>{{ target.blend_magnitude }}&#8723;{{ target.blend_mag_error }}</td>
+                <td>{{ target.baseline_magnitude }}&#8723;{{ target.baseline_mag_error }}</td>
+                <td></td>
+            </tr>
+         </tbody>
+     </table>
+         </div>
+</div>

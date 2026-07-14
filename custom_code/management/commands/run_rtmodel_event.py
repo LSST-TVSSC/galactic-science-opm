@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from tom_dataproducts.models import ReducedDatum
+from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
 from tom_targets.models import Target
 from django.conf import settings
 from django.db import transaction
@@ -34,7 +34,7 @@ def run_fit(target):
         model_output = path.join(tempdirname, 'model_results.pkl')
         #RTModel.fit(input_path, output=model_output)
         with transaction.atomic():
-            photometry = ReducedDatum.objects.filter(data_type='photometry', target=target).order_by('-timestamp')
+            photometry = PhotometryReducedDatum.objects.filter(target=target).order_by('-timestamp')
             data = []
             #required format # Mag err HJD-2450000
             target_coord = SkyCoord(ra = target.ra, dec = target.dec, unit='deg', frame='icrs')
@@ -56,9 +56,9 @@ def run_fit(target):
                     current_time = Time.now()
                     age = current_time - t
                     rd_data = {'timestamp': hjd_values_rtm }
-                    rd_data['magnitude'] = reduced_datum.value['magnitude']
-                    rd_data['error'] = reduced_datum.value['error']
-                    rd_data['filter'] = reduced_datum.value['filter']                    
+                    rd_data['magnitude'] = reduced_datum.brightness
+                    rd_data['error'] = reduced_datum.brightness_error
+                    rd_data['filter'] = reduced_datum.bandpass
                     data.append(rd_data)
                 except:
                     print("No photometry with suitable mags for RTModel")
@@ -128,12 +128,13 @@ class Command(BaseCommand):
                                         }
                         try:
                             with transaction.atomic():
-                                rd, created = ReducedDatum.objects.get_or_create(
+                                rd, created = PhotometryReducedDatum.objects.get_or_create(
                                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                    value=datum,
+                                    brightness = datum["magnitude"],
+                                    brightness_error = datum["error"],
+                                    bandpass = datum["filter"],
                                     source_name='ALERCE',
                                     source_location=target.name,
-                                    data_type='photometry',
                                     target=target)
                         except Exception as e:
                             print(f'Unexpected exception {e}')

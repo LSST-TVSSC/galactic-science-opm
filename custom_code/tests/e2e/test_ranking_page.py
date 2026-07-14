@@ -64,9 +64,10 @@ def test_all_targets_are_displayed(page: Page):
     ranking_page.open_it()
 
     baade_map_container = page.get_by_test_id("baade-map")
+    problist_title = page.get_by_test_id("problist-title")
     expect(baade_map_container.locator("img")).to_be_visible()
-    expect(baade_map_container).to_contain_text(re.compile(
-        "Public ranking based on averaged and rescaled probabilities of a quantile transform."
+    expect(problist_title).to_contain_text(re.compile(
+        "Public ranking based on averaged and rescaled probabilities of a quantile transform"
     ))
 
     ranking_table = page.get_by_test_id("ranking_table")

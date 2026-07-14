@@ -94,7 +94,7 @@
             {% for target in featured_targets %}
               <article class="opm-card" data-testid="featured-target-element">
                 <div class="target-finder-image">
-                  {% galactic_thumb_info target 175 0.035 as thumb %}
+                  {% galactic_thumb_info target 400 0.045 as thumb %}
                   {% if thumb.url %}
                     <a href="{% url 'targets:detail' target.pk %}" data-testid="galactic_thumbnail">
                       <div class="gs-opm-thumb">

@@ -55,8 +55,8 @@ INSTALLED_APPS = [
     'guardian',
     'tom_common',
     'django_comments',
-    'bootstrap4',
-    'crispy_bootstrap4',
+    'django_bootstrap5',
+    'crispy_bootstrap5',
     'crispy_forms',
     'rest_framework',
     'rest_framework.authtoken',
@@ -110,7 +110,8 @@ TEMPLATES = [
     },
 ]
 
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 WSGI_APPLICATION = 'galactic_science_opm.wsgi.application'
 
@@ -436,6 +437,16 @@ PLOTLY_THEME = 'plotly_white'
 SHOW_PAGINATION_INFO = True
 # This is used to enable testing related things, such as certain endpoints.
 TESTING = False
+
+BOOTSTRAP5 = {
+    # The complete URL to the Bootstrap CSS file.
+    # Note that a URL can be either a string
+    # ("https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"),
+    # or a dict with keys `url`, `integrity` and `crossorigin` like the default value below.
+    "css_url": os.path.join(STATIC_URL, "bootstrap", "css", "bootstrap.min.css"),
+    # The complete URL to the Bootstrap bundle JavaScript file.
+    "javascript_url": os.path.join(STATIC_URL, "bootstrap", "js", "bootstrap.bundle.min.js"),
+}
 
 BOOTSTRAP4 = {
     "css_url": os.path.join(STATIC_URL, "bootstrap.min.css"),

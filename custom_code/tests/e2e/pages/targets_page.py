@@ -56,7 +56,7 @@ class TargetsPage:
         self.page.get_by_role("link", name="Import Targets").click()
         self.page.get_by_role("button", name="Choose File").set_input_files(filepath)
         self.page.get_by_role("button", name="Upload").click()
-        self.page.get_by_text("× Targets created:").click()
+        self.page.get_by_text("Targets created:").click()
 
     def query_catalog(self, term, catalog):
         self.page.get_by_role("button", name="Create Targets").click()

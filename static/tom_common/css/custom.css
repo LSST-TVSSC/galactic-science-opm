@@ -153,6 +153,8 @@
   --color-link: var(--color-opmblue-300);
   --color-link--hover: var(--color-opmblue-500);
 
+  --bs-border-radius: 0;
+
 }
 
 body {
@@ -215,6 +217,7 @@ body {
 a {
     color: var(--color-link);
     background-color: transparent;
+    text-decoration: none;
 }
 
 a:hover {
@@ -225,7 +228,6 @@ a:hover {
 .card {
   background-color: #3f4346;
   overflow: -moz-hidden-unscrollable;
-  border-radius: 7px;
   margin: 14px;
 }
 
@@ -234,47 +236,37 @@ a:hover {
   color: #f2f2f2;
 }
 
-table {
-  background-color: var(--color-opmred-500);
+thead, tbody {
   border: none;
-  margin: 17pt;
-  border: 2pt solid var(--color-opmred-500);
-  border-radius: 7px;
 }
 
 thead {
-  color: #fff;
-  border: 1pt solid var(--color-opmred-500);
-}
-
-tbody {
-  border: 1pt solid var(--color-opmred-500);
-  border: 1pt solid var(--color-opmred-500);
+  hyphens: auto;
 }
 
 tr {
-  border: 1pt solid var(--color-opmred-500);
+  border: none;
+}
+
+tbody tr {
+  overflow-wrap: anywhere;
 }
 
 td, th {
-  border: 1pt solid var(--color-opmred-500);
-  background-color: #313437;
-  color: #fff;
+  border: none;
+  border-bottom: 1px solid var(--color-zinc-700);
 }
 
 .btn-primary {
     background-color: #c3072a;
     border-color: #c3072a;
     color: #fff;
-    border-radius: 3;
 }
-
 
 .btn-primary:hover {
     background-color: #610314;
     border-color: #292526;
     color: #fff;
-    border-radius: 3;
 }
 
 /* ===== Galactic Science OPM: front-page finder thumbnails ===== */
@@ -344,18 +336,20 @@ td, th {
   margin-block: var(--spacing-100) var(--spacing-025);
 }
 
-#tabs2 .nav-link {
+#target-tabs .nav-link {
   background-color: var(--color-highlight-primary);
   color: #f2d9dd;
   text-decoration: none;
+  padding: var(--space-050);
+  border-bottom: 1px solid var(--uni-hd-seal-700);
 }
 
-#tabs2 .nav-link.active {
+#target-tabs .nav-link.active {
   color: #f2f2f2;
   font-weight: bold;
 }
 
-#tabs2 .list-group-item-primary {
+#target-tabs .list-group-item-primary {
   background-color: var(--color-highlight-primary);
 }
 
@@ -433,11 +427,14 @@ td, th {
   }
 }
 
+
+
 .opm-card {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: grid;
   background: #333333;
+  grid-template-areas:
+    "image data";
+  grid-template-columns: 172px 1fr;
 }
 .opm-card .target-data {
   border: 1px solid #3e3e3e;
@@ -459,12 +456,12 @@ td, th {
 }
 .opm-card .target-data {
   padding: .8rem;
-  flex: auto;
+  grid-area: data;
   display: flex;
   flex-direction: column;
 }
 .target-finder-image {
-  flex: 0 0 172px;
+  grid-area: image;
 }
 
 .gs-opm-home .gs-opm-thumb {
@@ -586,4 +583,26 @@ header .section-title {
 .btn-outline-secondary:hover {
   color: var(--gso-color-secondary--hover);
   border-color: var(--gso-color-secondary--hover);
+}
+
+.black-bg {
+  background-color: #000000;
+}
+
+@media screen and (max-width: 600px) {
+  .opm-card {
+    grid-template-areas:
+      "image"
+      "data";
+    grid-template-columns: 1fr;
+  }
+}
+
+.target-data dt {
+  color: var(--gso-color-secondary);
+  font-weight: var(--gso-font-weight-default);
+  font-size: var(--font-size-200);
+}
+.target-data dd {
+  overflow-wrap: break-word;
 }

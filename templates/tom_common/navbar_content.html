@@ -1,4 +1,4 @@
-{% load bootstrap4 tom_common_extras %}
+{% load django_bootstrap5 tom_common_extras %}
 {% comment %}
 The following nav-item list elements (li) are included in the tom_common/base.html navbar-nav (ul).
 For customization instructions, see tom_common/base.html
@@ -8,14 +8,14 @@ For customization instructions, see tom_common/base.html
     <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
 </li>
 <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle {% if request.resolver_match.namespace == 'targets' %}active{% endif %}" data-toggle="dropdown">Targets</a>
+    <a class="nav-link dropdown-toggle {% if request.resolver_match.namespace == 'targets' %}active{% endif %}" data-bs-toggle="dropdown">Targets</a>
     <div class="dropdown-menu">
         <a class="dropdown-item" href="{% url 'targets:list' %}">Targets</a>
         <a class="dropdown-item" href="{% url 'targets:targetgrouping' %}">Target Grouping</a>
     </div>
 </li>
 <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" data-toggle="dropdown">AEON facility Status</a>
+    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">AEON facility Status</a>
     <ul class="dropdown-menu">
         <li class="nav-item {% if request.resolver_match.namespace == 'observations' %}active{% endif %}">
             <a class="nav-link" href="{% url 'tom_observations:facility-status' %}" style="color:black">AEON Facility Status</a>
@@ -23,7 +23,6 @@ For customization instructions, see tom_common/base.html
     </ul>
 </li>
 
-{% navbar_app_addons %}
 <li class="nav-item {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
     <a class="nav-link" href="{% url 'user-list' %}">Users</a>
 </li>

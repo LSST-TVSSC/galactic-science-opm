@@ -17,7 +17,7 @@ def test_unknown_user_can_not_login(page: Page):
     home_page.login("foo", "bad")
     expect(page).to_have_title(re.compile(r".*Login"))
     hint_text = "Please enter a correct username and password. Note that both fields may be case-sensitive."
-    expect(page.get_by_role("alert")).to_contain_text(hint_text)
+    expect(page.get_by_text("Please enter a correct")).to_contain_text(hint_text)
 
 
 
@@ -27,7 +27,7 @@ def test_user_can_register(page: Page):
     home_page.register(**REGISTERABLE_USER)
     expect(page).to_have_title(re.compile(r".*Home"))
     hint_text = "Your request to register has been submitted to the administrators."
-    expect(page.get_by_role("alert")).to_contain_text(hint_text)
+    expect(page.get_by_text("Your request to register has")).to_contain_text(hint_text)
 
 
 def test_existing_user_can_not_register(page: Page):
@@ -86,8 +86,8 @@ def test_shows_top_targets_in_descending_order(page: Page):
         expect(image).to_have_attribute(
             "src",
             (
-                "https://alasky.u-strasbg.fr/hips-image-services/hips2fits?hips=CDS%2FP%2FDSS2%2Fcolor&width=175"
-                f"&height=175&fov=0.035&projection=TAN&coordsys=icrs&ra={ra}&dec={dec}&format=jpg"
+                "https://alasky.u-strasbg.fr/hips-image-services/hips2fits?hips=CDS%2FP%2FDSS2%2Fcolor&width=400"
+                f"&height=400&fov=0.045&projection=TAN&coordsys=icrs&ra={ra}&dec={dec}&format=jpg"
             )
         )
 

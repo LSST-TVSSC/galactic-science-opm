@@ -1,6 +1,10 @@
-{% load targets_extras tom_common_extras%}
+{% load targets_extras tom_common_extras %}
+<div id="myTabContent" class="tab-content">
 {% for target_tab in target_tabs_to_display %}
-    <div class="tab-pane" id="{{target_tab.label|slugify}}">
+    <div 
+      class="tab-pane {% if forloop.counter == 1 %} active show {% endif %}" 
+      id="{{target_tab.label|slugify}}-tab-pane">
         {% show_individual_app_partial target_tab %}
     </div>
 {% endfor %}
+</div>
