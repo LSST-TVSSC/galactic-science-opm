@@ -6,10 +6,14 @@ from tom_dataproducts.models import ReducedDatum
 from custom_code.management.commands.convert_reduceddatum_to_photometryreduceddatum import convert_all_reduceddatum_to_photometryreduceddatum
 from custom_code.target_models import GalacticTarget
 
-def create_dummy_reduceddatums(amount):
+def create_dummy_reduceddatums(amount, add_too_long_filter = False):
     BATCH_SIZE = 5000
     batch = []
     creation_counter = 0
+    filter_values = ["r","g","b"]
+
+    if add_too_long_filter:
+        filter_values.append("ThisIsAVeryVeryVeryLongValueForAFilterThatShouldNotBeConvertedAndInsteadBeSkipped")
 
     target = GalacticTarget.objects.create(name="foo")
     dummy_datums = [
@@ -19,7 +23,7 @@ def create_dummy_reduceddatums(amount):
             value={
                 "magnitude": random.uniform(12, 15),
                 "error": random.uniform(1, 5),
-                "filter": random.choice(["r","g","b"])
+                "filter": random.choice(filter_values)
             }
         )
         for i in range(amount)
