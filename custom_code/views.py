@@ -1,12 +1,14 @@
-import io
+from datetime import timedelta
 import os
 import tempfile
 import zipfile
 from astropy.time import Time
+from django.contrib.auth.models import User
 import numpy as np
-from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
+from tom_dataproducts.models import PhotometryReducedDatum
 from django.conf import settings
 from django.core import management
+from django.views.decorators.cache import cache_page
 from django.db import OperationalError, connections
 from django.http import FileResponse, JsonResponse
 from django.shortcuts import render
@@ -308,3 +310,25 @@ def version(_request):
     return JsonResponse({
         "commit": settings.GIT_COMMIT,
     })
+
+@cache_page(60)
+def metrics(_request):
+
+    now = timezone.now()
+    metrics = {
+        "commit": settings.GIT_COMMIT,
+        "new_users_last_24h": User.objects.filter(
+                date_joined__gte=now - timedelta(hours=24)
+            ).count(),
+        "pending_users": User.objects.filter(is_active=False).count(),
+        "new_targets_last_24h": GalacticTarget.objects.filter(
+                created__gte=now - timedelta(hours=24)
+            ).count(),
+        "new_targets_last_48h": GalacticTarget.objects.filter(
+                created__gte=now - timedelta(hours=48)
+            ).count(),
+        "new_targets_last_72h": GalacticTarget.objects.filter(
+                created__gte=now - timedelta(hours=72)
+            ).count(),
+    }
+    return JsonResponse(metrics)

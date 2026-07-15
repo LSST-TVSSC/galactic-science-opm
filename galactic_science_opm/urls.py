@@ -32,6 +32,7 @@ urlpatterns = [
     path('custom_code/prob_list.html', views.microlensing_rescaled_prob_view, name='microlensing_rescaled_prob_view'),
     path('health/', views.health, name="health"),
     path('version/', views.version, name="version"),
+    path('metrics/', views.metrics, name="metrics"),
     path('download-data/lightcurves/<int:pk>/', views.download_lightcurve_data_for_target, name='download_lightcurve_data_for_target'),
 ]
 
