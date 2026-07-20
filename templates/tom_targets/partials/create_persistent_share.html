@@ -16,9 +16,9 @@
       </div>
       <div class="col-sm-1">
         {% if target %}
-        <input type="button" class="btn btn-primary" value="Create" onclick="createPersistentShare('{% url 'targets:persistent-share' %}', '{% url 'targets:target-persistent-share-manage-table' target.pk %}')" style="position:absolute; bottom:1rem"/>
+        <input type="button" class="btn btn-primary" value="Create" onclick="createPersistentShare('{% url 'targets:persistent-share' %}', '{% url 'targets:target-persistent-share-manage-table' target.pk %}')" />
         {% else %}
-        <input type="button" class="btn btn-primary" value="Create" onclick="createPersistentShare('{% url 'targets:persistent-share' %}', '{% url 'targets:persistent-share-manage-table' %}')" style="position:absolute; bottom:1rem"/>
+        <input type="button" class="btn btn-primary" value="Create" onclick="createPersistentShare('{% url 'targets:persistent-share' %}', '{% url 'targets:persistent-share-manage-table' %}')" />
         {% endif %}
       </div>
   </div>
