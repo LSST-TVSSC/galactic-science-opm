@@ -16,7 +16,7 @@ Including another URLconf
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from custom_code.views import GsoOpmTargetDetailView, HomeView
+from custom_code.views import GsoOpmTargetDetailView,GsoOpmTargetShareView, HomeView
 from custom_code import views
 
 urlpatterns = [
@@ -26,6 +26,7 @@ urlpatterns = [
         GsoOpmTargetDetailView.as_view(),
         name="target-detail",
     ),
+    path('targets/<int:pk>/share/', GsoOpmTargetShareView.as_view(), name='share'),
     path('', include('tom_common.urls')),
     path('custom_code/model_list.html', views.microlensing_model_view, name='microlensing_model_view'),
     path('custom_code/prob_list_lsst.html', views.microlensing_rescaled_prob_view_lsst, name='microlensing_rescaled_prob_view_lsst'),
