@@ -202,6 +202,10 @@ class ANTARESBroker(GenericBroker):
                                     target=target)
                         except MultipleObjectsReturned:
                             print('ANTARES Microlensing filter HARVESTER: Found duplicated data for event '+target.name)
+                        except Exception as e:
+                            print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                            print(e.__class__.__name__)
+                            print(e)
             list_of_targets.append(target)
 
         print('ANTARES microlensing filter: completed ingest of events, including ' + str(len(new_targets)) + ' new targets')
@@ -290,6 +294,10 @@ class ANTARESBroker(GenericBroker):
 
                     except MultipleObjectsReturned:
                         print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                    except Exception as e:
+                        print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                        print(e.__class__.__name__)
+                        print(e)
         if "mag_corr" in forced_photometry.columns and "mjd" in forced_photometry.columns:
             for i, row in forced_photometry.iterrows():
                 jd = Time(row["mjd"], format='mjd', scale='utc')
@@ -312,6 +320,10 @@ class ANTARESBroker(GenericBroker):
 
                     except MultipleObjectsReturned:
                         print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                    except Exception as e:
+                        print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                        print(e.__class__.__name__)
+                        print(e)
         #ingest forced photometry with separate filtername
         if "scienceFlux" in forced_photometry_lsst.columns and "mjd" in forced_photometry_lsst.columns:
             for i, row in forced_photometry_lsst.iterrows():

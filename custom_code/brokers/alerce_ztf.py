@@ -228,6 +228,10 @@ class ALERCEBroker(GenericBroker):
 
                     except MultipleObjectsReturned:
                         print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                    except Exception as e:
+                        print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                        print(e.__class__.__name__)
+                        print(e)
 
         for i, row in forced_photometry.iterrows():
 
@@ -251,6 +255,10 @@ class ALERCEBroker(GenericBroker):
 
                 except MultipleObjectsReturned:
                     print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                except Exception as e:
+                    print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                    print(e.__class__.__name__)
+                    print(e)
                 
 
         return 'OK'
