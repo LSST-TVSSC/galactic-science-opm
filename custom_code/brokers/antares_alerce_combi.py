@@ -203,7 +203,7 @@ class ANTARESBroker(GenericBroker):
                         except MultipleObjectsReturned:
                             print('ANTARES Microlensing filter HARVESTER: Found duplicated data for event '+target.name)
                         except Exception as e:
-                            print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                            print('ANTARES HARVERSTER: Exception occured while ingesting photometry')
                             print(e.__class__.__name__)
                             print(e)
             list_of_targets.append(target)
