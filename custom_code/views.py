@@ -13,6 +13,8 @@ from django.db import OperationalError, connections
 from django.http import FileResponse, JsonResponse
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
+from tom_dataproducts.sharing import get_sharing_destination_options
+from tom_targets.forms import TargetShareForm
 from custom_code.target_models import GalacticTarget, MicrolensingParameterModel
 from custom_code.target_models import Classification
 from custom_code.target_models import MicrolensingRadarData
@@ -21,7 +23,7 @@ from django.views.generic import TemplateView
 from django.utils import timezone
 
 from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
-from tom_targets.views import TargetDetailView
+from tom_targets.views import TargetDetailView, TargetShareView
 def microlensing_model_view(request):
     microlensing_models = MicrolensingParameterModel.objects.all()[
         :30
@@ -209,6 +211,27 @@ class GsoOpmTargetDetailView(TargetDetailView):
         target = self.object
         context["latest_parameter_models"] = target.latest_parameter_models()
         return context
+
+class GsoOpmTargetShareForm(TargetShareForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['share_destination'].choices = get_sharing_destination_options(include_download = False)
+
+class GsoOpmTargetShareView(TargetShareView):
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        target = context['target']
+        initial = {
+            'submitter': self.request.user,
+            'share_title': f'Updated data for {target.name}'
+        }
+
+        form = GsoOpmTargetShareForm(initial=initial)
+        context['form'] = form
+
+        return context
+
 
 # mkistner: This was taken from here: 
 # https://github.com/LCOGT/mop/blob/600eed8c6d420c709a13bb2310e6310e9248a2b7/mop/toolbox/fittools.py
