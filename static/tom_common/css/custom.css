@@ -606,3 +606,19 @@ header .section-title {
 .target-data dd {
   overflow-wrap: break-word;
 }
+
+/* problist tables */
+
+.target-tag {
+  font-size: var(--font-size-100);
+  overflow-wrap: break-word;
+  padding: var(--space-000);
+  background: var(--uni-hd-jgreen-800);
+  color: var(--uni-hd-jgreen-000);
+  text-align: center;
+}
+.target-tag.bad {
+  background: var(--uni-hd-seal-outline-600);
+  color: var(--uni-hd-seal-000);
+}
+

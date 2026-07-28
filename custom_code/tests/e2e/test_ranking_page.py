@@ -19,6 +19,7 @@ def test_all_targets_are_displayed(page: Page):
     expected_rows = (
         (
             r"ZTF26aarbgfh\s+ALeRCE\s+fink\s+ANTARES", #name
+            "",
             0.4639, # prob rescaled average
             "None, queried", # variability flags
             created_ago, # days since created
@@ -33,6 +34,7 @@ def test_all_targets_are_displayed(page: Page):
         ),
         (
             r"ZTF26aaivmks\s+ALeRCE\s+fink\s+ANTARES",
+            "",
             0.4616,
             "None, queried",
             created_ago,
@@ -47,6 +49,7 @@ def test_all_targets_are_displayed(page: Page):
         ),
         (
             r"ZTF26aajaofr\s+ALeRCE\s+fink\s+ANTARES",
+            "",
             0.4580,
             "None, queried",
             created_ago,
@@ -83,7 +86,10 @@ def test_all_targets_are_displayed(page: Page):
         for j, field in enumerate(row):
             pk = pks_per_row[i]    
             cell = table_row.locator("td").nth(j)
-            expect(cell).to_contain_text(re.compile(fr"{field}"))
+            if field != "":
+                expect(cell).to_contain_text(re.compile(fr"{field}"))
+            else:
+                expect(cell).to_be_empty()
             if j == 0:
                 target_name, _, _, _ = field.split(r"\s+")
                 target_link = cell.get_by_role("link", name=target_name)
