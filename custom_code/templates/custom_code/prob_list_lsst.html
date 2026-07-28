@@ -37,7 +37,8 @@
                
             </tr>
         </thead>
-                <tbody>
+        {% if microlensing_objects_queried_lsst %}
+        <tbody>
 
            {% for item in microlensing_objects_queried_lsst %}
            {% with model=item.object %}
@@ -62,7 +63,12 @@
             </tr>
             {% endwith %}
             {% endfor %}
-            </tbody>      
+            </tbody>     
+            {% else %}
+            <tbody>
+              <tr><td colspan="13">No targets yet. </td></tr>
+            </tbody>
+            {% endif %}
             </table>    
     </div>
 {% endblock %}

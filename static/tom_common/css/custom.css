@@ -609,6 +609,10 @@ header .section-title {
 
 /* problist tables */
 
+tbody + tbody {
+  border-top: 4px solid #656565;
+}
+
 .target-tag {
   font-size: var(--font-size-100);
   overflow-wrap: break-word;

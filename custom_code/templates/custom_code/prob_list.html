@@ -43,8 +43,13 @@
                 <th>Updated</th>
             </tr>
         </thead>
-                <tbody>
-
+        {% if not microlensing_objects_queried_lsst and not microlensing_objects_queried and not microlensing_objects %}
+            <tbody>
+              <tr><td colspan="13">No targets yet. </td></tr>
+            </tbody>
+        {% endif %}
+        {% if microlensing_objects_queried_lsst %}
+          <tbody>
            {% for item in microlensing_objects_queried_lsst %}
            {% with model=item.object %}
            <tr class="{% target_tags_list item %}">
@@ -67,8 +72,10 @@
             </tr>
             {% endwith %}
             {% endfor %}
-            </tbody>      
-            <tbody>
+          </tbody>      
+          {% endif %}
+          {% if microlensing_objects_queried %}
+          <tbody>
             {% for item in microlensing_objects_queried %}
             {% with model=item.object %}
             <tr class="{% target_tags_list item %}">
@@ -94,7 +101,9 @@
             </tr>
                 {% endwith %}
                 {% endfor %}
-            </tbody>        
+          </tbody>        
+          {% endif %}
+          {% if microlensing_objects %}
             <tbody>
 
                 {% for item in microlensing_objects %}
@@ -125,6 +134,7 @@
                 {% endfor %}
 
         </tbody>
+        {% endif %}
     </table>    
   </div>
 {% endblock %}
