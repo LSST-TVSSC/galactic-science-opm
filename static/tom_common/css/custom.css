@@ -199,11 +199,15 @@ body {
 }
 
 .navbar {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #000;
+  background: var(--gso-container-primary);
   color: #e0f2fc;
   height: 77px;
+}
+
+/* navbar: styles so it works when viewport is too narrow */
+#navbarsExampleDefault {
+  background: var(--gso-container-primary);
+  padding: var(--space-050);
 }
 
 body {
