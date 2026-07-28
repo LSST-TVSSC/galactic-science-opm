@@ -199,11 +199,15 @@ body {
 }
 
 .navbar {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #000;
+  background: var(--gso-container-primary);
   color: #e0f2fc;
   height: 77px;
+}
+
+/* navbar: styles so it works when viewport is too narrow */
+#navbarsExampleDefault {
+  background: var(--gso-container-primary);
+  padding: var(--space-050);
 }
 
 body {
@@ -606,3 +610,23 @@ header .section-title {
 .target-data dd {
   overflow-wrap: break-word;
 }
+
+/* problist tables */
+
+tbody + tbody {
+  border-top: 4px solid #656565;
+}
+
+.target-tag {
+  font-size: var(--font-size-100);
+  overflow-wrap: break-word;
+  padding: var(--space-000);
+  background: var(--uni-hd-jgreen-800);
+  color: var(--uni-hd-jgreen-000);
+  text-align: center;
+}
+.target-tag.bad {
+  background: var(--uni-hd-seal-outline-600);
+  color: var(--uni-hd-seal-000);
+}
+

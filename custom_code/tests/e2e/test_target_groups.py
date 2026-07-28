@@ -36,6 +36,7 @@ def test_authorized_user_can_create_target_groups(page: Page):
     expected_values= (
         ("Group", fr"{TARGET_GROUP_NAME}"),
         ("Total Targets", r"0"),
+        ("Share", r"Share"),
         ("Delete", r"Delete"),
     )
     for i, info in enumerate(expected_values):
