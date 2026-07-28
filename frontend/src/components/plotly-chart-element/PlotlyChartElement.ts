@@ -1,6 +1,9 @@
 import { html, css, LitElement, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 
+import "../loading-indicator-element/loading-indicator-element"
+import type { LoadingIndicatorElement } from "../loading-indicator-element/LoadingIndicatorElement";
+
 export class PlotlyChartElement extends LitElement {
   @property({ type: Object })
   config: Record<string, any> | undefined = undefined;
@@ -84,6 +87,12 @@ export class PlotlyChartElement extends LitElement {
           responsive: true 
         }
       });
+      wrapper.on('plotly_afterplot', () => {
+          const loadingIndicator = this.shadowRoot?.querySelector<LoadingIndicatorElement>("loading-indicator-element")
+          if (!loadingIndicator) return;
+          loadingIndicator.hide();
+      });
+
     });
   }
 
@@ -105,6 +114,9 @@ export class PlotlyChartElement extends LitElement {
   }
 
   render() {
-    return html`<slot></slot>`;
+    return html`
+      <loading-indicator-element></loading-indicator-element>
+      <slot></slot>
+    `;
   }
 }
