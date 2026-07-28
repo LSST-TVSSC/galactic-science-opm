@@ -1,4 +1,4 @@
-import { html, css, LitElement, type PropertyValues } from "lit";
+import { html, css, LitElement } from "lit";
 import { property } from "lit/decorators.js";
 
 export class LoadingIndicatorElement extends LitElement {

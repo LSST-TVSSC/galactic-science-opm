@@ -87,7 +87,7 @@ export class PlotlyChartElement extends LitElement {
           responsive: true 
         }
       });
-      wrapper.on('plotly_afterplot', () => {
+      (wrapper as any)?.on('plotly_afterplot', () => {
           const loadingIndicator = this.shadowRoot?.querySelector<LoadingIndicatorElement>("loading-indicator-element")
           if (!loadingIndicator) return;
           loadingIndicator.hide();
