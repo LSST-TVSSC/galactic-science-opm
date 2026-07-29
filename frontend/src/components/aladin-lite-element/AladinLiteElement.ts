@@ -1,5 +1,7 @@
 import { html, css, LitElement, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
+import type { LoadingIndicatorElement } from "../loading-indicator-element/LoadingIndicatorElement";
+import "../loading-indicator-element/loading-indicator-element"
 
 // The AladinLite API does not provide a way to draw arbitrary text at an arbitrary location in an overlay layer.
 // This implements the methods necessary to do so when provided as an input to layer.add(). This approach was
@@ -272,6 +274,11 @@ export class AladinLiteElement extends LitElement {
 
   onReady() {
     this.annotateChart(this.ra, this.dec);
+
+    const loadingIndicator = this.shadowRoot?.querySelector<LoadingIndicatorElement>("loading-indicator-element")
+    if (!loadingIndicator) return;
+    loadingIndicator.hide();
+
   }
 
   getScaleBarFromForm() {
@@ -472,6 +479,7 @@ export class AladinLiteElement extends LitElement {
 
   render() {
     return html`
+      <loading-indicator-element></loading-indicator-element>
       <slot></slot>
       <div id="chart-form-div">
         <div id="chart-form" class="inline-flex gap-s align-fe p-b-s">
