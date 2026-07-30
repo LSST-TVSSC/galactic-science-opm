@@ -66,6 +66,47 @@ def microlensing_prob_view(request):
             {"microlensing_objects_class1": microlensing_objects_class1},
         )
 
+
+def microlensing_rescaled_prob_view_ztf25(request):
+
+    def calculate_metadata(queryset):
+        """Prepare age for easier ranking"""
+        processed_list = []
+        for obj in queryset:
+            age_days = (timezone.now() - obj.target.created).days
+            processed_list.append(
+                {
+                    "object": obj,
+                    "age_days": age_days,
+                }
+            )
+        return processed_list
+
+    distinct_ids_queried = (
+        MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
+        .distinct("target_id")
+        .filter(target__name__icontains="ZTF25")
+        .filter(average_master_probability__gt=0.0)
+        .filter(target__known_variability__icontains="queried")
+    )
+    microlensing_objects_queried = (
+        MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried)
+        .order_by("-average_master_probability")
+        .distinct()
+    )
+
+    context = {
+        "microlensing_objects_queried": calculate_metadata(
+            microlensing_objects_queried
+        ),
+    }
+
+    try:
+        return render(request, 'custom_code/prob_list.html', context)
+    except ObjectDoesNotExist:
+        return render(request, 'custom_code/prob_list.html', context)
+
+
 def microlensing_rescaled_prob_view(request):
 
     def calculate_metadata(queryset):
