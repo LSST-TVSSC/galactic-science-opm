@@ -24,7 +24,7 @@ class Command(BaseCommand):
         time_window = timezone.now() - timedelta(days=int(str(options['days'])))
         new_or_modified_targets = GalacticTarget.objects.filter(
             Q(modified__gte=time_window) | 
-            Q(reduceddatum__timestamp__gte=time_window)
+            Q(photometryreduceddatum__timestamp__gte=time_window)
         ).filter(name__icontains=str(options['target_name_contains'])).distinct()
 
         if len(new_or_modified_targets) == 0:
