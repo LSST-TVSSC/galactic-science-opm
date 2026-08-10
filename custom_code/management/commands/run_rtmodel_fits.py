@@ -142,7 +142,7 @@ class Command(BaseCommand):
             time_window = timezone.now() - timedelta(days=3)
             new_or_modified_targets = GalacticTarget.objects.filter(
             Q(modified__gte=time_window) | 
-            Q(reduceddatum__timestamp__gte=time_window)).filter(
+            Q(photometryreduceddatum__timestamp__gte=time_window)).filter(
             name__icontains=str(options['event'])).filter(
             known_variability__icontains="queried").distinct()
             distinct_ids = MicrolensingRadarData.objects.order_by('target_id', '-updated_at').distinct('target_id').filter(
