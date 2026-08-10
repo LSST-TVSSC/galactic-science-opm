@@ -353,5 +353,8 @@ def metrics(_request):
         "new_targets_last_72h": GalacticTarget.objects.filter(
                 created__gte=now - timedelta(hours=72)
             ).count(),
+        "new_targets_last_96h": GalacticTarget.objects.filter(
+            created__gte=now - timedelta(hours=96)
+        ).count(),
     }
     return JsonResponse(metrics)
