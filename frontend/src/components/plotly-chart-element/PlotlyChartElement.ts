@@ -79,12 +79,29 @@ export class PlotlyChartElement extends LitElement {
       }
       const plotly = p.default;
       const slot = this.shadowRoot?.querySelector("slot");
+      const layout = {...this.config.layout, autosize: true}
+
+      // mkistner: moves legend to bottom of the screen, so SED plot is not 
+      // mkistner: squished by it.
+      // mkistner: should probably be configurable at some point
+      if (!layout.legend) layout.legend = {};
+      layout.legend = {
+        ...layout.legend,
+        ...{
+          orientation: 'h',
+          x: 0.5,
+          xanchor: 'center',
+          y: -0.2,
+          yanchor: 'top'
+        }
+      };
+
       const wrapper = slot
         ?.assignedNodes({ flatten: true })
         .find((n) => n.nodeName === "DIV");
       plotly.newPlot(wrapper, {
         data: this.config.data,
-        layout: {...this.config.layout, autosize: true},
+        layout,
         config: {
           responsive: true 
         }
