@@ -49,7 +49,7 @@ export class PlotlyChartElement extends LitElement {
     }
     const config = JSON.parse(script.textContent || '{"empty": true}');
     if (config.empty) {
-      console.log("script was empty. how to handle?");
+      // mkistner: Does this need further handling?
       return;
     }
     this.config = config;
@@ -68,7 +68,7 @@ export class PlotlyChartElement extends LitElement {
     window.self = window;
 
     if (!this.config) {
-      console.log("how to handle this?");
+      // mkistner: Does this need further handling?
       return;
     }
     import("plotly.js-dist-min").then(async (p) => {
