@@ -3,9 +3,15 @@ from astropy.coordinates import Angle
 import astropy.units as u
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
-from io import StringIO
+from io import StringIO, BytesIO
+from urllib.parse import urlencode
 import pandas as pd
 import requests
+from astropy.table import Table
+
+# Where to find the VIZIER API
+VIZIER_SED_API_URL = "https://vizier.cds.unistra.fr/viz-bin/sed"
+VIZIER_SED_VIEWER_URL = "https://vizier.cds.unistra.fr/vizier/sed/"
 
 NOT_IN_ANY_CATALOG = "None, queried"
 
@@ -85,8 +91,73 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
             pass
     return result_string
 
-def query_ztf_lightcurve(
-ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r"):
+
+def get_vizier_sed_url(ra_deg, dec_deg, radius_arcsec=2.0):
+    """
+    Builds the public CDS VizieR SED viewer URL for a sky position.
+
+    The viewer is useful as a robust fallback when the API call times out,
+    returns no rows, or returns a format that cannot be parsed locally.
+    """
+    if ra_deg is None or dec_deg is None:
+        return VIZIER_SED_VIEWER_URL
+
+    params = {
+        "-c": f"{float(ra_deg):.8f},{float(dec_deg):.8f}",
+        "-c.rs": f"{float(radius_arcsec):.3f}",
+    }
+    return f"{VIZIER_SED_VIEWER_URL}?{urlencode(params)}"
+
+
+def query_vizier_sed(ra_deg, dec_deg, radius_arcsec=2.0, timeout=5.0):
+    """
+    Query the CDS VizieR SED API around a sky position.
+
+    Returns
+    -------
+    tuple
+        (table, error_message). On success, table is an Astropy Table
+        and error_message is None. On failure, table is None and
+        error_message is a human-readable reason.
+    """
+    if ra_deg is None or dec_deg is None:
+        return None, "No sky coordinates are available for this target."
+
+    params = {
+        "-c": f"{float(ra_deg):.8f},{float(dec_deg):.8f}",
+        "-c.rs": f"{float(radius_arcsec):.3f}",
+        "-out.form": "VOTable",
+    }
+
+    try:
+        response = requests.get(VIZIER_SED_API_URL, params=params, timeout=timeout)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        return None, "The VizieR SED query timed out."
+    except requests.exceptions.RequestException as exc:
+        return None, f"The VizieR SED query failed: {exc}"
+
+    if not response.content or not response.content.strip():
+        return None, "The VizieR SED query returned an empty response."
+
+    try:
+        sed_table = Table.read(BytesIO(response.content), format="votable")
+    except Exception as exc:
+        return None, f"The VizieR SED response could not be parsed: {exc}"
+
+    if len(sed_table) == 0:
+        return None, "No VizieR SED points were found near this target."
+
+    required_columns = {"sed_freq", "sed_flux"}
+    missing_columns = required_columns.difference(sed_table.colnames)
+    if missing_columns:
+        missing = ", ".join(sorted(missing_columns))
+        return None, f"The VizieR SED response is missing required column(s): {missing}."
+
+    return sed_table, None
+
+
+def query_ztf_lightcurve(ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r"):
     """
     This function generates a pandas df formatted ZTF lightcurve using requests
     based on RA and Dec in degrees and a search radius in arcseconds.
