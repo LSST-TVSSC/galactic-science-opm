@@ -1,6 +1,6 @@
 from django.core.exceptions import MultipleObjectsReturned
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django import forms
 from django.apps import apps
 from custom_code.target_models import GalacticTarget
@@ -200,6 +200,9 @@ class ANTARESBroker(GenericBroker):
                                     source_name='ANTARES',
                                     source_location=event_name,
                                     target=target)
+                        except IntegrityError as e:
+                            if "unique_photometry" in str(e):
+                                pass
                         except MultipleObjectsReturned:
                             print('ANTARES Microlensing filter HARVESTER: Found duplicated data for event '+target.name)
                         except Exception as e:
@@ -292,6 +295,9 @@ class ANTARESBroker(GenericBroker):
                                 source_location=target.name,
                                 target=target)
 
+                    except IntegrityError as e:
+                        if "unique_photometry" in str(e):
+                            pass
                     except MultipleObjectsReturned:
                         print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
                     except Exception as e:
@@ -318,6 +324,9 @@ class ANTARESBroker(GenericBroker):
                                 source_location=target.name,
                                 target=target)
 
+                    except IntegrityError as e:
+                        if "unique_photometry" in str(e):
+                            pass
                     except MultipleObjectsReturned:
                         print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
                     except Exception as e:
