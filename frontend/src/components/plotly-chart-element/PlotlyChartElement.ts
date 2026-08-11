@@ -43,7 +43,8 @@ export class PlotlyChartElement extends LitElement {
       ?.assignedNodes({ flatten: true })
       .find((n) => n.nodeName === "SCRIPT");
     if (!script) {
-      console.log("no script found. how to handle?");
+      // mkistner: Does this need further handling?
+      this.hideSpinner();
       return;
     }
     const config = JSON.parse(script.textContent || '{"empty": true}');
@@ -72,7 +73,8 @@ export class PlotlyChartElement extends LitElement {
     }
     import("plotly.js-dist-min").then(async (p) => {
       if (!this.config) {
-        console.log("how to handle this?");
+        // mkistner: Does this need further handling?
+        this.hideSpinner();
         return;
       }
       const plotly = p.default;
@@ -88,12 +90,18 @@ export class PlotlyChartElement extends LitElement {
         }
       });
       (wrapper as any)?.on('plotly_afterplot', () => {
-          const loadingIndicator = this.shadowRoot?.querySelector<LoadingIndicatorElement>("loading-indicator-element")
-          if (!loadingIndicator) return;
-          loadingIndicator.hide();
+        this.hideSpinner();
       });
 
     });
+  }
+
+  hideSpinner() {
+    const loadingIndicator = this.shadowRoot?.querySelector<LoadingIndicatorElement>("loading-indicator-element")
+    if (!loadingIndicator) {
+      return;
+    }
+    loadingIndicator.hide();
   }
 
   setUpIntersectionObserver() {
