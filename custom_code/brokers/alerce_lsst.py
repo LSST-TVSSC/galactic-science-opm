@@ -2,7 +2,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
 from django import forms
 from django.apps import apps
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from custom_code.target_models import GalacticTarget
 from custom_code.match_managers import validators
 from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
@@ -167,6 +167,12 @@ class ALERCEBroker(GenericBroker):
                     source_location=target.name,
                     target=target)
 
+            except IntegrityError as e:
+                if "unique_photometry" in str(e):
+                    pass
+                else:
+                    print('ANTARES HARVESTER: Encountered exception during photometry ingest for target')
+                    print(e)
             except MultipleObjectsReturned:
                 print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
             except Exception as e:
