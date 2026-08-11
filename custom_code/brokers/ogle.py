@@ -195,8 +195,14 @@ class OGLEBroker(GenericBroker):
             except IntegrityError as e:
                 if "unique_photometry" in str(e):
                     pass
+                else:
+                    print('OGLE HARVESTER: Encountered exception during photometry ingest for target '+target.name)
+                    print(e)
             except MultipleObjectsReturned:
                 print('OGLE HARVESTER: Found duplicated data for event '+target.name)
+            except Exception as e:
+                print('OGLE HARVESTER: Encountered exception during photometry ingest for target '+target.name)
+                print(e)
 
         return 'OK'
 

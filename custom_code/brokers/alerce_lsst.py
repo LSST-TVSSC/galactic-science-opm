@@ -170,6 +170,9 @@ class ALERCEBroker(GenericBroker):
             except IntegrityError as e:
                 if "unique_photometry" in str(e):
                     pass
+                else:
+                    print('ANTARES HARVESTER: Encountered exception during photometry ingest for target')
+                    print(e)
             except MultipleObjectsReturned:
                 print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
             except Exception as e:
