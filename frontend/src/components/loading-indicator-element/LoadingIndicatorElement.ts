@@ -37,22 +37,35 @@ export class LoadingIndicatorElement extends LitElement {
     }
 
   `;
-
+  private isReadyPromise: Promise<any>;
+  private isReadyPromiseResolver: (...args: any) => void = () => {};
   constructor() {
     super();
+    this.isReadyPromise = new Promise<void>((resolve) => {
+      this.isReadyPromiseResolver = resolve;
+    });
   }
 
   connectedCallback(): void {
     super.connectedCallback();
+    this.isReadyPromiseResolver();
+  }
+
+  async wait() {
+    return this.isReadyPromise;
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
   }
 
-  hide() {
+  async hide() {
+    await this.wait();
+
     const el = this.shadowRoot?.querySelector("#loading-indicator")
-    if (!el) return;
+    if (!el) {
+      return;
+    }
     el.classList.add("hidden")
   }
 

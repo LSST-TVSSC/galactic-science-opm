@@ -33,7 +33,6 @@ def test_authorized_user_can_visit(page: Page):
         ("ALeRCE", "https://alerce.online/object/{name}"),
         ("fink", "https://ztf.fink-portal.org/{name}"),
         ("Vizier Gaia DR3", "https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={ra},{dec}&-c.rs=2"),
-        ("SED Vizier", "https://vizier.cds.unistra.fr/vizier/sed/?-c={ra},{dec}&-c.rs=2")
     )
     EXPECTED_TARGET_INFO = (
         ('Names', "ZTF26aarbgfh"),

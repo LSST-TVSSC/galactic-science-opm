@@ -8,6 +8,9 @@ export class PlotlyChartElement extends LitElement {
   @property({ type: Object })
   config: Record<string, any> | undefined = undefined;
 
+  @property({ type: String })
+  errorMessage: string = "";
+
   private intersectionObserver: IntersectionObserver | undefined;
 
   static styles = css`
@@ -43,17 +46,23 @@ export class PlotlyChartElement extends LitElement {
       ?.assignedNodes({ flatten: true })
       .find((n) => n.nodeName === "SCRIPT");
     if (!script) {
-      console.log("no script found. how to handle?");
+      this.hideSpinner();
+      this.errorMessage = this.generateDefaultErrorMessage();
       return;
     }
     const config = JSON.parse(script.textContent || '{"empty": true}');
     if (config.empty) {
-      console.log("script was empty. how to handle?");
+      this.hideSpinner();
+      this.errorMessage = this.generateDefaultErrorMessage();
       return;
     }
     this.config = config;
 
     this.intersectionObserver = this.setUpIntersectionObserver();
+  }
+
+  generateDefaultErrorMessage() {
+    return "There was a problem loading the plot data.";
   }
 
   disconnectedCallback(): void {
@@ -67,33 +76,58 @@ export class PlotlyChartElement extends LitElement {
     window.self = window;
 
     if (!this.config) {
-      console.log("how to handle this?");
+      this.hideSpinner();
+      this.errorMessage = this.generateDefaultErrorMessage()
       return;
     }
     import("plotly.js-dist-min").then(async (p) => {
       if (!this.config) {
-        console.log("how to handle this?");
+        this.hideSpinner();
+        this.errorMessage = this.generateDefaultErrorMessage();
         return;
       }
       const plotly = p.default;
       const slot = this.shadowRoot?.querySelector("slot");
+      const layout = {...this.config.layout, autosize: true}
+
+      // mkistner: moves legend to bottom of the screen, so SED plot is not 
+      // mkistner: squished by it.
+      // mkistner: should probably be configurable at some point
+      if (!layout.legend) layout.legend = {};
+      layout.legend = {
+        ...layout.legend,
+        ...{
+          orientation: 'h',
+          x: 0.5,
+          xanchor: 'center',
+          y: -0.2,
+          yanchor: 'top'
+        }
+      };
+
       const wrapper = slot
         ?.assignedNodes({ flatten: true })
         .find((n) => n.nodeName === "DIV");
       plotly.newPlot(wrapper, {
         data: this.config.data,
-        layout: {...this.config.layout, autosize: true},
+        layout,
         config: {
           responsive: true 
         }
       });
       (wrapper as any)?.on('plotly_afterplot', () => {
-          const loadingIndicator = this.shadowRoot?.querySelector<LoadingIndicatorElement>("loading-indicator-element")
-          if (!loadingIndicator) return;
-          loadingIndicator.hide();
+        this.hideSpinner();
       });
 
     });
+  }
+
+  hideSpinner() {
+    const loadingIndicator = this.shadowRoot?.querySelector<LoadingIndicatorElement>("loading-indicator-element")
+    if (!loadingIndicator) {
+      return;
+    }
+    loadingIndicator.hide();
   }
 
   setUpIntersectionObserver() {
@@ -116,6 +150,7 @@ export class PlotlyChartElement extends LitElement {
   render() {
     return html`
       <loading-indicator-element></loading-indicator-element>
+      <div>${this.errorMessage}</div>
       <slot></slot>
     `;
   }
