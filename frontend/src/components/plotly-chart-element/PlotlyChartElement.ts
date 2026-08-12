@@ -8,6 +8,9 @@ export class PlotlyChartElement extends LitElement {
   @property({ type: Object })
   config: Record<string, any> | undefined = undefined;
 
+  @property({ type: String })
+  errorMessage: string = "";
+
   private intersectionObserver: IntersectionObserver | undefined;
 
   static styles = css`
@@ -43,18 +46,23 @@ export class PlotlyChartElement extends LitElement {
       ?.assignedNodes({ flatten: true })
       .find((n) => n.nodeName === "SCRIPT");
     if (!script) {
-      // mkistner: Does this need further handling?
       this.hideSpinner();
+      this.errorMessage = this.generateDefaultErrorMessage();
       return;
     }
     const config = JSON.parse(script.textContent || '{"empty": true}');
     if (config.empty) {
-      // mkistner: Does this need further handling?
+      this.hideSpinner();
+      this.errorMessage = this.generateDefaultErrorMessage();
       return;
     }
     this.config = config;
 
     this.intersectionObserver = this.setUpIntersectionObserver();
+  }
+
+  generateDefaultErrorMessage() {
+    return "There was a problem loading the plot data.";
   }
 
   disconnectedCallback(): void {
@@ -68,13 +76,14 @@ export class PlotlyChartElement extends LitElement {
     window.self = window;
 
     if (!this.config) {
-      // mkistner: Does this need further handling?
+      this.hideSpinner();
+      this.errorMessage = this.generateDefaultErrorMessage()
       return;
     }
     import("plotly.js-dist-min").then(async (p) => {
       if (!this.config) {
-        // mkistner: Does this need further handling?
         this.hideSpinner();
+        this.errorMessage = this.generateDefaultErrorMessage();
         return;
       }
       const plotly = p.default;
@@ -141,6 +150,7 @@ export class PlotlyChartElement extends LitElement {
   render() {
     return html`
       <loading-indicator-element></loading-indicator-element>
+      <div>${this.errorMessage}</div>
       <slot></slot>
     `;
   }
