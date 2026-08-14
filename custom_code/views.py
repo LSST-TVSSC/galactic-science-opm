@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta,date
 import os
 import tempfile
 import zipfile
@@ -82,10 +82,12 @@ def microlensing_rescaled_prob_view_ztf25(request):
             )
         return processed_list
 
+    current_year= str(date.today().year)
     distinct_ids_queried = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
-        .filter(target__name__icontains="ZTF25")
+        .filter(target__name__icontains="ZTF")
+        .exclude(target__name__icontains=f"ZTF{current_year[2:]}")
         .filter(average_master_probability__gt=0.0)
         .filter(target__known_variability__icontains="queried")
     )
@@ -93,7 +95,7 @@ def microlensing_rescaled_prob_view_ztf25(request):
         MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried)
         .order_by("-average_master_probability")
         .distinct()
-    )
+    )[:500]
 
     context = {
         "microlensing_objects_queried": calculate_metadata(
@@ -102,9 +104,9 @@ def microlensing_rescaled_prob_view_ztf25(request):
     }
 
     try:
-        return render(request, 'custom_code/prob_list.html', context)
+        return render(request, 'custom_code/ztf_2025_and_before.html', context)
     except ObjectDoesNotExist:
-        return render(request, 'custom_code/prob_list.html', context)
+        return render(request, 'custom_code/ztf_2025_and_before.html', context)
 
 
 def microlensing_rescaled_prob_view(request):
@@ -121,27 +123,29 @@ def microlensing_rescaled_prob_view(request):
                 }
             )
         return processed_list
-
+    current_year= str(date.today().year)
     distinct_ids = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
-        .filter(target__name__icontains="ZTF")
+        .filter(target__name__icontains=f"ZTF{current_year[2:]}")
         .filter(average_master_probability__gt=0.0)
         .exclude(target__known_variability__icontains="queried")
     )
     microlensing_objects = (
         MicrolensingRadarData.objects.filter(id__in=distinct_ids)
         .order_by("-average_master_probability")
-        .distinct()[:125]
+        .distinct()[:75]
     )
 
     distinct_ids_queried = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
-        .filter(target__name__icontains="ZTF26")
+        .filter(Q(target__name__icontains=f"ZTF{current_year[2:]}")|Q(target__name__icontains=f"OGLE-{current_year}"))
         .filter(average_master_probability__gt=0.0)
         .filter(target__known_variability__icontains="queried")
     )
+    for ids in distinct_ids_queried:
+        print(ids.target)
     microlensing_objects_queried = (
         MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried)
         .order_by("-average_master_probability")
@@ -222,10 +226,11 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         AMOUNT_OF_FEATURED_TARGETS = 4
+        current_year= str(date.today().year)
         distinct_ids = (
             MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
             .distinct("target_id")
-            .filter(Q(target__name__icontains="ZTF26") | Q(target__name__icontains="LSST"))
+            .filter(Q(target__name__icontains=f"ZTF{current_year[2:]}") | Q(target__name__icontains="LSST"))
             .filter(target__known_variability = NOT_IN_ANY_CATALOG)
             .filter(average_master_probability__gt=0.0)
         )
@@ -239,7 +244,7 @@ class HomeView(TemplateView):
         target_map = GalacticTarget.objects.in_bulk(prio_ids)
         featured = [target_map[i] for i in prio_ids if i in target_map]
         total = GalacticTarget.objects.filter(
-            Q(name__icontains="ZTF26") | Q(name__icontains="LSST"),
+            Q(name__icontains=f"ZTF{current_year[2:]}") | Q(name__icontains="LSST"),
         ).count()
         context["featured_targets"] = featured[:AMOUNT_OF_FEATURED_TARGETS]
         context["total_amount_of_targets"] = total

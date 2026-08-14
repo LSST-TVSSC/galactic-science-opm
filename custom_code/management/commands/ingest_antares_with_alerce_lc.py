@@ -12,6 +12,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('days', help='days firstmjd before now')
         parser.add_argument('--phot', help='Force ingest of full photometry [optional]: True or False')
+        parser.add_argument('--all_years', help='Considers all ZTF years in ingest [optional]: True or False')
 
     def handle(self, *args, **options):
         print('Starting ANTARES microlensing filter target and photometry ingest')
@@ -20,9 +21,13 @@ class Command(BaseCommand):
         if options['phot'] == str(True):
             full_phot = True
 
+        all_years = False
+        if options['all_years'] == str(True):
+            all_years = True
+
         # If a number of events to select is given, make a list of all available events;
         # the random selection is applied later.  If a specific event name is given, fetch data for that event only
-        (list_of_targets, new_targets) = Antares.fetch_alerts(days=int(str(options['days'])))
+        (list_of_targets, new_targets) = Antares.fetch_alerts(days=int(str(options['days'])),all_years=all_years)
         print('Identified '+str(len(list_of_targets))+' target(s) from ANTARES microlensing filter')
         if full_phot:
             Antares.find_and_ingest_photometry(list_of_targets)
