@@ -144,8 +144,7 @@ def microlensing_rescaled_prob_view(request):
         .filter(average_master_probability__gt=0.0)
         .filter(target__known_variability__icontains="queried")
     )
-    for ids in distinct_ids_queried:
-        print(ids.target)
+
     microlensing_objects_queried = (
         MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried)
         .order_by("-average_master_probability")
