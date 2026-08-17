@@ -81,10 +81,13 @@
           <div class="section-title">Top {{featured_targets | length}} microlensing targets of <a href="/targets">{{ total_amount_of_targets }}</a></div>
           <div class="links">
             <a target="_blank" rel="noopener noreferrer" href="{% url 'microlensing_rescaled_prob_view' %}" class="btn btn-sm btn-primary">
-              View all targets (with ranking)
+              View ranked microlensing targets (2026)
             </a>
             <a target="_blank" rel="noopener noreferrer" href="{% url 'microlensing_rescaled_prob_view_lsst' %}" class="btn btn-sm btn-primary">
               View LSST targets
+            </a>
+            <a target="_blank" rel="noopener noreferrer" href="{% url 'microlensing_rescaled_prob_view_ztf25' %}" class="btn btn-sm btn-primary">
+              View ZTF targets (before 2026)
             </a>
           </div>
         </header>

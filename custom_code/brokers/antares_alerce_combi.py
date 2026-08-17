@@ -38,7 +38,7 @@ class ANTARESBroker(GenericBroker):
     name = 'ANTARES'
     form = ANTARESQueryForm
 
-    def fetch_alerts(self, days=2):
+    def fetch_alerts(self, days=2, all_years=False):
         """
         Fetches and processes microlensing alerts from the Antares broker
         tagged microlensing
@@ -85,14 +85,14 @@ class ANTARESBroker(GenericBroker):
         else:
             print(f"ANTARES: Found {len(locus_results)} microlensing candidates.")
 
-        (list_of_targets, new_targets) = self.ingest_events(locus_results)
+        (list_of_targets, new_targets) = self.ingest_events(locus_results, all_years = all_years)
 
         return (
             list_of_targets, 
             new_targets
         )
     
-    def ingest_events(self, locus_list, debug=False):
+    def ingest_events(self, locus_list, debug=False, all_years = False):
         """
         Function to ingest the targets from a list of ANTARES loci 
         into the OPM database. All surveys.
@@ -111,7 +111,7 @@ class ANTARESBroker(GenericBroker):
                 event_name = f"LSST_{locus.properties['survey']['lsst']['dia_object_id'][0]}"
             elif locus.properties['survey']['ztf']['id'] != []:
                 event_name = locus.properties['survey']['ztf']['id'][0]
-                if not "ZTF26" in event_name:
+                if not "ZTF26" in event_name and all_years == False:
                     print(f"Skipping {event_name}")
                     continue
             else:    
