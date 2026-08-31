@@ -95,7 +95,7 @@ def microlensing_rescaled_prob_view_ztf25(request):
         MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried)
         .order_by("-average_master_probability")
         .distinct()
-    )[:500]
+    )[:1500]
 
     context = {
         "microlensing_objects_queried": calculate_metadata(
