@@ -239,6 +239,16 @@ be used in these tests:
 `python manage.py test custom_code.tests.unit --settings=galactic_science_opm.settings_test`
 or `pytest custom_code/tests/unit`
 
+You can also run the tests directly in the container using this command:
+`docker compose exec galactic-science-opm  coverage run -m pytest custom_code/tests/unit/`
+Doing it this way also generates the information for coverage reporting.
+
+You can generate and open a HTML coverage report using the following command:
+```sh
+docker compose exec galactic-science-opm coverage html
+open ./htmlcov/index.html
+```
+
 ### Running integration tests
 
 Since these might interact with the database, they should/must be run with
