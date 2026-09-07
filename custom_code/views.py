@@ -9,7 +9,7 @@ from tom_dataproducts.models import PhotometryReducedDatum
 from django.conf import settings
 from django.core import management
 from django.views.decorators.cache import cache_page
-from django.db import OperationalError, connections
+from django.db import OperationalError, connection, connections
 from django.http import FileResponse, JsonResponse
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
@@ -379,6 +379,22 @@ def version(_request):
         "commit": settings.GIT_COMMIT,
     })
 
+def humanize_bytes(num):
+    for unit in ["B", "K", "M", "G", "T"]:
+        if abs(num) < 1024:
+            return f"{num:.1f}{unit}"
+        num /= 1024
+    return f"{num:.1f}P"
+
+def get_db_size():
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT pg_database_size(current_database())")
+        size_bytes = cursor.fetchone()[0]
+    return {
+        "bytes": size_bytes,
+        "human": humanize_bytes(size_bytes),
+    }
+
 @cache_page(60)
 def metrics(_request):
 
@@ -401,5 +417,6 @@ def metrics(_request):
         "new_targets_last_96h": GalacticTarget.objects.filter(
             created__gte=now - timedelta(hours=96)
         ).count(),
+        "db_size": get_db_size(),
     }
     return JsonResponse(metrics)
