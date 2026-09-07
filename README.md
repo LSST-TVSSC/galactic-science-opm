@@ -297,3 +297,11 @@ docker compose -f compose.base.yaml -f compose.prod.yaml -f compose.e2e.yaml up 
 ```
 
 For help in creating tests, use `playwright codegen http://localhost:8000`.
+
+## Automation tooling
+
+There is a `justfile` in this repo with various commands to make
+common tasks more easy, but this is completely optional.
+
+After you installed [just](https://github.com/casey/just), you can do things
+like `just run-unittest` and the unit tests will run. 
