@@ -100,7 +100,7 @@ def test_shows_top_targets_in_descending_order(page: Page):
             )
         
         # all targets link
-        all_targets_link = page.get_by_role("link", name="View all targets (with ranking)")
+        all_targets_link = page.get_by_role("link", name="View ranked microlensing targets (2026)")
         expect(all_targets_link).to_be_visible()
         expect(all_targets_link).to_have_attribute("href", "/custom_code/prob_list.html")
 
