@@ -67,21 +67,3 @@ class AlerceApiClient(TargetApiClient):
 
         return converted_results
 
-    def generate_alerce_data(self, class_name):
-        class_name = class_name
-        alerce = Alerce()
-        start_date = int(Time.now().mjd)
-        days = 60
-        survey = "ztf"
-
-        alerce_results_page = alerce.query_objects(
-            classifier="lc_classifier_BHRF_forced_phot",
-            class_name=class_name,
-            format="pandas",
-            firstmjd=float(start_date - days),
-            order_by="probability",
-            order_mode="DESC",
-            page_size=50,
-            survey=survey,
-        )
-        make_pickle_from_data(f"alerce__query_objects_{class_name.replace('/', '')}_{start_date}.pkl", alerce_results_page)

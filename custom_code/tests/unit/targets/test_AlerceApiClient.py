@@ -6,6 +6,7 @@ from astropy.time import Time
 from django.test import TransactionTestCase
 
 from custom_code.targets.AlerceApiClient import AlerceApiClient
+from custom_code.tests.helpers import make_pickle_from_data
 from custom_code.tests.mocks.responses.alerce_api_client_results import EXPECTED_DATA
 from custom_code.tests.mocks.external.AlerceMock import AlerceMock
 
@@ -141,7 +142,8 @@ class TestAlerceApiClient(TransactionTestCase):
                 self.assertEqual(call_args.kwargs["order_mode"], "DESC")
                 self.assertEqual(call_args.kwargs["survey"], SURVEY)
 
-    def generate_alerce_data(self):
+    def _generate_alerce_data(self):
+        """ This is for testing purposes. """
         class_name = "Microlensing"
         alerce = Alerce()
         start_date = int(Time.now().mjd)
@@ -158,12 +160,5 @@ class TestAlerceApiClient(TransactionTestCase):
             page_size=50,
             survey=survey,
         )
+        make_pickle_from_data(f"alerce__query_objects_{class_name.replace('/', '')}_{start_date}.pkl", _)
 
-    def generate_targets_for_cv_nova(self):
-        alerce_api_client = AlerceApiClient()
-        alerce_api_client.generate_alerce_data("CV/Nova")
-
-        VIZIER_QUERY_REGION_PICKLE = "alerce__query_objects_CVNova_61282.pkl"
-        with open(VIZIER_QUERY_REGION_PICKLE, "rb") as f:
-            result = pickle.load(f)
-        print([(t["oid"], t["meanra"], t["meandec"]) for _, t in result[:3].iterrows()])
