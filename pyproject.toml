@@ -57,3 +57,9 @@ package-mode = false
 DJANGO_SETTINGS_MODULE = "galactic_science_opm.settings_test"
 # show output during tests
 addopts = "-s"
+
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+
+[tool.django-stubs]
+django_settings_module = "myproject.settings"
