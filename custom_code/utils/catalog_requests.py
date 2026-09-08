@@ -1,4 +1,5 @@
 from astroquery.vizier import Vizier
+import astropy.units as unit
 from astropy.coordinates import Angle
 import astropy.units as u
 from astropy.time import Time
@@ -23,13 +24,18 @@ def get_glade_plus_count(coords):
     """
     radius = Angle(1.5 / 60. / 60., "deg")
     try:
-        result = Vizier.query_region(coords, radius=radius, catalog='VII/281', cache=False)
+        vizier = Vizier()
+        result = vizier.query_region(coords, radius=radius, catalog='VII/281', cache=False)
         if not result or len(result) == 0:
             return 0            
         return len(result[0])
     except:
         return -1
 
+def get_glade_plus_count_with_ra_dec(ra, dec):
+    
+    sky_coords = SkyCoord(ra, dec, unit=(unit.deg, unit.deg), frame="icrs")
+    return get_glade_plus_count(sky_coords)
 
 def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
     """
@@ -52,7 +58,7 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
         VIZIER = None
         
     if VIZIER is None:
-        return "No Vizier connection."
+        return "Error Vizier query: No Vizier connection."
 
     coords = SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg), frame='icrs')
     radius = radius_arcsec * u.arcsec
