@@ -239,6 +239,11 @@ be used in these tests:
 `python manage.py test custom_code.tests.unit --settings=galactic_science_opm.settings_test`
 or `pytest custom_code/tests/unit`
 
+If the commands above lead to an error like the following one...
+> Got an error creating the test database: permission denied to create database
+
+... try creating a new container for the database, as described under "Spin up a database for your development OPM to use"
+
 You can also run the tests directly in the container using this command:
 `docker compose exec galactic-science-opm  coverage run -m pytest custom_code/tests/unit/`
 Doing it this way also generates the information for coverage reporting.
