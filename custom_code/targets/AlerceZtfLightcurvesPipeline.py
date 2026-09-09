@@ -39,17 +39,9 @@ class AlerceZtfLightcurvesPipeline:
             target_candidates += target_candidates_for_class
         self.logger("success", f"Found {len(target_candidates)} potential targets.")
 
-        # filter according to event_name
-        filtered_candidates = target_candidates
-        if event_name:
-            filtered_candidates = [x for x in target_candidates if event_name in x["name"]]
-            pass
-
-        self.logger("success", f"{len(filtered_candidates)} potential targets remaining after filtering.")
-        
         # create targets from candidates
         all_targets, new_targets = self.target_creator.create_targets_from_candidates(
-            filtered_candidates
+            target_candidates
         )
         self.logger("success", f"{len(new_targets)} targets created.")
 
@@ -81,6 +73,11 @@ class AlerceZtfLightcurvesPipeline:
 
         if fetch_photometry_for_all_targets:
             targets_needing_photometry = all_targets
+
+        # filter according to event_name
+        if event_name:
+            targets_needing_photometry = [x for x in targets_needing_photometry if event_name in x.name]
+            pass
 
         PRIO_COUNT = 50
         priority_targets = self.target_creator.get_priority_targets(PRIO_COUNT, survey)
