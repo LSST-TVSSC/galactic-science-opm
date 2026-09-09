@@ -1,7 +1,6 @@
 import datetime
 from os import path
 import pandas as pd
-import pickle
 from unittest import mock
 from astropy.time import TimezoneInfo
 
@@ -11,6 +10,8 @@ from custom_code.photometry.AlercePhotometryClient import AlercePhotometryClient
 from custom_code.photometry.PhotometryApiClient import PhotometryCandidate
 from custom_code.target_models import GalacticTarget
 from custom_code.tests.helpers import assert_instances_match
+from custom_code.tests.mocks.responses.alerce__query_detections__ZTF21abasvhl import DEFAULT_DETECTION_RESULT
+from custom_code.tests.mocks.responses.alerce__query_forced_photometry__ZTF21abasvhl import DEFAULT_FORCED_PHOTOMETRY_RESULT
 
 
 class TestAlercePhotometryClient(TransactionTestCase):
@@ -22,6 +23,9 @@ class TestAlercePhotometryClient(TransactionTestCase):
         TARGETS = [
             GalacticTarget(
                 name="ZTF21abasvhl", ra=209.84372587578667, dec=47.12126690610595
+            ),
+            GalacticTarget(
+                name="ZTF26abasvhm", ra=206.84372587578667, dec=46.12126690610595
             ),
         ]
 
@@ -78,6 +82,60 @@ class TestAlercePhotometryClient(TransactionTestCase):
                 ),
                 "ALERCE",
             ),
+            # second target
+            PhotometryCandidate(
+                20.329191,
+                "ZTF_g",
+                0.27630877,
+                "ZTF26abasvhm",
+                datetime.datetime(
+                    2025, 11, 23, 12, 54, 20, 1589, tzinfo=TimezoneInfo()
+                ),
+                "ALERCE",
+            ),
+            PhotometryCandidate(
+                19.972315,
+                "ZTF_r",
+                0.2417613,
+                "ZTF26abasvhm",
+                datetime.datetime(2025, 11, 26, 11, 50, 0, 3858, tzinfo=TimezoneInfo()),
+                "ALERCE",
+            ),
+            PhotometryCandidate(
+                19.954105,
+                "ZTF_r",
+                0.2373396,
+                "ZTF26abasvhm",
+                datetime.datetime(2025, 12, 13, 11, 48, 30, 966, tzinfo=TimezoneInfo()),
+                "ALERCE",
+            ),
+            PhotometryCandidate(
+                19.831471089064905,
+                "ZTF_r",
+                0.10057333271756115,
+                "ZTF26abasvhm",
+                datetime.datetime(2025, 12, 11, 11, 51, 27, 6, tzinfo=TimezoneInfo()),
+                "ALERCE",
+            ),
+            PhotometryCandidate(
+                20.309108461379605,
+                "ZTF_g",
+                0.26643242359717245,
+                "ZTF26abasvhm",
+                datetime.datetime(2025, 12, 7, 12, 46, 46, 4173, tzinfo=TimezoneInfo()),
+                "ALERCE",
+            ),
+            PhotometryCandidate(
+                19.755860335859563,
+                "ZTF_r",
+                0.21424798385515845,
+                "ZTF26abasvhm",
+                datetime.datetime(
+                    2025, 12, 5, 12, 51, 24, 998395, tzinfo=TimezoneInfo()
+                ),
+                "ALERCE",
+            ),
+
         ]
 
         with mock.patch(
@@ -86,21 +144,15 @@ class TestAlercePhotometryClient(TransactionTestCase):
             data_folder = path.join("custom_code", "tests", "mocks", "responses")
             # GIVEN mock implementation for Alerce query_detections
             def replacement_detections(*args, **kwargs):
-                name = args[0]
-                ALERCE_QUERY_DETECTIONS_PICKLE = path.join(data_folder, f"alerce__query_detections__{name}.pkl")
-                with open(ALERCE_QUERY_DETECTIONS_PICKLE, "rb") as f:
-                    result = pickle.load(f)
-                return result[:3]
+                _name = args[0]
+                result = pd.DataFrame.from_dict(DEFAULT_DETECTION_RESULT, orient='tight')
+                return result
 
             # GIVEN mock implementation for Alerce query_forced_photometry
             def replacement_forced(*args, **kwargs):
-                name = args[0]
-                ALERCE_QUERY_FORCED_PICKLE = path.join(
-                    data_folder, f"alerce__query_forced_photometry__{name}.pkl"
-                )
-                with open(ALERCE_QUERY_FORCED_PICKLE, "rb") as f:
-                    result = pickle.load(f)
-                return result[:3]
+                _name = args[0]
+                result = pd.DataFrame.from_dict(DEFAULT_FORCED_PHOTOMETRY_RESULT, orient='tight')
+                return result
 
             instance = mocked.return_value
             instance.query_detections.side_effect = replacement_detections

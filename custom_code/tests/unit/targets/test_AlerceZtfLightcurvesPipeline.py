@@ -779,14 +779,22 @@ class TestTargetCreationPipeline(TransactionTestCase):
             event_name="ZTF26"
         )
 
-        # THEN all targets should exist (existing plus ones matching event_name)
-        # BUT not those that do not match the event_name query
+        # THEN all targets should exist 
         all_targets = GalacticTarget.objects.all()
         EXPECTED_TARGETS = [prio_target] + [
             GalacticTarget(
                 name="ZTF26abdwauc",
                 ra=285.90945662498603,
                 dec=-25.534577312499998,
+                permissions=GalacticTarget.Permissions.PUBLIC.value,
+                known_variability="foo,bar",
+                known_extragalactic=GalacticTarget.CatalogFlag.IN_GLADE_PLUS.value,
+                expected_visits=42,
+            ),
+            GalacticTarget(
+                name="ZTF20adjbbvq",
+                ra=282.18004242953185,
+                dec=0.1652681584040193,
                 permissions=GalacticTarget.Permissions.PUBLIC.value,
                 known_variability="foo,bar",
                 known_extragalactic=GalacticTarget.CatalogFlag.IN_GLADE_PLUS.value,
@@ -817,6 +825,7 @@ class TestTargetCreationPipeline(TransactionTestCase):
         assert_instances_match(EXPECTED_TARGETS, all_targets, FIELDS_TO_CHECK, "name")
 
         # AND all photometry should be created, including existing prio targets
+        # BUT not for ZTF20adjbbvq because of event_name filtering
         all_phot = PhotometryReducedDatum.objects.all()
         target_ZTF26abdwauc = BaseTarget.objects.get(name="ZTF26abdwauc")
         target_foo = BaseTarget.objects.get(name="ztffoo")
