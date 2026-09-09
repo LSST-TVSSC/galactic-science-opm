@@ -20,18 +20,22 @@ def instance_to_field_dict(instance, fields):
 
 # testing helper not written by claude
 def assert_instances_match(expected, actual, fields_to_extract, key_to_match):
-    found_counter = []
+    indices_of_found_elements = []
     for e in expected:
-        corresponding_a = [
-            a for a in actual if getattr(a, key_to_match) == getattr(e, key_to_match)
-        ]
-        assert len(corresponding_a) > 0, f"did not find matching element for {getattr(e, key_to_match)}"
-        found_counter.append(getattr(e, key_to_match))
-        corresponding_a = corresponding_a[0]
-        expected_single = instance_to_field_dict(e, fields=fields_to_extract)
-        assert_fields_equal(corresponding_a, expected_single)
+        # loop over all actual
+        for i, a in enumerate(actual):
+            expected_single = instance_to_field_dict(e, fields=fields_to_extract)
+            try:
+                assert_fields_equal(a, expected_single)
+                indices_of_found_elements.append(i)
+            except AssertionError:
+                if i < len(actual) - 1:
+                    continue
+                else:
+                    raise AssertionError("Did not find match for " + str(e))
+            break
 
-    remaining = set([getattr(a, key_to_match) for a in actual]) - set(found_counter)
+    remaining = [r for i,r in enumerate(actual) if i not in indices_of_found_elements]
     assert len(remaining) == 0, f"Got elements that were not expected: {remaining}"
 
 

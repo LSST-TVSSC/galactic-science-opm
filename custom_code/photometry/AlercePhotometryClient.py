@@ -28,7 +28,7 @@ class AlercePhotometryClient(PhotometryApiClient):
                 jd.to_datetime(timezone=TimezoneInfo())
                 timestamp = jd.to_datetime(timezone=TimezoneInfo())
                 if "magpsf_corr" in detections_photometry.columns:
-                    if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"] < 100.0:
+                    if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"] < 100.:
                         candidate = PhotometryCandidate(
                             magnitude=row["magpsf_corr"],
                             filter=filter_definition[row["fid"]],
@@ -44,16 +44,16 @@ class AlercePhotometryClient(PhotometryApiClient):
                 jd = Time(row["mjd"], format="mjd", scale="utc")
                 jd.to_datetime(timezone=TimezoneInfo())
                 timestamp = jd.to_datetime(timezone=TimezoneInfo())
-                if "magpsf_corr" in detections_photometry.columns:
-                    if not pd.isna(row["mag_corr"]) and row["mag_corr"] < 100.0:
-                        candidate = PhotometryCandidate(
-                            magnitude=row["mag_corr"],
-                            filter=filter_definition[row["fid"]],
-                            error=row["e_mag_corr_ext"],
-                            timestamp=timestamp,
-                            location=target.name,
-                            source="ALERCE",
-                        )
-                        results.append(candidate)
+                if not pd.isna(row["mag_corr"]) and row["mag_corr"] < 100.:
+                    candidate = PhotometryCandidate(
+                        magnitude=row["mag_corr"],
+                        filter=filter_definition[row["fid"]],
+                        error=row["e_mag_corr_ext"],
+                        timestamp=timestamp,
+                        location=target.name,
+                        source="ALERCE",
+                    )
+                    results.append(candidate)
 
-            return results
+
+        return results

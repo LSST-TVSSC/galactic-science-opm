@@ -88,7 +88,7 @@ class AlerceZtfLightcurvesPipeline:
             photometry_data = self.photometry_api_client.fetch_photometry_for_targets(
                 targets_needing_photometry, survey=SURVEY
             )
-            self.logger("success", f"Photometry for targets fetched")
+            self.logger("success", f"Photometry fetched for {len(targets_needing_photometry)} targets. ")
 
             # create photometry
             errors, _ = self.photometry_creator.create_photometry_for_targets(photometry_data)
