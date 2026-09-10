@@ -12,11 +12,11 @@
 
     {% if key == 'ra' %}
       <dt class="">RA&nbsp;</dt>
-      <dd class="">{{ value|deg_to_sexigesimal:"hms" }}</dd>
+      <dd class="">{{ value|deg_to_sexigesimal:"hms" }} ({{ value|floatformat:6 }}&deg;)</dd>
     {% endif%}
     {% if key == 'dec' %}
       <dt class="">Dec&nbsp;</dt>
-      <dd class="">{{ value|deg_to_sexigesimal:"hms" }}</dd>
+      <dd class="">{{ value|deg_to_sexigesimal:"dms" }} ({{ value|floatformat:6 }}&deg;)</dd>
     {% endif%}
     {% if key == 'expected_visits' %}
       <dt class="">LSST xobs (10 yrs) </dt>
