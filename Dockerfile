@@ -34,6 +34,7 @@ COPY pyproject.toml poetry.lock /galactic_science_opm/
 # tell poetry: even if you find a virtual env, don't use it; install everything globally
 # now have poetry install dependencies according to pyproject.toml
 RUN poetry config virtualenvs.create false --local &&  \
+poetry cache clear pypi --all -n && \
 poetry config virtualenvs.in-project false --local && \
 poetry lock && \
 poetry install -vv --no-interaction

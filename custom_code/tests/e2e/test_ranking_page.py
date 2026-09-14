@@ -34,7 +34,7 @@ def test_all_targets_are_displayed(page: Page):
         ),
         (
             r"ZTF26aaivmks\s+ALeRCE\s+fink\s+ANTARES",
-            "",
+            "active",
             0.4616,
             "None, queried",
             created_ago,
