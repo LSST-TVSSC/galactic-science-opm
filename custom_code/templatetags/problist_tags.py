@@ -29,14 +29,17 @@ def make_target_tags_list(target):
           .first())
 
     t0 = tE = None
+    sigmat0 = sigmatE = None
     if params is not None:
         if params.t0 is not None:
             t0 = params.t0 + 2450000.
         tE = params.tE
+        err_tE = params.err_tE
+ 
     if t0 is not None and tE is not None:
         try:
             current_jd = Time.now().jd
-            if float(t0) - float(tE) < current_jd < float(t0) + float(tE):
+            if float(t0) - float(tE) < current_jd < float(t0) + float(tE) and err_tE<tE:
                 tags.append({"class": "active", "text": "Microlensing event current t in [t0-tE,t0+tE]"})
         except (ValueError, TypeError):
             pass

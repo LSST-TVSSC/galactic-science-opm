@@ -15,6 +15,7 @@ from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from tom_dataproducts.sharing import get_sharing_destination_options
 from tom_targets.forms import TargetShareForm
+from tom_targets.models import TargetName
 from custom_code.target_models import GalacticTarget, MicrolensingParameterModel
 from custom_code.target_models import Classification
 from custom_code.target_models import MicrolensingRadarData
@@ -111,15 +112,29 @@ def microlensing_rescaled_prob_view_ztf25(request):
 
 def microlensing_rescaled_prob_view(request):
 
+    def get_latest_photometry(target):
+        prd = (
+            PhotometryReducedDatum.objects.filter(target=target)
+            .order_by("-timestamp")
+            .first()
+        )
+        if prd:
+            return prd.brightness, prd.bandpass
+        return None, None
+
+
     def calculate_metadata(queryset):
         """Prepare age for easier ranking"""
         processed_list = []
         for obj in queryset:
             age_days = (timezone.now() - obj.target.created).days
+            latest_mag, latest_band = get_latest_photometry(obj.target)
             processed_list.append(
                 {
                     "object": obj,
                     "age_days": age_days,
+                    "latest_mag": latest_mag,
+                    "latest_band": latest_band,
                 }
             )
         return processed_list
@@ -134,7 +149,7 @@ def microlensing_rescaled_prob_view(request):
     microlensing_objects = (
         MicrolensingRadarData.objects.filter(id__in=distinct_ids)
         .order_by("-average_master_probability")
-        .distinct()[:75]
+        .distinct()[:70]
     )
 
     distinct_ids_queried = (
@@ -148,7 +163,7 @@ def microlensing_rescaled_prob_view(request):
     microlensing_objects_queried = (
         MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried)
         .order_by("-average_master_probability")
-        .distinct()[:125]
+        .distinct()[:100]
     )
 
     distinct_ids_queried_lsst = (
@@ -164,8 +179,49 @@ def microlensing_rescaled_prob_view(request):
         .distinct()[:10]
     )
 
+    ogle_targets = GalacticTarget.objects.filter(name__icontains="OGLE")
+
+    ztf_aliases = TargetName.objects.filter(
+        name__icontains="ZTF",
+        target_id__in=ogle_targets.values_list("id", flat=True)
+    )
+
+    ztf_alias_map = {a.target_id: a.name for a in ztf_aliases}
+
+    ogle_ztf_targets = ogle_targets.filter(id__in=ztf_alias_map.keys())
+
+    microlensing_objects_ogle_ztf = []
+    for t in ogle_ztf_targets:
+        obj = (
+            MicrolensingRadarData.objects.filter(target=t)
+            .order_by("-updated_at")
+            .first()
+        )
+        if obj is None:
+            obj = MicrolensingRadarData(
+                target=t,
+                average_master_probability=0,
+                metric_nsquare=0,
+                metric_alerce=0,
+                metric_probability_ratio=0,
+                metric_alerce_atat=0,
+                metric_antares=0,
+                metric_planet=0,
+                metric_bogus=0,
+                updated_at=timezone.now(),
+            )
+        obj.ztf_alias = ztf_alias_map.get(t.id, "")
+        obj.ra = t.ra
+        obj.dec = t.dec
+        microlensing_objects_ogle_ztf.append(obj)
+
+    microlensing_objects_ogle_ztf.sort(
+        key=lambda x: x.average_master_probability or 0, reverse=True
+    )
+    microlensing_objects_ogle_ztf = microlensing_objects_ogle_ztf[:20]
     context = {
         "microlensing_objects": calculate_metadata(microlensing_objects),
+        "microlensing_objects_ogle_ztf": calculate_metadata(microlensing_objects_ogle_ztf),
         "microlensing_objects_queried": calculate_metadata(
             microlensing_objects_queried
         ),
