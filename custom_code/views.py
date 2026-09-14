@@ -219,9 +219,6 @@ def microlensing_rescaled_prob_view(request):
         key=lambda x: x.average_master_probability or 0, reverse=True
     )
     microlensing_objects_ogle_ztf = microlensing_objects_ogle_ztf[:20]
-
-    for entry in  microlensing_objects_ogle_ztf:
-        print(entry.target)
     context = {
         "microlensing_objects": calculate_metadata(microlensing_objects),
         "microlensing_objects_ogle_ztf": calculate_metadata(microlensing_objects_ogle_ztf),
