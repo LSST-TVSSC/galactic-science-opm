@@ -36,8 +36,8 @@ def test_authorized_user_can_visit(page: Page):
     )
     EXPECTED_TARGET_INFO = (
         ('Names', "ZTF26aarbgfh"),
-        ('RA', '18:18:18.673'),
-        ('Dec', '00:08:13.669'),
+        ('RA', r'18:18:18.673 \(274.577805°\)'),
+        ('Dec', r'\+02:03:25.04 \(2.056956°\)'),
         ('Class ALeRCE BHRF/LSST stamp', 'Microlensing candidate'),
         ('Probability rescaled', '0.464'),
     )
