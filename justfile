@@ -37,3 +37,6 @@ run-unittest:
 show-html-coverage:
   docker compose exec galactic-science-opm coverage html
   open ./htmlcov/index.html
+
+exec-django:
+  docker compose exec -it galactic-science-opm  /bin/bash
