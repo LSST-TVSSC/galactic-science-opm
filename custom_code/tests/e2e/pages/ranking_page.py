@@ -1,6 +1,7 @@
 from playwright.sync_api import Page
 from playwright.sync_api import expect
 
+
 class RankingPage:
     def __init__(self, page: Page, base_url) -> None:
         self.page = page

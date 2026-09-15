@@ -21,8 +21,10 @@ from custom_code.targets.TargetCreator import TargetCreator
 from custom_code.tests.helpers import assert_instances_match
 from custom_code.variability.VariabilityFlagsClient import VariabilityFlagsClient
 
+
 def logger(style, message):
     pass
+
 
 # These are all mocks for the test
 class MockTargetApiClient(TargetApiClient):
@@ -200,7 +202,7 @@ class TestTargetCreationPipeline(TransactionTestCase):
             variability_checker=mock_variability_flags_api_client,
             photometry_fetcher=mock_photometry_api_client,
             photometry_creator=PhotometryCreator(),
-            logger=logger
+            logger=logger,
         )
 
         # GIVEN an existing prio target
@@ -272,7 +274,7 @@ class TestTargetCreationPipeline(TransactionTestCase):
         target_ZTF20adjbbvq = BaseTarget.objects.get(name="ZTF20adjbbvq")
         target_foo = BaseTarget.objects.get(name="ztffoo")
         target_ZTF26abeziup = BaseTarget.objects.get(name="ZTF26abeziup")
-        
+
         EXPECTED_DATUMS = [
             PhotometryReducedDatum(
                 brightness=20.309108461379605,
@@ -353,7 +355,7 @@ class TestTargetCreationPipeline(TransactionTestCase):
             variability_checker=mock_variability_flags_api_client,
             photometry_fetcher=mock_photometry_api_client,
             photometry_creator=PhotometryCreator(),
-            logger=logger
+            logger=logger,
         )
 
         # GIVEN an existing target
@@ -425,7 +427,7 @@ class TestTargetCreationPipeline(TransactionTestCase):
         target_ZTF26abdwauc = BaseTarget.objects.get(name="ZTF26abdwauc")
         target_ZTF20adjbbvq = BaseTarget.objects.get(name="ZTF20adjbbvq")
         target_ZTF26abeziup = BaseTarget.objects.get(name="ZTF26abeziup")
-        
+
         EXPECTED_DATUMS = [
             PhotometryReducedDatum(
                 brightness=20.309108461379605,
@@ -494,7 +496,7 @@ class TestTargetCreationPipeline(TransactionTestCase):
             variability_checker=mock_variability_flags_api_client,
             photometry_fetcher=mock_photometry_api_client,
             photometry_creator=PhotometryCreator(),
-            logger=logger
+            logger=logger,
         )
 
         # GIVEN an existing target with no photometry, yet
@@ -623,7 +625,7 @@ class TestTargetCreationPipeline(TransactionTestCase):
             variability_checker=mock_variability_flags_api_client,
             photometry_fetcher=mock_photometry_api_client,
             photometry_creator=PhotometryCreator(),
-            logger=logger
+            logger=logger,
         )
 
         # GIVEN an existing non-prio target
@@ -740,9 +742,11 @@ class TestTargetCreationPipeline(TransactionTestCase):
             EXPECTED_DATUMS, all_phot, PHOT_FIELDS, "source_location"
         )
 
-    def test_should_run_complete_alerce_ztf_lightcurve_pipeline_with_event_name_filter(self):
+    def test_should_run_complete_alerce_ztf_lightcurve_pipeline_with_event_name_filter(
+        self,
+    ):
 
-        # GIVEN a target API client that returns a target named 'ZTF20adjbbvq', 
+        # GIVEN a target API client that returns a target named 'ZTF20adjbbvq',
         # i.e. that does not match the filter for ZTF26
         mock_target_api_client = MockTargetApiClient()
 
@@ -759,7 +763,7 @@ class TestTargetCreationPipeline(TransactionTestCase):
             variability_checker=mock_variability_flags_api_client,
             photometry_fetcher=mock_photometry_api_client,
             photometry_creator=PhotometryCreator(),
-            logger=logger
+            logger=logger,
         )
 
         # GIVEN an existing target that does not match the event_name filter
@@ -776,10 +780,10 @@ class TestTargetCreationPipeline(TransactionTestCase):
             start_date=int(Time.now().mjd),
             since_n_days=2,
             fetch_photometry_for_all_targets=False,
-            event_name="ZTF26"
+            event_name="ZTF26",
         )
 
-        # THEN all targets should exist 
+        # THEN all targets should exist
         all_targets = GalacticTarget.objects.all()
         EXPECTED_TARGETS = [prio_target] + [
             GalacticTarget(
@@ -830,7 +834,7 @@ class TestTargetCreationPipeline(TransactionTestCase):
         target_ZTF26abdwauc = BaseTarget.objects.get(name="ZTF26abdwauc")
         target_foo = BaseTarget.objects.get(name="ztffoo")
         target_ZTF26abeziup = BaseTarget.objects.get(name="ZTF26abeziup")
-        
+
         EXPECTED_DATUMS = [
             PhotometryReducedDatum(
                 brightness=20.309108461379605,
@@ -880,4 +884,3 @@ class TestTargetCreationPipeline(TransactionTestCase):
         assert_instances_match(
             EXPECTED_DATUMS, all_phot, PHOT_FIELDS, "source_location"
         )
-

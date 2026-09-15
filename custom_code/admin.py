@@ -1,6 +1,9 @@
-
 from django.contrib import admin
-from .target_models import ClassificationGeneralized, ClassificationSource, MicrolensingModel
+from .target_models import (
+    ClassificationGeneralized,
+    ClassificationSource,
+    MicrolensingModel,
+)
 from .target_models import MicrolensingRadarData
 from .target_models import Classification
 

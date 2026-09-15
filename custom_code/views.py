@@ -1,4 +1,4 @@
-from datetime import timedelta,date
+from datetime import timedelta, date
 import os
 import tempfile
 import zipfile
@@ -25,10 +25,10 @@ from django.utils import timezone
 
 from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
 from tom_targets.views import TargetDetailView, TargetShareView
+
+
 def microlensing_model_view(request):
-    microlensing_models = MicrolensingParameterModel.objects.all()[
-        :30
-    ]
+    microlensing_models = MicrolensingParameterModel.objects.all()[:30]
     try:
         return render(
             request,
@@ -83,7 +83,7 @@ def microlensing_rescaled_prob_view_ztf25(request):
             )
         return processed_list
 
-    current_year= str(date.today().year)
+    current_year = str(date.today().year)
     distinct_ids_queried = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
@@ -105,9 +105,9 @@ def microlensing_rescaled_prob_view_ztf25(request):
     }
 
     try:
-        return render(request, 'custom_code/ztf_2025_and_before.html', context)
+        return render(request, "custom_code/ztf_2025_and_before.html", context)
     except ObjectDoesNotExist:
-        return render(request, 'custom_code/ztf_2025_and_before.html', context)
+        return render(request, "custom_code/ztf_2025_and_before.html", context)
 
 
 def microlensing_rescaled_prob_view(request):
@@ -121,7 +121,6 @@ def microlensing_rescaled_prob_view(request):
         if prd:
             return prd.brightness, prd.bandpass
         return None, None
-
 
     def calculate_metadata(queryset):
         """Prepare age for easier ranking"""
@@ -138,7 +137,8 @@ def microlensing_rescaled_prob_view(request):
                 }
             )
         return processed_list
-    current_year= str(date.today().year)
+
+    current_year = str(date.today().year)
     distinct_ids = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
@@ -155,7 +155,10 @@ def microlensing_rescaled_prob_view(request):
     distinct_ids_queried = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
-        .filter(Q(target__name__icontains=f"ZTF{current_year[2:]}")|Q(target__name__icontains=f"OGLE-{current_year}"))
+        .filter(
+            Q(target__name__icontains=f"ZTF{current_year[2:]}")
+            | Q(target__name__icontains=f"OGLE-{current_year}")
+        )
         .filter(average_master_probability__gt=0.0)
         .filter(target__known_variability__icontains="queried")
     )
@@ -181,8 +184,7 @@ def microlensing_rescaled_prob_view(request):
 
     ogle_targets = GalacticTarget.objects.filter(Q(name__icontains=f"OGLE-{current_year}") | Q(name__icontains=f"KMT-{current_year}"))
     ztf_aliases = TargetName.objects.filter(
-        name__icontains="ZTF",
-        target_id__in=ogle_targets.values_list("id", flat=True)
+        name__icontains="ZTF", target_id__in=ogle_targets.values_list("id", flat=True)
     )
 
     ztf_alias_map = {a.target_id: a.name for a in ztf_aliases}
@@ -220,7 +222,9 @@ def microlensing_rescaled_prob_view(request):
     microlensing_objects_ogle_ztf = microlensing_objects_ogle_ztf[:20]
     context = {
         "microlensing_objects": calculate_metadata(microlensing_objects),
-        "microlensing_objects_ogle_ztf": calculate_metadata(microlensing_objects_ogle_ztf),
+        "microlensing_objects_ogle_ztf": calculate_metadata(
+            microlensing_objects_ogle_ztf
+        ),
         "microlensing_objects_queried": calculate_metadata(
             microlensing_objects_queried
         ),
@@ -230,9 +234,9 @@ def microlensing_rescaled_prob_view(request):
     }
 
     try:
-        return render(request, 'custom_code/prob_list.html', context)
+        return render(request, "custom_code/prob_list.html", context)
     except ObjectDoesNotExist:
-        return render(request, 'custom_code/prob_list.html', context)
+        return render(request, "custom_code/prob_list.html", context)
 
 
 def microlensing_rescaled_prob_view_lsst(request):
@@ -249,7 +253,6 @@ def microlensing_rescaled_prob_view_lsst(request):
                 }
             )
         return processed_list
-
 
     distinct_ids_queried_lsst = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
@@ -270,9 +273,10 @@ def microlensing_rescaled_prob_view_lsst(request):
     }
 
     try:
-        return render(request, 'custom_code/prob_list_lsst.html', context)
+        return render(request, "custom_code/prob_list_lsst.html", context)
     except ObjectDoesNotExist:
-        return render(request, 'custom_code/prob_list_lsst.html', context)
+        return render(request, "custom_code/prob_list_lsst.html", context)
+
 
 class HomeView(TemplateView):
     template_name = "tom_common/index.html"
@@ -280,12 +284,15 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         AMOUNT_OF_FEATURED_TARGETS = 4
-        current_year= str(date.today().year)
+        current_year = str(date.today().year)
         distinct_ids = (
             MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
             .distinct("target_id")
-            .filter(Q(target__name__icontains=f"ZTF{current_year[2:]}") | Q(target__name__icontains="LSST"))
-            .filter(target__known_variability = NOT_IN_ANY_CATALOG)
+            .filter(
+                Q(target__name__icontains=f"ZTF{current_year[2:]}")
+                | Q(target__name__icontains="LSST")
+            )
+            .filter(target__known_variability=NOT_IN_ANY_CATALOG)
             .filter(average_master_probability__gt=0.0)
         )
         prio_ids = (
@@ -312,39 +319,42 @@ class GsoOpmTargetDetailView(TargetDetailView):
         context["latest_parameter_models"] = target.latest_parameter_models()
         return context
 
-class GsoOpmTargetShareForm(TargetShareForm):
 
+class GsoOpmTargetShareForm(TargetShareForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['share_destination'].choices = get_sharing_destination_options(include_download = False)
+        self.fields["share_destination"].choices = get_sharing_destination_options(
+            include_download=False
+        )
+
 
 class GsoOpmTargetShareView(TargetShareView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        target = context['target']
+        target = context["target"]
         initial = {
-            'submitter': self.request.user,
-            'share_title': f'Updated data for {target.name}'
+            "submitter": self.request.user,
+            "share_title": f"Updated data for {target.name}",
         }
 
         form = GsoOpmTargetShareForm(initial=initial)
-        context['form'] = form
+        context["form"] = form
 
         return context
 
 
-# mkistner: This was taken from here: 
+# mkistner: This was taken from here:
 # https://github.com/LCOGT/mop/blob/600eed8c6d420c709a13bb2310e6310e9248a2b7/mop/toolbox/fittools.py
 def repackage_lightcurves(qs):
     """Function to sort through a QuerySet of the ReducedDatums for a given event and repackage the data as a
-     dictionary of individual lightcurves in PyLIMA-compatible format for different facilities.
-     Note that not all of the QuerySet of ReducedDatums may be photometry, so some sorting is required.
-     """
+    dictionary of individual lightcurves in PyLIMA-compatible format for different facilities.
+    Note that not all of the QuerySet of ReducedDatums may be photometry, so some sorting is required.
+    """
 
     datasets = {}
 
     for rd in qs:
-        if rd.source_name != 'Interferometry_predictor':
+        if rd.source_name != "Interferometry_predictor":
             # Identify different lightcurves from the filter label given
             passband = rd.bandpass
             if passband in datasets.keys():
@@ -369,34 +379,51 @@ def repackage_lightcurves(qs):
 
     return datasets, ndata
 
+
 # mkistner: the export part was adapted from here:
 # https://github.com/LCOGT/mop/blob/600eed8c6d420c709a13bb2310e6310e9248a2b7/mop/management/commands/download_event_lc_data.py
 def download_lightcurve_data_for_target(_, pk):
 
-    with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
         tmp_path = tmp.name
 
     qs = GalacticTarget.objects.filter(id=pk)
     target = qs[0]
 
-    red_data = PhotometryReducedDatum.objects.filter(target=target).order_by("timestamp")
+    red_data = PhotometryReducedDatum.objects.filter(target=target).order_by(
+        "timestamp"
+    )
     (datasets, _) = repackage_lightcurves(red_data)
 
     try:
-        with zipfile.ZipFile(tmp_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as zf:
             for data_id, lc in datasets.items():
-                file_path = target.name +'_'+data_id+'.txt'
+                file_path = target.name + "_" + data_id + ".txt"
                 file_contents = ""
-                file_contents += ('# JD   mag   mag_error  dataset_ID\n')
-                for i in range(0,len(lc),1):
-                    file_contents += (str(lc[i,0])+' '+str(lc[i,1])+' '+str(lc[i,2])+' '+data_id+'\n')
+                file_contents += "# JD   mag   mag_error  dataset_ID\n"
+                for i in range(0, len(lc), 1):
+                    file_contents += (
+                        str(lc[i, 0])
+                        + " "
+                        + str(lc[i, 1])
+                        + " "
+                        + str(lc[i, 2])
+                        + " "
+                        + data_id
+                        + "\n"
+                    )
                 zf.writestr(file_path, file_contents)
-                
-        response = FileResponse(open(tmp_path, 'rb'), as_attachment=True, filename=f"lightcurves_export_{target.name}.zip")
-        response['Content-Type'] = 'application/zip'
+
+        response = FileResponse(
+            open(tmp_path, "rb"),
+            as_attachment=True,
+            filename=f"lightcurves_export_{target.name}.zip",
+        )
+        response["Content-Type"] = "application/zip"
         return response
     finally:
         os.unlink(tmp_path)
+
 
 def health(_request):
     """
@@ -407,32 +434,29 @@ def health(_request):
         database_connection.cursor()
     except OperationalError:
         return JsonResponse({"status": "unhealthy"}, status=503)
-    
+
     return JsonResponse({"status": "healthy"}, status=200)
+
 
 def flush_and_seed(_request):
     """
     FOR TESTING ONLY!
-    This endpoint flushes the database and imports test data. 
+    This endpoint flushes the database and imports test data.
     It is only added to urlpatterns if SETTINGS.TESTING is True.
     """
-    _ = management.call_command(
-        "flush",
-        '--noinput'
-    )
-    _ = management.call_command(
-        "migrate",
-        '--noinput'
-    )
-    _ = management.call_command(
-        "seed_e2e_data"
-    )
+    _ = management.call_command("flush", "--noinput")
+    _ = management.call_command("migrate", "--noinput")
+    _ = management.call_command("seed_e2e_data")
     return JsonResponse({"status": "seeding_done"}, status=201)
 
+
 def version(_request):
-    return JsonResponse({
-        "commit": settings.GIT_COMMIT,
-    })
+    return JsonResponse(
+        {
+            "commit": settings.GIT_COMMIT,
+        }
+    )
+
 
 def humanize_bytes(num):
     for unit in ["B", "K", "M", "G", "T"]:
@@ -440,6 +464,7 @@ def humanize_bytes(num):
             return f"{num:.1f}{unit}"
         num /= 1024
     return f"{num:.1f}P"
+
 
 def get_db_size():
     with connection.cursor() as cursor:
@@ -450,6 +475,7 @@ def get_db_size():
         "human": humanize_bytes(size_bytes),
     }
 
+
 @cache_page(60)
 def metrics(_request):
 
@@ -457,18 +483,18 @@ def metrics(_request):
     metrics = {
         "commit": settings.GIT_COMMIT,
         "new_users_last_24h": User.objects.filter(
-                date_joined__gte=now - timedelta(hours=24)
-            ).count(),
+            date_joined__gte=now - timedelta(hours=24)
+        ).count(),
         "pending_users": User.objects.filter(is_active=False).count(),
         "new_targets_last_24h": GalacticTarget.objects.filter(
-                created__gte=now - timedelta(hours=24)
-            ).count(),
+            created__gte=now - timedelta(hours=24)
+        ).count(),
         "new_targets_last_48h": GalacticTarget.objects.filter(
-                created__gte=now - timedelta(hours=48)
-            ).count(),
+            created__gte=now - timedelta(hours=48)
+        ).count(),
         "new_targets_last_72h": GalacticTarget.objects.filter(
-                created__gte=now - timedelta(hours=72)
-            ).count(),
+            created__gte=now - timedelta(hours=72)
+        ).count(),
         "new_targets_last_96h": GalacticTarget.objects.filter(
             created__gte=now - timedelta(hours=96)
         ).count(),

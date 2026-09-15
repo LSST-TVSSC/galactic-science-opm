@@ -1,5 +1,6 @@
 from playwright.sync_api import Page
 
+
 class ObservationsPage:
     def __init__(self, page: Page, base_url) -> None:
         self.page = page
@@ -10,7 +11,6 @@ class ObservationsPage:
 
     def get_map(self):
         return self.page.locator(".plot-container svg.main-svg").first
-
 
     def get_facility_status_table(self):
         """

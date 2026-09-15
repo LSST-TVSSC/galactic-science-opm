@@ -52,7 +52,9 @@ class TargetCreator:
             if len(flags) == 0:
                 target.known_variability = NOT_IN_ANY_CATALOG
             else:
-                target.known_variability = ",".join(variability_info[target.name]["flags"])
+                target.known_variability = ",".join(
+                    variability_info[target.name]["flags"]
+                )
             target.save()
 
     def get_priority_targets(self, amount_of_targets, survey):

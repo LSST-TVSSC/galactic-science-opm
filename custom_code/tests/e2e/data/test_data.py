@@ -53,5 +53,5 @@ REGISTERABLE_USER = {
     "email": "dude@example.com",
     "password": "foo1234%",
     "password_confirm": "foo1234%",
-    "affiliation": "dev"
+    "affiliation": "dev",
 }

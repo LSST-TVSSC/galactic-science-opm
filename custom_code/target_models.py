@@ -6,6 +6,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from tom_targets.base_models import BaseTarget
 from django.apps import apps
 
+
 class GalacticTarget(BaseTarget):
     """
     Galactic Target model designed to allow for microlensing as well as other variability types
@@ -18,9 +19,10 @@ class GalacticTarget(BaseTarget):
     class_antares    obj     Current-most-probable classification from the ANTARES broker
     class_fink    obj     Current-most-probable classification from the Fink broker
     """
+
     class CatalogFlag(models.TextChoices):
-        NOT_IN_GLADE_PLUS = 'not in GLADE+ galaxy catalog'
-        IN_GLADE_PLUS = 'in GLADE+ galaxy catalog'
+        NOT_IN_GLADE_PLUS = "not in GLADE+ galaxy catalog"
+        IN_GLADE_PLUS = "in GLADE+ galaxy catalog"
 
     base_u_mag = models.FloatField(default=0)
     err_u_mag = models.FloatField(default=0)
@@ -34,19 +36,21 @@ class GalacticTarget(BaseTarget):
     err_z_mag = models.FloatField(default=0)
     base_y_mag = models.FloatField(default=0)
     err_y_mag = models.FloatField(default=0)
-    target_type = models.CharField(max_length=50, default='Microlensing candidate')
+    target_type = models.CharField(max_length=50, default="Microlensing candidate")
     expected_visits = models.IntegerField(default=-1)
-    known_variability = models.CharField(max_length=150, default='None')
+    known_variability = models.CharField(max_length=150, default="None")
     known_extragalactic = models.CharField(max_length=150, choices=CatalogFlag.choices)
-    ztf_baseline_checked = models.BooleanField(default=False, help_text="DR ZTF checked?")
+    ztf_baseline_checked = models.BooleanField(
+        default=False, help_text="DR ZTF checked?"
+    )
 
     class Meta:
         verbose_name = "target"
         permissions = (
-            ('view_target', 'View Target'),
-            ('add_target', 'Add Target'),
-            ('change_target', 'Change Target'),
-            ('delete_target', 'Delete Target')
+            ("view_target", "View Target"),
+            ("add_target", "Add Target"),
+            ("change_target", "Change Target"),
+            ("delete_target", "Delete Target"),
         )
 
     def get_target_names(self, qs):
@@ -88,15 +92,13 @@ class GalacticTarget(BaseTarget):
                 and model is not BaseParameterModel
             ):
                 instance = (
-                    model.objects
-                    .filter(target=self)
-                    .order_by("-updated_at")
-                    .first()
+                    model.objects.filter(target=self).order_by("-updated_at").first()
                 )
                 if instance:
                     latest.append(instance)
-        
+
         return latest
+
 
 class Classification(models.Model):
     """
@@ -111,8 +113,13 @@ class Classification(models.Model):
     prob_class3 Probability of class1
     """
 
-    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, 
-                               related_name="classification_parameters")
+    target = models.ForeignKey(
+        GalacticTarget,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="classification_parameters",
+    )
     source = models.CharField(max_length=50)
     class1 = models.CharField(max_length=50)
     prob_class1 = models.FloatField(default=0, null=True)
@@ -125,12 +132,14 @@ class Classification(models.Model):
     prob_master_peak = models.FloatField(default=0, null=True)
     prob_master_current = models.FloatField(default=0, null=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
-        get_latest_by = 'updated_at'
+        get_latest_by = "updated_at"
 
     def __str__(self):
-        s = f'{self.target}, {self.source}, {self.class1}, {self.prob_class1}'
+        s = f"{self.target}, {self.source}, {self.class1}, {self.prob_class1}"
         return s
+
 
 class ClassificationSource(models.Model):
     classifier_name = models.CharField(max_length=100)
@@ -144,7 +153,6 @@ class ClassificationSource(models.Model):
 
 
 class ClassificationGeneralized(models.Model):
-
     target = models.ForeignKey(
         GalacticTarget,
         on_delete=models.CASCADE,
@@ -152,7 +160,9 @@ class ClassificationGeneralized(models.Model):
         blank=True,
         related_name="classifications",
     )
-    source = models.ForeignKey(to=ClassificationSource, related_name="members", on_delete=models.CASCADE)
+    source = models.ForeignKey(
+        to=ClassificationSource, related_name="members", on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=70)
     probability = models.FloatField(default=0, null=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -163,13 +173,19 @@ class ClassificationGeneralized(models.Model):
     def __str__(self):
         s = f"{self.target}, {self.source}, {self.name}, {self.probability}"
         return s
-    
+
+
 class MicrolensingModel(models.Model):
     """Class providing the parameters of a microlensing model fit"""
 
     # Microlensing-specific fields
-    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, 
-                               related_name="microlensing_parameters")
+    target = models.ForeignKey(
+        GalacticTarget,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="microlensing_parameters",
+    )
     t0 = models.FloatField(default=0)
     err_t0 = models.FloatField(default=0)
     u0 = models.FloatField(default=0)
@@ -197,8 +213,8 @@ class MicrolensingModel(models.Model):
     class Meta:
         get_latest_by = "updated_at"
 
-class BaseParameterModel(models.Model):
 
+class BaseParameterModel(models.Model):
     target = models.ForeignKey(
         GalacticTarget,
         on_delete=models.CASCADE,
@@ -209,10 +225,10 @@ class BaseParameterModel(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        get_latest_by = 'updated_at'
+        get_latest_by = "updated_at"
+
 
 class MicrolensingParameterModel(BaseParameterModel):
-
     t0 = models.FloatField(default=0)
     err_t0 = models.FloatField(default=0)
     u0 = models.FloatField(default=0)
@@ -240,7 +256,7 @@ class MicrolensingParameterModel(BaseParameterModel):
 def image_directory_path(instance, filename):
     ext = Path(filename).suffix
     file_obj = instance.image.file
-    pos = file_obj.tell() 
+    pos = file_obj.tell()
     h = hashlib.sha256()
     for chunk in file_obj.chunks():
         h.update(chunk)
@@ -249,17 +265,17 @@ def image_directory_path(instance, filename):
     digest = h.hexdigest()
     return f"{digest[:2]}/{digest[2:4]}/{digest[4:6]}/{digest}{ext}"
 
+
 class StatisticalModelImage(models.Model):
     statistical_model = models.ForeignKey(
-        to=BaseParameterModel,
-        on_delete=models.CASCADE,
-        related_name="images"
+        to=BaseParameterModel, on_delete=models.CASCADE, related_name="images"
     )
     image = models.ImageField(upload_to=image_directory_path)
 
+
 class MicrolensingRadarData(models.Model):
     """
-    Class for radar plot model Data to store the rescaled probabilities, can be averaged and 
+    Class for radar plot model Data to store the rescaled probabilities, can be averaged and
     displayed in a plotly radar plot
 
     metric_alerce float   Rescaled probability from the Alerce broker filter
@@ -270,19 +286,42 @@ class MicrolensingRadarData(models.Model):
     metric_nsquare float Rescaled rank from Gaia Nsquare map
     metric_bogus float Real bogus probability, tbd
     """
-    target = models.ForeignKey(GalacticTarget, on_delete=models.CASCADE,null=True,blank=True, 
-                               related_name="rescaled_classification_radar_parameters")
-    metric_fink = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
-    metric_alerce = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
-    metric_alerce_atat = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
-    metric_antares = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
-    metric_nsquare = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
-    metric_probability_ratio = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
-    metric_planet = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
-    metric_bogus = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],default=0.)
-    average_master_probability = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(1.0)])
+
+    target = models.ForeignKey(
+        GalacticTarget,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="rescaled_classification_radar_parameters",
+    )
+    metric_fink = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    metric_alerce = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    metric_alerce_atat = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    metric_antares = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    metric_nsquare = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    metric_probability_ratio = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    metric_planet = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    metric_bogus = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    average_master_probability = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)]
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        get_latest_by = 'updated_at'
-
+        get_latest_by = "updated_at"

@@ -123,7 +123,10 @@ def serialize_vizier_sed_table(
         wavelength_um = (C_M_S / frequency_hz) * 1e6
         nu_fnu_w_m2 = frequency_hz * sed_flux_jy * 1e-26
 
-        if not all(math.isfinite(x) and x > 0.0 for x in [frequency_hz, wavelength_um, nu_fnu_w_m2]):
+        if not all(
+            math.isfinite(x) and x > 0.0
+            for x in [frequency_hz, wavelength_um, nu_fnu_w_m2]
+        ):
             continue
 
         point = {
@@ -145,7 +148,9 @@ def serialize_vizier_sed_table(
     payload["n_points"] = len(points)
 
     if not points:
-        payload["error"] = "The VizieR SED table contains no positive finite SED points."
+        payload["error"] = (
+            "The VizieR SED table contains no positive finite SED points."
+        )
 
     return payload
 
@@ -156,15 +161,21 @@ def query_vizier_sed_payload(
     radius_arcsec=VIZIER_SED_DEFAULT_RADIUS_ARCSEC,
     timeout=None,
 ):
-    timeout = timeout if timeout is not None else getattr(
-        settings, "VIZIER_SED_TIMEOUT", VIZIER_SED_DEFAULT_TIMEOUT
+    timeout = (
+        timeout
+        if timeout is not None
+        else getattr(settings, "VIZIER_SED_TIMEOUT", VIZIER_SED_DEFAULT_TIMEOUT)
     )
     queried_at = timezone.now()
     target_name = getattr(target, "name", "")
 
     ra = _json_float(getattr(target, "ra", None))
     dec = _json_float(getattr(target, "dec", None))
-    sed_url = get_vizier_sed_url(ra, dec, radius_arcsec) if ra is not None and dec is not None else ""
+    sed_url = (
+        get_vizier_sed_url(ra, dec, radius_arcsec)
+        if ra is not None and dec is not None
+        else ""
+    )
 
     if getattr(target, "type", None) != "SIDEREAL":
         return serialize_vizier_sed_table(

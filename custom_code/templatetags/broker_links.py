@@ -52,7 +52,6 @@ def broker_target_url(broker, target):
         return f"{base}?ra={ra}&dec={dec}"
 
     # Define whetever else might be needed here
-    
+
     # Fallback: just the broker homepage
     return base
-

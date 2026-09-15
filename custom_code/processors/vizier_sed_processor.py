@@ -28,7 +28,9 @@ class VizierSEDProcessor(DataProcessor):
             raise InvalidFileFormatException("VizieR SED data must be a JSON object.")
 
         if "points" not in payload:
-            raise InvalidFileFormatException("VizieR SED JSON is missing the 'points' field.")
+            raise InvalidFileFormatException(
+                "VizieR SED JSON is missing the 'points' field."
+            )
 
         timestamp = get_vizier_sed_payload_timestamp(payload)
         source_id = payload.get("source") or VIZIER_SED_SOURCE_NAME

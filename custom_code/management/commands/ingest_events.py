@@ -5,23 +5,25 @@ import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 
-class Command(BaseCommand):
 
-    help = 'Populate the database with catalogs of known events and handle duplicates'
+class Command(BaseCommand):
+    help = "Populate the database with catalogs of known events and handle duplicates"
 
     def add_arguments(self, parser):
-        parser.add_argument('file_path', help='Path to file of events to ingest')
-        parser.add_argument('source', help='Origin of the event detection, e.g. survey name')
+        parser.add_argument("file_path", help="Path to file of events to ingest")
+        parser.add_argument(
+            "source", help="Origin of the event detection, e.g. survey name"
+        )
 
     def handle(self, *args, **options):
 
         # Load catalog file of events
-        with open(options['file_path'], 'r') as f:
+        with open(options["file_path"], "r") as f:
             file_lines = f.readlines()
 
             # Skip the first line for the file header
             for line in file_lines[1:]:
-                entry = line.replace('\n','').split()
+                entry = line.replace("\n", "").split()
                 event_name = entry[0]
                 ra = entry[1]
                 dec = entry[2]
@@ -35,16 +37,15 @@ class Command(BaseCommand):
                 qs = GalacticTarget.objects.filter(name=event_name)
                 # If not, proceed with duplication check based on position
 
-
                 if len(qs) == 0:
-                    s = SkyCoord(ra, dec, unit=(u.hourangle, u.deg), frame='icrs')
+                    s = SkyCoord(ra, dec, unit=(u.hourangle, u.deg), frame="icrs")
 
                     # If baseline photometry is available, include it
-                    if 'none' not in str(base_i_mag).lower():
+                    if "none" not in str(base_i_mag).lower():
                         base_i_mag = float(base_i_mag)
                     else:
                         base_i_mag = 0.0
-                    if 'none' not in str(err_i_mag).lower():
+                    if "none" not in str(err_i_mag).lower():
                         err_i_mag = float(err_i_mag)
                     else:
                         err_i_mag = 0.0
@@ -55,28 +56,24 @@ class Command(BaseCommand):
                         s.dec.deg,
                         base_i_mag,
                         err_i_mag,
-                        'microlensing'
+                        "microlensing",
                     )
 
                     # If the target is new, ingest other parameters
-                    if result == 'new_target':
-
+                    if result == "new_target":
                         # Create classification as microlensing
                         c = Classification.objects.create(
                             target=target,
-                            source=options['source'],
-                            class1='microlensing'
+                            source=options["source"],
+                            class1="microlensing",
                         )
 
                         # Ingest event model parameters, if available,
-                        if 'none' not in str(t0).lower() \
-                            and 'none' not in str(tE).lower() \
-                            and 'none' not in str(u0).lower():
-                           
+                        if (
+                            "none" not in str(t0).lower()
+                            and "none" not in str(tE).lower()
+                            and "none" not in str(u0).lower()
+                        ):
                             m = MicrolensingModel.objects.create(
-                                target=target,
-                                t0=float(t0),
-                                tE=float(tE),
-                                u0=float(u0)
+                                target=target, t0=float(t0), tE=float(tE), u0=float(u0)
                             )
-

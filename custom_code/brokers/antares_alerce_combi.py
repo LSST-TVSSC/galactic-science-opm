@@ -22,20 +22,21 @@ from antares_client.search import search
 class ANTARESQueryForm(GenericQueryForm):
     target_name = forms.CharField(required=False)
     cone = forms.CharField(
-        required=False,
-        label='Cone Search',
-        help_text='RA,Dec,radius in degrees'
+        required=False, label="Cone Search", help_text="RA,Dec,radius in degrees"
     )
 
     def clean(self):
-        if len(self.cleaned_data['target_name']) == 0 and \
-                        len(self.cleaned_data['cone']) == 0:
+        if (
+            len(self.cleaned_data["target_name"]) == 0
+            and len(self.cleaned_data["cone"]) == 0
+        ):
             raise forms.ValidationError(
                 "Please enter either a target name or cone search parameters"
-                )
+            )
+
 
 class ANTARESBroker(GenericBroker):
-    name = 'ANTARES'
+    name = "ANTARES"
     form = ANTARESQueryForm
 
     def fetch_alerts(self, days=2, all_years=False):
@@ -55,28 +56,26 @@ class ANTARESBroker(GenericBroker):
                         {
                             "range": {
                                 "properties.newest_alert_observation_time": {
-                                "gte": mjd_start,
-                                "lt": mjd_end,
+                                    "gte": mjd_start,
+                                    "lt": mjd_end,
                                 }
                             }
                         },
-                        {
-                            "term": {
-                                "tags": "microlensing_candidate"
-                            }
-                        }
+                        {"term": {"tags": "microlensing_candidate"}},
                     ],
-#                    "must_not": [
-#                {
-#                    "exists": {
-#                        "field": "properties.ztf_object_id"
-#                    }
-#                }
-#                 ]
+                    #                    "must_not": [
+                    #                {
+                    #                    "exists": {
+                    #                        "field": "properties.ztf_object_id"
+                    #                    }
+                    #                }
+                    #                 ]
                 }
             }
         }
-        print(f"Searching for microlensing candidates between MJD {mjd_start} and {mjd_end}...")
+        print(
+            f"Searching for microlensing candidates between MJD {mjd_start} and {mjd_end}..."
+        )
         # compile results, consider to move logic to ingest events, to enable iterating over loci
         locus_results = list(search(query))
         if not locus_results:
@@ -85,54 +84,62 @@ class ANTARESBroker(GenericBroker):
         else:
             print(f"ANTARES: Found {len(locus_results)} microlensing candidates.")
 
-        (list_of_targets, new_targets) = self.ingest_events(locus_results, all_years = all_years)
-
-        return (
-            list_of_targets, 
-            new_targets
+        (list_of_targets, new_targets) = self.ingest_events(
+            locus_results, all_years=all_years
         )
-    
-    def ingest_events(self, locus_list, debug=False, all_years = False):
+
+        return (list_of_targets, new_targets)
+
+    def ingest_events(self, locus_list, debug=False, all_years=False):
         """
-        Function to ingest the targets from a list of ANTARES loci 
+        Function to ingest the targets from a list of ANTARES loci
         into the OPM database. All surveys.
         """
-        print('Antares harvester: ingesting events from locus objects')
-        config = apps.get_app_config('custom_code')
+        print("Antares harvester: ingesting events from locus objects")
+        config = apps.get_app_config("custom_code")
         visit_map = config.nvisits_10yrs_map
         list_of_targets = []
         new_targets = []
-        
+
         if not locus_list:
             return [], []
-         
+
         for locus in locus_list:
-            if locus.properties['survey']['lsst']['dia_object_id'] != []:
-                event_name = f"LSST_{locus.properties['survey']['lsst']['dia_object_id'][0]}"
-            elif locus.properties['survey']['ztf']['id'] != []:
-                event_name = locus.properties['survey']['ztf']['id'][0]
+            if locus.properties["survey"]["lsst"]["dia_object_id"] != []:
+                event_name = (
+                    f"LSST_{locus.properties['survey']['lsst']['dia_object_id'][0]}"
+                )
+            elif locus.properties["survey"]["ztf"]["id"] != []:
+                event_name = locus.properties["survey"]["ztf"]["id"][0]
                 if not "ZTF26" in event_name and all_years == False:
                     print(f"Skipping {event_name}")
                     continue
-            else:    
+            else:
                 event_name = locus.locus_id
-            
-            if 'tns_public_objects' in locus.catalogs:
+
+            if "tns_public_objects" in locus.catalogs:
                 try:
                     catalog_data = locus.catalog_objects
-                    known_aliases = catalog_data['tns_public_objects'][0]['internal_names'].split(", ")
+                    known_aliases = catalog_data["tns_public_objects"][0][
+                        "internal_names"
+                    ].split(", ")
                 except Exception as e:
                     print(f"No known aliases, exception {e}")
             else:
-                known_aliases=[]
+                known_aliases = []
             qs = GalacticTarget.objects.filter(name=event_name)
             if len(qs) == 0:
-                s = SkyCoord(locus.coordinates.ra.deg, locus.coordinates.dec.deg, unit=(unit.deg, unit.deg), frame='icrs')
+                s = SkyCoord(
+                    locus.coordinates.ra.deg,
+                    locus.coordinates.dec.deg,
+                    unit=(unit.deg, unit.deg),
+                    frame="icrs",
+                )
                 target, result = validators.get_or_create_event(
                     event_name,
                     locus.coordinates.ra.deg,
                     locus.coordinates.dec.deg,
-                    debug=debug
+                    debug=debug,
                 )
                 try:
                     for alias_name in known_aliases:
@@ -140,236 +147,357 @@ class ANTARESBroker(GenericBroker):
                             alias_name,
                             locus.coordinates.ra.deg,
                             locus.coordinates.dec.deg,
-                        debug=debug
-                    )
+                            debug=debug,
+                        )
                 except Exception as e:
                     print(f"Creating alias: {e}")
 
-                if result == 'new_target':
-                    print('ANTARES microlensing filter harvester: added event '+event_name+' to OPM')
+                if result == "new_target":
+                    print(
+                        "ANTARES microlensing filter harvester: added event "
+                        + event_name
+                        + " to OPM"
+                    )
                     new_targets.append(target)
-                    filtered_target = GalacticTarget.objects.filter(name__icontains=target)
+                    filtered_target = GalacticTarget.objects.filter(
+                        name__icontains=target
+                    )
                     with transaction.atomic():
-                        filtered_target.update(permissions = GalacticTarget.Permissions.PUBLIC)
+                        filtered_target.update(
+                            permissions=GalacticTarget.Permissions.PUBLIC
+                        )
                     try:
                         result = get_glade_plus_count(s)
                         with transaction.atomic():
-                            pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
-                            filtered_target.update(expected_visits = visit_map[pixel_index])
+                            pixel_index = hp.ang2pix(
+                                128, target.ra, target.dec, lonlat=True, nest=True
+                            )
+                            filtered_target.update(
+                                expected_visits=visit_map[pixel_index]
+                            )
                             if result > 0:
-                                filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.IN_GLADE_PLUS)
+                                filtered_target.update(
+                                    known_extragalactic=GalacticTarget.CatalogFlag.IN_GLADE_PLUS
+                                )
                             elif result == 0:
-                                filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS)
+                                filtered_target.update(
+                                    known_extragalactic=GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS
+                                )
                     except:
-                        print('Expected visits or GLADE+ check failed for ' + target.name)
+                        print(
+                            "Expected visits or GLADE+ check failed for " + target.name
+                        )
 
                     try:
                         if "ZTF" in target.name or "LSST_" in target.name:
-                            result_var_vizier=get_var_star_variability_analysis(target.ra, target.dec)
-                        if result_var_vizier!="" and result_var_vizier!=None:
-                            filtered_target.update(known_variability = result_var_vizier)
+                            result_var_vizier = get_var_star_variability_analysis(
+                                target.ra, target.dec
+                            )
+                        if result_var_vizier != "" and result_var_vizier != None:
+                            filtered_target.update(known_variability=result_var_vizier)
                         else:
-                            filtered_target.update(known_variability = NOT_IN_ANY_CATALOG)
+                            filtered_target.update(known_variability=NOT_IN_ANY_CATALOG)
                     except:
-                        print('Vizier query failed for ' + target.name)
-
+                        print("Vizier query failed for " + target.name)
 
             else:
-                print('ANTARES microlensing filter: found ' + str(qs.count()) + ' targets with name ' + event_name)
+                print(
+                    "ANTARES microlensing filter: found "
+                    + str(qs.count())
+                    + " targets with name "
+                    + event_name
+                )
                 target = qs[0]
-            
-            #direct ingest of locus lightcurve
-            lsst_df = locus.lightcurve[locus.lightcurve['ant_survey'] == 4]  
+
+            # direct ingest of locus lightcurve
+            lsst_df = locus.lightcurve[locus.lightcurve["ant_survey"] == 4]
             for i, row in lsst_df.iterrows():
-                jd = Time(row["ant_mjd"], format='mjd', scale='utc')
-                jd.to_datetime(timezone=TimezoneInfo())             
+                jd = Time(row["ant_mjd"], format="mjd", scale="utc")
+                jd.to_datetime(timezone=TimezoneInfo())
                 if "ant_mag" in lsst_df.columns:
-                    if not pd.isna(row["ant_mag"]) and row["ant_mag"]<100.:
-                        datum = {"magnitude": row["ant_mag"],
-                                "filter": f"lsst_{row['ant_passband']}",
-                                "error": row["ant_magerr"]
-                                }          
+                    if not pd.isna(row["ant_mag"]) and row["ant_mag"] < 100.0:
+                        datum = {
+                            "magnitude": row["ant_mag"],
+                            "filter": f"lsst_{row['ant_passband']}",
+                            "error": row["ant_magerr"],
+                        }
                         try:
                             with transaction.atomic():
-                                rd, created = PhotometryReducedDatum.objects.update_or_create(
-                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                    value=datum,
-                                    brightness = datum["magnitude"],
-                                    brightness_error = datum["error"],
-                                    bandpass = datum["filter"],
-                                    source_name='ANTARES',
-                                    source_location=event_name,
-                                    target=target)
+                                rd, created = (
+                                    PhotometryReducedDatum.objects.update_or_create(
+                                        timestamp=jd.to_datetime(
+                                            timezone=TimezoneInfo()
+                                        ),
+                                        value=datum,
+                                        brightness=datum["magnitude"],
+                                        brightness_error=datum["error"],
+                                        bandpass=datum["filter"],
+                                        source_name="ANTARES",
+                                        source_location=event_name,
+                                        target=target,
+                                    )
+                                )
                         except IntegrityError as e:
                             if "unique_photometry" in str(e):
                                 pass
                             else:
-                                print('ANTARES Microlensing filter HARVESTER: Encountered exception during photometry ingest for target')
+                                print(
+                                    "ANTARES Microlensing filter HARVESTER: Encountered exception during photometry ingest for target"
+                                )
                                 print(e)
                         except MultipleObjectsReturned:
-                            print('ANTARES Microlensing filter HARVESTER: Found duplicated data for event '+target.name)
+                            print(
+                                "ANTARES Microlensing filter HARVESTER: Found duplicated data for event "
+                                + target.name
+                            )
                         except Exception as e:
-                            print('ANTARES HARVERSTER: Exception occured while ingesting photometry')
+                            print(
+                                "ANTARES HARVERSTER: Exception occured while ingesting photometry"
+                            )
                             print(e.__class__.__name__)
                             print(e)
             list_of_targets.append(target)
 
-        print('ANTARES microlensing filter: completed ingest of events, including ' + str(len(new_targets)) + ' new targets')
+        print(
+            "ANTARES microlensing filter: completed ingest of events, including "
+            + str(len(new_targets))
+            + " new targets"
+        )
 
         return list_of_targets, new_targets
 
     def find_and_ingest_photometry(self, targets):
-        print('ANTARES microlensing filter: ingesting photometry')
-        targets_ztf = [x for x in targets if 'ZTF' in "".join(x.names)]
+        print("ANTARES microlensing filter: ingesting photometry")
+        targets_ztf = [x for x in targets if "ZTF" in "".join(x.names)]
         for target in targets_ztf:
-            print('ANTARES microlensing filter with ZTF ALERCE harvester: ingesting photometry for event ' + target.name)
+            print(
+                "ANTARES microlensing filter with ZTF ALERCE harvester: ingesting photometry for event "
+                + target.name
+            )
             try:
-                detections_photometry, forced_photometry, forced_photometry_lsst = self.read_ALERCE_lightcurve(target,survey = "ztf")
-                status = self.ingest_ALERCE_photometry(target, detections_photometry, forced_photometry, forced_photometry_lsst)
-                print('ANTARES microlensing filter harvester: completed read and ingested photometry for event ' + target.name)
+                detections_photometry, forced_photometry, forced_photometry_lsst = (
+                    self.read_ALERCE_lightcurve(target, survey="ztf")
+                )
+                status = self.ingest_ALERCE_photometry(
+                    target,
+                    detections_photometry,
+                    forced_photometry,
+                    forced_photometry_lsst,
+                )
+                print(
+                    "ANTARES microlensing filter harvester: completed read and ingested photometry for event "
+                    + target.name
+                )
             except Exception as e:
-                print('ANTARES microlensing filter harvester: WARNING reading photometry failed for '
-                                    + target.name + ', skipping ingest ',e)
-        targets_lsst = [x for x in targets if 'LSST' in "".join(x.names)]
+                print(
+                    "ANTARES microlensing filter harvester: WARNING reading photometry failed for "
+                    + target.name
+                    + ", skipping ingest ",
+                    e,
+                )
+        targets_lsst = [x for x in targets if "LSST" in "".join(x.names)]
         for target in targets_lsst:
-            print('ANTARES microlensing filter with LSST ALERCE harvester: ingesting photometry for event ' + target.name)
+            print(
+                "ANTARES microlensing filter with LSST ALERCE harvester: ingesting photometry for event "
+                + target.name
+            )
             try:
-                detections_photometry, forced_photometry, forced_photometry_lsst = self.read_ALERCE_lightcurve(target,survey = "lsst")
-                status = self.ingest_ALERCE_photometry(target, detections_photometry, forced_photometry, forced_photometry_lsst)
-                print(f'ANTARES microlensing filter harvester: completed read and ingested photometry for event {target.name} {status}')
+                detections_photometry, forced_photometry, forced_photometry_lsst = (
+                    self.read_ALERCE_lightcurve(target, survey="lsst")
+                )
+                status = self.ingest_ALERCE_photometry(
+                    target,
+                    detections_photometry,
+                    forced_photometry,
+                    forced_photometry_lsst,
+                )
+                print(
+                    f"ANTARES microlensing filter harvester: completed read and ingested photometry for event {target.name} {status}"
+                )
             except Exception as e:
-                print('ANTARES microlensing filter harvester: WARNING reading photometry failed for '
-                                    + target.name + ', skipping ingest ',e)
+                print(
+                    "ANTARES microlensing filter harvester: WARNING reading photometry failed for "
+                    + target.name
+                    + ", skipping ingest ",
+                    e,
+                )
 
-        print('ANTARES microlensing filter harvester: Completed ingest of photometry')
+        print("ANTARES microlensing filter harvester: Completed ingest of photometry")
 
-    def read_ALERCE_lightcurve(self, target, survey = 'ztf'):
+    def read_ALERCE_lightcurve(self, target, survey="ztf"):
         """Method to read the ALERCE lightcurve via alerce api client"""
         from alerce.core import Alerce
+
         alerce = Alerce()
         detections_photometry = pd.DataFrame()
         forced_photometry = pd.DataFrame()
-        if survey ==  'ztf':
+        if survey == "ztf":
             try:
                 target_name_ztf = [x for x in target.names if "ZTF" in x][0]
                 ALERCE_name = target_name_ztf
-                detections_photometry = alerce.query_detections(ALERCE_name,
-                                            format="pandas", survey = survey)
-                #remove multiple detections
-                detections_photometry = detections_photometry.drop_duplicates(subset="mjd")
-                forced_photometry = alerce.query_forced_photometry(ALERCE_name,
-                                            format="pandas", survey = survey)
+                detections_photometry = alerce.query_detections(
+                    ALERCE_name, format="pandas", survey=survey
+                )
+                # remove multiple detections
+                detections_photometry = detections_photometry.drop_duplicates(
+                    subset="mjd"
+                )
+                forced_photometry = alerce.query_forced_photometry(
+                    ALERCE_name, format="pandas", survey=survey
+                )
             except:
                 print(f"No ZTF photometry, {e}")
 
         forced_photometry_lsst = pd.DataFrame()
         if survey == "lsst":
-            try:                
+            try:
                 target_name_lsst = [x for x in target.names if "LSST" in x][0]
                 ALERCE_name = target_name_lsst[5:]
-                #detections should have been ingested via ANTARES
-                forced_photometry_lsst = alerce.query_forced_photometry(ALERCE_name,
-                                                                        format="pandas", survey = "lsst")
+                # detections should have been ingested via ANTARES
+                forced_photometry_lsst = alerce.query_forced_photometry(
+                    ALERCE_name, format="pandas", survey="lsst"
+                )
             except Exception as e:
                 print(f"No LSST forced photometry, {e}")
 
         return detections_photometry, forced_photometry, forced_photometry_lsst
 
-    def ingest_ALERCE_photometry(self, target, detections_photometry, forced_photometry, forced_photometry_lsst, survey = 'ztf', debug=False):
+    def ingest_ALERCE_photometry(
+        self,
+        target,
+        detections_photometry,
+        forced_photometry,
+        forced_photometry_lsst,
+        survey="ztf",
+        debug=False,
+    ):
         """Method to store the photometry datapoints in the OPM TOM as ReducedDatums"""
-        filter_definition = {1:"ZTF_g", 2:"ZTF_r", 3:"ZTF_i"}
+        filter_definition = {1: "ZTF_g", 2: "ZTF_r", 3: "ZTF_i"}
         for i, row in detections_photometry.iterrows():
-            jd = Time(row["mjd"], format='mjd', scale='utc')
+            jd = Time(row["mjd"], format="mjd", scale="utc")
             jd.to_datetime(timezone=TimezoneInfo())
-            if "magpsf_corr" in detections_photometry.columns :
-                if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"]<100.:
-                    datum = {'magnitude': row["magpsf_corr"],
-                            'filter': filter_definition[row["fid"]],
-                            'error': row["sigmapsf_corr_ext"]
-                            }          
+            if "magpsf_corr" in detections_photometry.columns:
+                if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"] < 100.0:
+                    datum = {
+                        "magnitude": row["magpsf_corr"],
+                        "filter": filter_definition[row["fid"]],
+                        "error": row["sigmapsf_corr_ext"],
+                    }
                     try:
                         with transaction.atomic():
-                            rd, created = PhotometryReducedDatum.objects.update_or_create(
-                                timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                brightness = datum["magnitude"],
-                                brightness_error = datum["error"],
-                                bandpass = datum["filter"],
-                                source_name='ALERCE',
-                                source_location=target.name,
-                                target=target)
+                            rd, created = (
+                                PhotometryReducedDatum.objects.update_or_create(
+                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                    brightness=datum["magnitude"],
+                                    brightness_error=datum["error"],
+                                    bandpass=datum["filter"],
+                                    source_name="ALERCE",
+                                    source_location=target.name,
+                                    target=target,
+                                )
+                            )
 
                     except IntegrityError as e:
                         if "unique_photometry" in str(e):
                             pass
                         else:
-                            print('ANTARES HARVESTER: Encountered exception during photometry ingest for target')
+                            print(
+                                "ANTARES HARVESTER: Encountered exception during photometry ingest for target"
+                            )
                             print(e)
                     except MultipleObjectsReturned:
-                        print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                        print(
+                            "ALERCE HARVESTER: Found duplicated data for event "
+                            + target.name
+                        )
                     except Exception as e:
-                        print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                        print(
+                            "ALERCE HARVERSTER: Exception occured while ingesting photometry"
+                        )
                         print(e.__class__.__name__)
                         print(e)
-        if "mag_corr" in forced_photometry.columns and "mjd" in forced_photometry.columns:
+        if (
+            "mag_corr" in forced_photometry.columns
+            and "mjd" in forced_photometry.columns
+        ):
             for i, row in forced_photometry.iterrows():
-                jd = Time(row["mjd"], format='mjd', scale='utc')
+                jd = Time(row["mjd"], format="mjd", scale="utc")
                 jd.to_datetime(timezone=TimezoneInfo())
-                if not pd.isna(row["mag_corr"]) and row["mag_corr"]<100.:
-                    datum = {'magnitude': row["mag_corr"],
-                            'filter': filter_definition[row["fid"]],
-                            'error': row["e_mag_corr_ext"]
-                            }
+                if not pd.isna(row["mag_corr"]) and row["mag_corr"] < 100.0:
+                    datum = {
+                        "magnitude": row["mag_corr"],
+                        "filter": filter_definition[row["fid"]],
+                        "error": row["e_mag_corr_ext"],
+                    }
                     try:
                         with transaction.atomic():
-                            rd, created = PhotometryReducedDatum.objects.update_or_create(
-                                timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                brightness = datum["magnitude"],
-                                brightness_error = datum["error"],
-                                bandpass = datum["filter"],
-                                source_name='ALERCE',
-                                source_location=target.name,
-                                target=target)
+                            rd, created = (
+                                PhotometryReducedDatum.objects.update_or_create(
+                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                    brightness=datum["magnitude"],
+                                    brightness_error=datum["error"],
+                                    bandpass=datum["filter"],
+                                    source_name="ALERCE",
+                                    source_location=target.name,
+                                    target=target,
+                                )
+                            )
 
                     except IntegrityError as e:
                         if "unique_photometry" in str(e):
                             pass
                         else:
-                            print('ANTARES HARVESTER: Encountered exception during photometry ingest for target')
+                            print(
+                                "ANTARES HARVESTER: Encountered exception during photometry ingest for target"
+                            )
                             print(e)
 
                     except MultipleObjectsReturned:
-                        print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                        print(
+                            "ALERCE HARVESTER: Found duplicated data for event "
+                            + target.name
+                        )
                     except Exception as e:
-                        print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                        print(
+                            "ALERCE HARVERSTER: Exception occured while ingesting photometry"
+                        )
                         print(e.__class__.__name__)
                         print(e)
-        #ingest forced photometry with separate filtername
-        if "scienceFlux" in forced_photometry_lsst.columns and "mjd" in forced_photometry_lsst.columns:
+        # ingest forced photometry with separate filtername
+        if (
+            "scienceFlux" in forced_photometry_lsst.columns
+            and "mjd" in forced_photometry_lsst.columns
+        ):
             for i, row in forced_photometry_lsst.iterrows():
-                jd = Time(row["mjd"], format='mjd', scale='utc')
+                jd = Time(row["mjd"], format="mjd", scale="utc")
                 jd.to_datetime(timezone=TimezoneInfo())
-                #does not match what we see on ALeRCE
-                if not pd.isna(-2.5*log10(row["scienceFlux"])+31.4):
-                    datum = {'magnitude': -2.5*log10(row["scienceFlux"])+31.4,
-                            'filter': f"lsst_forced_{row['band_name']}",
-                            'error': 2.5 / log(10) * (row["scienceFluxErr"] / row["scienceFlux"])
-                            }
+                # does not match what we see on ALeRCE
+                if not pd.isna(-2.5 * log10(row["scienceFlux"]) + 31.4):
+                    datum = {
+                        "magnitude": -2.5 * log10(row["scienceFlux"]) + 31.4,
+                        "filter": f"lsst_forced_{row['band_name']}",
+                        "error": 2.5
+                        / log(10)
+                        * (row["scienceFluxErr"] / row["scienceFlux"]),
+                    }
                     try:
                         with transaction.atomic():
                             rd, created = ReducedDatum.objects.update_or_create(
                                 timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                                 value=datum,
-                                source_name='ALERCE',
+                                source_name="ALERCE",
                                 source_location=target.name,
-                                data_type='photometry',
-                                target=target)
+                                data_type="photometry",
+                                target=target,
+                            )
 
                     except MultipleObjectsReturned:
-                        print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
- 
-        return 'OK'
+                        print(
+                            "ALERCE HARVESTER: Found duplicated data for event "
+                            + target.name
+                        )
 
+        return "OK"
 
     def to_generic_alert(self, alert):
         pass
-  

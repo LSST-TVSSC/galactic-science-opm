@@ -89,6 +89,5 @@ class CustomCodeConfig(AppConfig):
                 "partial": "custom_code/tabs/observe.html",
                 "context": "custom_code.tabs.context.dummy",
                 "label": "Exchange",
-            }
-
+            },
         ]

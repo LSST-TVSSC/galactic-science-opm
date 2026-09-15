@@ -16,28 +16,33 @@ VIZIER_SED_VIEWER_URL = "https://vizier.cds.unistra.fr/vizier/sed/"
 
 NOT_IN_ANY_CATALOG = "None, queried"
 
+
 def get_glade_plus_count(coords):
     """
     Queries GLADE+ galaxy catalog VII/281 for given skzycoord
-    Returns the number of rows in the result table, 
+    Returns the number of rows in the result table,
     or -1.
     """
-    radius = Angle(1.5 / 60. / 60., "deg")
+    radius = Angle(1.5 / 60.0 / 60.0, "deg")
     try:
         vizier = Vizier()
-        result = vizier.query_region(coords, radius=radius, catalog='VII/281', cache=False)
+        result = vizier.query_region(
+            coords, radius=radius, catalog="VII/281", cache=False
+        )
         if not result or len(result) == 0:
-            return 0            
+            return 0
         return len(result[0])
     except:
         return -1
 
+
 def get_glade_plus_count_with_ra_dec(ra, dec):
-    
+
     sky_coords = SkyCoord(ra, dec, unit=(unit.deg, unit.deg), frame="icrs")
     return get_glade_plus_count(sky_coords)
 
-def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
+
+def get_var_star_variability_analysis(ra, dec, radius_arcsec=3):
     """
     Queries the Vizier catalog for variable stars within a given regions
     as detailed as possible
@@ -49,18 +54,18 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
     Returns:
         str: Summary of found variability classifications.
     """
-    
+
     try:
         VIZIER = Vizier(ucd="src.var", columns=["*"])
-        VIZIER.ROW_LIMIT = -1 
+        VIZIER.ROW_LIMIT = -1
     except Exception as e:
         print(f"Error initializing Vizier: {e}")
         VIZIER = None
-        
+
     if VIZIER is None:
         return "Error Vizier query: No Vizier connection."
 
-    coords = SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg), frame='icrs')
+    coords = SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg), frame="icrs")
     radius = radius_arcsec * u.arcsec
 
     try:
@@ -71,12 +76,12 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
     if not results:
         return NOT_IN_ANY_CATALOG
 
-    result_string=""
+    result_string = ""
     for catalog_name in results.keys():
         table = results[catalog_name]
         var_col = None
         for col in table.colnames:
-             if col.lower() in [
+            if col.lower() in [
                 "vartype",
                 "type",
                 "class",
@@ -158,12 +163,17 @@ def query_vizier_sed(ra_deg, dec_deg, radius_arcsec=2.0, timeout=5.0):
     missing_columns = required_columns.difference(sed_table.colnames)
     if missing_columns:
         missing = ", ".join(sorted(missing_columns))
-        return None, f"The VizieR SED response is missing required column(s): {missing}."
+        return (
+            None,
+            f"The VizieR SED response is missing required column(s): {missing}.",
+        )
 
     return sed_table, None
 
 
-def query_ztf_lightcurve(ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r"):
+def query_ztf_lightcurve(
+    ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r"
+):
     """
     This function generates a pandas df formatted ZTF lightcurve using requests
     based on RA and Dec in degrees and a search radius in arcseconds.

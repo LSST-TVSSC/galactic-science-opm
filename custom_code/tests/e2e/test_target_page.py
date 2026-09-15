@@ -3,10 +3,15 @@ import filecmp
 import re
 import zipfile
 from playwright.sync_api import Page, expect
-from custom_code.tests.e2e.data.test_data import BASE_URL, TOP_TARGETS, VALID_USER_CREDENTIALS
+from custom_code.tests.e2e.data.test_data import (
+    BASE_URL,
+    TOP_TARGETS,
+    VALID_USER_CREDENTIALS,
+)
 from custom_code.tests.e2e.pages.target_page import TargetPage
 
 TEST_TARGET = TOP_TARGETS[0]
+
 
 def test_unauthorized_user_can_not_visit(page: Page):
     target_page = TargetPage(page, BASE_URL, TEST_TARGET["pk"])
@@ -16,30 +21,40 @@ def test_unauthorized_user_can_not_visit(page: Page):
         "Please login as a user with the correct permissions or contact your PI."
     )
     expect(page).to_have_title(re.compile(r".*Login"))
-    
+
     hint = page.get_by_text(hint_text)
     expect(hint).to_be_visible()
     expect(hint).to_have_attribute("class", re.compile(r".*alert"))
+
 
 def test_authorized_user_can_visit(page: Page):
 
     PORTALS_VARIANT_1 = (
         ("ALeRCE", "https://alerce.online/object/{name}"),
         ("fink", "https://ztf.fink-portal.org/{name}"),
-        ("Vizier Gaia DR3", "https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={ra},{dec}&-c.rs=1"),
-        ("SED Vizier", "https://vizier.cds.unistra.fr/vizier/sed/?-c={ra},{dec}&-c.rs=2")
+        (
+            "Vizier Gaia DR3",
+            "https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={ra},{dec}&-c.rs=1",
+        ),
+        (
+            "SED Vizier",
+            "https://vizier.cds.unistra.fr/vizier/sed/?-c={ra},{dec}&-c.rs=2",
+        ),
     )
     PORTALS_VARIANT_2 = (
         ("ALeRCE", "https://alerce.online/object/{name}"),
         ("fink", "https://ztf.fink-portal.org/{name}"),
-        ("Vizier Gaia DR3", "https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={ra},{dec}&-c.rs=2"),
+        (
+            "Vizier Gaia DR3",
+            "https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={ra},{dec}&-c.rs=2",
+        ),
     )
     EXPECTED_TARGET_INFO = (
-        ('Names', "ZTF26aarbgfh"),
-        ('RA', r'18:18:18.673 \(274.577805°\)'),
-        ('Dec', r'\+02:03:25.04 \(2.056956°\)'),
-        ('Class ALeRCE BHRF/LSST stamp', 'Microlensing candidate'),
-        ('Probability rescaled', '0.464'),
+        ("Names", "ZTF26aarbgfh"),
+        ("RA", r"18:18:18.673 \(274.577805°\)"),
+        ("Dec", r"\+02:03:25.04 \(2.056956°\)"),
+        ("Class ALeRCE BHRF/LSST stamp", "Microlensing candidate"),
+        ("Probability rescaled", "0.464"),
     )
     EXPECTED_PARAMETERS = (
         (r"t0\s\[JD\]", 11053.599),
@@ -69,7 +84,7 @@ def test_authorized_user_can_visit(page: Page):
         ("q", r"0.000∓\s+"),
         ("α", r"0.000∓\s+0.000"),
     )
-    EXPECTED_MAGNITUDE_VALUES= (
+    EXPECTED_MAGNITUDE_VALUES = (
         (r"Source magnitude", r"∓"),
         ("Blend magnitude", r"∓"),
         (r"Baseline magnitude", r"∓"),
@@ -84,15 +99,15 @@ def test_authorized_user_can_visit(page: Page):
 
     target_info_container = page.get_by_test_id("target-info")
     for key, value in EXPECTED_TARGET_INFO:
-        expect(target_info_container).to_contain_text(re.compile(fr".*{key}\s+{value}"))
+        expect(target_info_container).to_contain_text(re.compile(rf".*{key}\s+{value}"))
 
     parameter_table = page.get_by_test_id("parameter-table")
     for i, info in enumerate(EXPECTED_PARAMETERS):
         key, value = info
         column_header = parameter_table.locator("thead th").nth(i)
         column_value = parameter_table.locator("tbody td").nth(i)
-        expect(column_header).to_contain_text(re.compile(fr"{key}"))
-        expect(column_value).to_contain_text(re.compile(fr"{value}"))
+        expect(column_header).to_contain_text(re.compile(rf"{key}"))
+        expect(column_value).to_contain_text(re.compile(rf"{value}"))
 
     # go through tabs
     ## Imaging
@@ -100,7 +115,7 @@ def test_authorized_user_can_visit(page: Page):
     imaging_tab = page.get_by_test_id("imaging-tab")
     expect(imaging_tab).to_be_visible()
     expect(imaging_tab).to_contain_text("Survey View")
-    # mkistner: i am not sure about this test. It is very closely tied to 
+    # mkistner: i am not sure about this test. It is very closely tied to
     # an external package
     aladin_container = imaging_tab.get_by_test_id("aladin-container")
     expect(aladin_container).not_to_be_empty()
@@ -114,12 +129,14 @@ def test_authorized_user_can_visit(page: Page):
     light_curve_chart_container = photometry_tab.locator("#photometry_chart")
     expect(light_curve_chart_container).to_be_visible()
     expect(light_curve_chart_container).not_to_be_empty()
-    
+
     for name, href in PORTALS_VARIANT_1:
         target_name = TEST_TARGET["name"]
         ra, dec = TEST_TARGET["coordinates"]
         link = photometry_tab.get_by_role("button", name=name)
-        expect(link).to_have_attribute("href", href.format(name=target_name, ra=ra, dec=dec))
+        expect(link).to_have_attribute(
+            "href", href.format(name=target_name, ra=ra, dec=dec)
+        )
 
     ## Spectroscopy (seems a bit WIP right now)
     page.get_by_role("tab", name="Spectroscopy").click()
@@ -130,7 +147,9 @@ def test_authorized_user_can_visit(page: Page):
         target_name = TEST_TARGET["name"]
         ra, dec = TEST_TARGET["coordinates"]
         link = spectroscopy_tab.get_by_role("button", name=name)
-        expect(link).to_have_attribute("href", href.format(name=target_name, ra=ra, dec=dec))
+        expect(link).to_have_attribute(
+            "href", href.format(name=target_name, ra=ra, dec=dec)
+        )
 
     ## Classifications
     page.get_by_role("tab", name="Classifications").click()
@@ -144,19 +163,21 @@ def test_authorized_user_can_visit(page: Page):
 
     ### table
     classifications_table = classifications_tab.get_by_test_id("classification-table")
-    
+
     for i, info in enumerate(EXPECTED_CLASSIFICATION_VALUES):
         key, value = info
         column_header = classifications_table.locator("thead th").nth(i)
         column_value = classifications_table.locator("tbody td").nth(i)
-        expect(column_header).to_contain_text(re.compile(fr"{key}"))
-        expect(column_value).to_contain_text(re.compile(fr"{value}"))
+        expect(column_header).to_contain_text(re.compile(rf"{key}"))
+        expect(column_value).to_contain_text(re.compile(rf"{value}"))
 
     for name, href in PORTALS_VARIANT_1:
         target_name = TEST_TARGET["name"]
         ra, dec = TEST_TARGET["coordinates"]
         link = classifications_tab.get_by_role("button", name=name)
-        expect(link).to_have_attribute("href", href.format(name=target_name, ra=ra, dec=dec))
+        expect(link).to_have_attribute(
+            "href", href.format(name=target_name, ra=ra, dec=dec)
+        )
 
     ## Analysis
     page.get_by_role("tab", name="Analysis").click()
@@ -169,20 +190,20 @@ def test_authorized_user_can_visit(page: Page):
         key, value = info
         column_header = analysis_table.locator("thead th").nth(i)
         column_value = analysis_table.locator("tbody td").nth(i)
-        expect(column_header).to_contain_text(re.compile(fr"{key}"))
-        expect(column_value).to_contain_text(re.compile(fr"{value}"))
-    
+        expect(column_header).to_contain_text(re.compile(rf"{key}"))
+        expect(column_value).to_contain_text(re.compile(rf"{value}"))
+
     ### table for magnitude
     analysis_table_magnitude = analysis_tab.get_by_test_id("analysis-table_magnitude")
     for i, info in enumerate(EXPECTED_MAGNITUDE_VALUES):
         key, value = info
         column_header = analysis_table_magnitude.locator("thead th").nth(i)
         column_value = analysis_table_magnitude.locator("tbody td").nth(i)
-        expect(column_header).to_contain_text(re.compile(fr"{key}"))
+        expect(column_header).to_contain_text(re.compile(rf"{key}"))
         if value == "":
             expect(column_value).to_be_empty()
         else:
-            expect(column_value).to_contain_text(re.compile(fr"{value}"))
+            expect(column_value).to_contain_text(re.compile(rf"{value}"))
 
     ## Exchange
     page.get_by_role("tab", name="Exchange").click()
@@ -192,7 +213,7 @@ def test_authorized_user_can_visit(page: Page):
 
 def test_authorized_user_can_download_lightcurve_data(page: Page):
 
-    EXPTECTED_CONTENTS = ['ZTF26aarbgfh_ZTF_r.txt', 'ZTF26aarbgfh_ZTF_g.txt'] 
+    EXPTECTED_CONTENTS = ["ZTF26aarbgfh_ZTF_r.txt", "ZTF26aarbgfh_ZTF_g.txt"]
     target_page = TargetPage(page, BASE_URL, TEST_TARGET["pk"])
     target_page.open_it()
     target_page.login(*VALID_USER_CREDENTIALS)
@@ -201,15 +222,11 @@ def test_authorized_user_can_download_lightcurve_data(page: Page):
     page.get_by_role("tab", name="Exchange").click()
 
     path_actual_zip = target_page.export_data()
-    assert path_actual_zip == "/code/custom_code/tests/e2e/pages/lightcurves_export_ZTF26aarbgfh.zip"
+    assert (
+        path_actual_zip
+        == "/code/custom_code/tests/e2e/pages/lightcurves_export_ZTF26aarbgfh.zip"
+    )
 
     with zipfile.ZipFile(path_actual_zip) as generated_zip:
         names = generated_zip.namelist()
         assert set(names) == set(EXPTECTED_CONTENTS)
-
-
-
-
-
-
-

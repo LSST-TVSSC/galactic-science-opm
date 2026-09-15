@@ -155,9 +155,7 @@ def test_recent_and_priority_targets_does_not_filter_after_slice():
         ra=123.4,
         dec=-12.3,
         known_variability="queried",
-        known_extragalactic=(
-            GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS
-        ),
+        known_extragalactic=(GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS),
     )
 
     # Keep the target outside the recent-target window so it must be
@@ -180,6 +178,4 @@ def test_recent_and_priority_targets_does_not_filter_after_slice():
         priority_limit=1,
     )
 
-    assert target.id in {
-        selected_target.id for selected_target in selected_targets
-    }
+    assert target.id in {selected_target.id for selected_target in selected_targets}

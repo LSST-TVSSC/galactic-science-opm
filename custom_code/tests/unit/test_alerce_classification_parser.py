@@ -657,7 +657,6 @@ probs = [
 
 
 class AlerceClassificationParserTests(TestCase):
-
     def test_create_and_assign_classifications(self):
 
         # Given a target and probabilities from Alerce
@@ -676,7 +675,9 @@ class AlerceClassificationParserTests(TestCase):
         self.assertEqual(first=len(classifications_updated), second=0)
 
         # When we change the probabilities and try to attach again
-        new_probs = [{**prob, **{"probability": random.uniform(0,1)}} for prob in probs]
+        new_probs = [
+            {**prob, **{"probability": random.uniform(0, 1)}} for prob in probs
+        ]
         sources_new, classifications_new, classifications_updated = (
             create_and_attach_classifications_to_target(
                 probabilities=new_probs, target=target

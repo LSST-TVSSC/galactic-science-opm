@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 class ExpectedVisitsApiClient(ABC):
     @abstractmethod
     def get_expected_visits_for_targets(self, targets):
-        """ 
-        Needs implementation. 
+        """
+        Needs implementation.
         Returns dict the following structure:
          {
             "ZTF26abdwauc": {
@@ -26,4 +26,3 @@ class ExpectedVisitsApiClient(ABC):
         }
 
         """
-

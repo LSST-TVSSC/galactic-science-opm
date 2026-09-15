@@ -27,8 +27,10 @@ class PhotometryCreator:
                     pass
 
             except Exception as e:
-                message = ('ALERCE HARVERSTER: Exception occured while ingesting photometry')
-                message += (e.__class__.__name__)
+                message = (
+                    "ALERCE HARVERSTER: Exception occured while ingesting photometry"
+                )
+                message += e.__class__.__name__
                 message += str(e)
                 error = {"message": message, "target": target.name}
                 errors.append(error)

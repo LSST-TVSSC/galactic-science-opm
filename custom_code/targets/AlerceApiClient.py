@@ -1,4 +1,3 @@
-
 from alerce.core import Alerce
 from astropy.time import Time
 from custom_code.tests.helpers import make_pickle_from_data
@@ -66,4 +65,3 @@ class AlerceApiClient(TargetApiClient):
             )
 
         return converted_results
-

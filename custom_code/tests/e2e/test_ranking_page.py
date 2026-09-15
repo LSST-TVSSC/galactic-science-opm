@@ -7,30 +7,34 @@ from custom_code.tests.e2e.pages.ranking_page import RankingPage
 
 NUMBER_OF_ELEMENTS_WITH_CORRECT_PROBABILITY = 11
 
+
 def test_all_targets_are_displayed(page: Page):
-    pks_per_row = (3,4,6)
+    pks_per_row = (3, 4, 6)
     creation_date = "2026-04-30, 6:53 AM"
     today = datetime.now(ZoneInfo("UTC"))
-    as_date = datetime.strptime(creation_date, "%Y-%m-%d, %I:%M %p").replace(tzinfo=ZoneInfo("UTC"))
+    as_date = datetime.strptime(creation_date, "%Y-%m-%d, %I:%M %p").replace(
+        tzinfo=ZoneInfo("UTC")
+    )
+
     def days_ago(d):
         return (today - d).days
 
     created_ago = days_ago(as_date)
     expected_rows = (
         (
-            r"ZTF26aarbgfh\s+ALeRCE\s+fink\s+ANTARES", #name
+            r"ZTF26aarbgfh\s+ALeRCE\s+fink\s+ANTARES",  # name
             "",
-            0.4639, # prob rescaled average
-            "None, queried", # variability flags
-            created_ago, # days since created
-            0.923, # gaia nsup2 
-            0.932, # bhrf rescaled
-            0.000, # bhrf contrast
-            0.000, # atat direct 
-            0.000, # microlensing filter
-            0.000, # psi rescaled
-            0.085, # bogus
-            "April 30, 2026, 6:53 a.m.", # updated
+            0.4639,  # prob rescaled average
+            "None, queried",  # variability flags
+            created_ago,  # days since created
+            0.923,  # gaia nsup2
+            0.932,  # bhrf rescaled
+            0.000,  # bhrf contrast
+            0.000,  # atat direct
+            0.000,  # microlensing filter
+            0.000,  # psi rescaled
+            0.085,  # bogus
+            "April 30, 2026, 6:53 a.m.",  # updated
         ),
         (
             r"ZTF26aaivmks\s+ALeRCE\s+fink\s+ANTARES",
@@ -69,25 +73,25 @@ def test_all_targets_are_displayed(page: Page):
     baade_map_container = page.get_by_test_id("baade-map")
     problist_title = page.get_by_test_id("problist-title")
     expect(baade_map_container.locator("img")).to_be_visible()
-    expect(problist_title).to_contain_text(re.compile(
-        "Public ranking based on averaged and rescaled probabilities of a quantile transform"
-    ))
+    expect(problist_title).to_contain_text(
+        re.compile(
+            "Public ranking based on averaged and rescaled probabilities of a quantile transform"
+        )
+    )
 
     ranking_table = page.get_by_test_id("ranking_table")
     expect(ranking_table).to_be_visible()
 
     results_rows = ranking_table.locator("tbody tr")
-    expect(results_rows).to_have_count(
-        NUMBER_OF_ELEMENTS_WITH_CORRECT_PROBABILITY
-    )
+    expect(results_rows).to_have_count(NUMBER_OF_ELEMENTS_WITH_CORRECT_PROBABILITY)
 
     for i, row in enumerate(expected_rows):
         table_row = results_rows.nth(i)
         for j, field in enumerate(row):
-            pk = pks_per_row[i]    
+            pk = pks_per_row[i]
             cell = table_row.locator("td").nth(j)
             if field != "":
-                expect(cell).to_contain_text(re.compile(fr"{field}"))
+                expect(cell).to_contain_text(re.compile(rf"{field}"))
             else:
                 expect(cell).to_be_empty()
             if j == 0:
@@ -99,5 +103,3 @@ def test_all_targets_are_displayed(page: Page):
                     expect(target_link).to_have_attribute(
                         "href", link["href"].format(target_name)
                     )
-
-    

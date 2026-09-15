@@ -31,4 +31,3 @@ class GladeClientApi(ExtragalacticInfoApi):
                 )
 
         return results
-

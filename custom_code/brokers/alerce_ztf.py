@@ -16,28 +16,31 @@ import healpy as hp
 import pandas as pd
 from alerce.core import Alerce
 
+
 class ALERCEQueryForm(GenericQueryForm):
     target_name = forms.CharField(required=False)
     cone = forms.CharField(
-        required=False,
-        label='Cone Search',
-        help_text='RA,Dec,radius in degrees'
+        required=False, label="Cone Search", help_text="RA,Dec,radius in degrees"
     )
 
     def clean(self):
-        if len(self.cleaned_data['target_name']) == 0 and \
-                        len(self.cleaned_data['cone']) == 0:
+        if (
+            len(self.cleaned_data["target_name"]) == 0
+            and len(self.cleaned_data["cone"]) == 0
+        ):
             raise forms.ValidationError(
                 "Please enter either a target name or cone search parameters"
-                )
+            )
+
 
 class ALERCEBroker(GenericBroker):
-    name = 'ALERCE'
+    name = "ALERCE"
     form = ALERCEQueryForm
 
-    def fetch_alerts(self, days=10,survey = 'ztf'):
+    def fetch_alerts(self, days=10, survey="ztf"):
         """Fetch data on microlensing events discovered by ALERCE"""
         from alerce.core import Alerce
+
         alerce = Alerce()
         not_at_end_of_pages = True
         current_page = 1
@@ -47,11 +50,11 @@ class ALERCEBroker(GenericBroker):
                 classifier="lc_classifier_BHRF_forced_phot",
                 class_name="Microlensing",
                 format="pandas",
-                firstmjd=float(int(Time.now().mjd)-days),
+                firstmjd=float(int(Time.now().mjd) - days),
                 page=current_page,
                 order_by="probability",
                 order_mode="DESC",
-                survey = survey
+                survey=survey,
             )
             if alerce_results_page.empty:
                 not_at_end_of_pages = False
@@ -61,10 +64,14 @@ class ALERCEBroker(GenericBroker):
 
         if len(alerce_results) > 0:
             alerce_results = pd.concat(alerce_results, ignore_index=True)
-            (list_of_targets_microlensing, new_targets_microlensing) = self.ingest_events(alerce_results)
+            (list_of_targets_microlensing, new_targets_microlensing) = (
+                self.ingest_events(alerce_results)
+            )
         else:
-            (list_of_targets_microlensing, new_targets_microlensing) = self.ingest_events(alerce_results_page)
-        #Add pagination
+            (list_of_targets_microlensing, new_targets_microlensing) = (
+                self.ingest_events(alerce_results_page)
+            )
+        # Add pagination
         not_at_end_of_pages = True
         current_page = 1
         alerce_results = []
@@ -73,12 +80,12 @@ class ALERCEBroker(GenericBroker):
                 classifier="lc_classifier_BHRF_forced_phot",
                 class_name="CV/Nova",
                 format="pandas",
-                firstmjd=float(int(Time.now().mjd)-days),
+                firstmjd=float(int(Time.now().mjd) - days),
                 page=current_page,
                 order_by="probability",
                 order_mode="DESC",
-                survey = survey
-            )    
+                survey=survey,
+            )
             if alerce_results_page.empty:
                 not_at_end_of_pages = False
             else:
@@ -89,191 +96,251 @@ class ALERCEBroker(GenericBroker):
             alerce_results = pd.concat(alerce_results, ignore_index=True)
             (list_of_targets_cv, new_targets_cv) = self.ingest_events(alerce_results)
         else:
-            (list_of_targets_cv, new_targets_cv) = self.ingest_events(alerce_results_page)
+            (list_of_targets_cv, new_targets_cv) = self.ingest_events(
+                alerce_results_page
+            )
 
         return (
-            list_of_targets_microlensing + list_of_targets_cv, 
-            new_targets_microlensing + new_targets_cv
+            list_of_targets_microlensing + list_of_targets_cv,
+            new_targets_microlensing + new_targets_cv,
         )
-    
-    def fetch_alert(self, name, survey = 'ztf'):
+
+    def fetch_alert(self, name, survey="ztf"):
         """Fetch data on microlensing events discovered by ALERCE"""
         from alerce.core import Alerce
+
         alerce = Alerce()
         # Query the list of microlensing events, last 10d, 10 events page1
-        # 
-        alerce_results = alerce.query_objects(oid=name,survey = survey)
+        #
+        alerce_results = alerce.query_objects(oid=name, survey=survey)
 
-        #ingest the OPM TOM db and restart CV query
+        # ingest the OPM TOM db and restart CV query
         (list_of_targets, new_targets) = self.ingest_events(alerce_results)
 
         return list_of_targets, None
 
-    def ingest_events(self, alerce_results, survey = 'ztf', debug=False):
+    def ingest_events(self, alerce_results, survey="ztf", debug=False):
         """Function to ingest the targets into the OPM database"""
-        print('ALERCE harvester: ingesting events')
-        config = apps.get_app_config('custom_code')
+        print("ALERCE harvester: ingesting events")
+        config = apps.get_app_config("custom_code")
         visit_map = config.nvisits_10yrs_map
         list_of_targets = []
         new_targets = []
         if alerce_results.empty:
-            return [],[]
+            return [], []
 
-        for event_name, event_probability,ra,dec in zip(alerce_results["oid"],
-                                                        alerce_results["probability"],
-                                                        alerce_results["meanra"],
-                                                        alerce_results["meandec"]):
-
+        for event_name, event_probability, ra, dec in zip(
+            alerce_results["oid"],
+            alerce_results["probability"],
+            alerce_results["meanra"],
+            alerce_results["meandec"],
+        ):
             qs = GalacticTarget.objects.filter(name=event_name)
             if len(qs) == 0:
-                s = SkyCoord(ra, dec, unit=(unit.deg, unit.deg), frame='icrs')
+                s = SkyCoord(ra, dec, unit=(unit.deg, unit.deg), frame="icrs")
                 target, result = validators.get_or_create_event(
-                    event_name,
-                    s.ra.deg,
-                    s.dec.deg,
-                    debug=debug
+                    event_name, s.ra.deg, s.dec.deg, debug=debug
                 )
 
-                if result == 'new_target':
-                    print('ALERCE harvester: added event '+event_name+' to OPM')
+                if result == "new_target":
+                    print("ALERCE harvester: added event " + event_name + " to OPM")
                     new_targets.append(target)
-                    filtered_target = GalacticTarget.objects.filter(name__icontains=target)
+                    filtered_target = GalacticTarget.objects.filter(
+                        name__icontains=target
+                    )
                     with transaction.atomic():
-                        filtered_target.update(permissions = GalacticTarget.Permissions.PUBLIC)
+                        filtered_target.update(
+                            permissions=GalacticTarget.Permissions.PUBLIC
+                        )
                     try:
                         result = get_glade_plus_count(s)
                         with transaction.atomic():
-                            pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)             
-                            filtered_target.update(expected_visits = visit_map[pixel_index])
+                            pixel_index = hp.ang2pix(
+                                128, target.ra, target.dec, lonlat=True, nest=True
+                            )
+                            filtered_target.update(
+                                expected_visits=visit_map[pixel_index]
+                            )
                             if result > 0:
-                                filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.IN_GLADE_PLUS)
+                                filtered_target.update(
+                                    known_extragalactic=GalacticTarget.CatalogFlag.IN_GLADE_PLUS
+                                )
                             elif result == 0:
-                                filtered_target.update(known_extragalactic = GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS)
+                                filtered_target.update(
+                                    known_extragalactic=GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS
+                                )
                     except:
-                        print('Expected visits or GLADE+ check failed for ' + target.name)                   
+                        print(
+                            "Expected visits or GLADE+ check failed for " + target.name
+                        )
 
                     try:
                         if "ZTF" in target.name or "LSST_" in target.name:
-                           result_var_vizier=get_var_star_variability_analysis(target.ra, target.dec)
-                        if result_var_vizier!="" and result_var_vizier!=None:
-                            filtered_target.update(known_variability = result_var_vizier)
+                            result_var_vizier = get_var_star_variability_analysis(
+                                target.ra, target.dec
+                            )
+                        if result_var_vizier != "" and result_var_vizier != None:
+                            filtered_target.update(known_variability=result_var_vizier)
                         else:
-                            filtered_target.update(known_variability = NOT_IN_ANY_CATALOG)
+                            filtered_target.update(known_variability=NOT_IN_ANY_CATALOG)
                     except Exception as e:
-                        print(f'Vizier query failed for {target.name}, {e}')
+                        print(f"Vizier query failed for {target.name}, {e}")
 
             else:
-                print('ALERCE harvester: found ' + str(qs.count()) + ' targets with name ' + event_name)
+                print(
+                    "ALERCE harvester: found "
+                    + str(qs.count())
+                    + " targets with name "
+                    + event_name
+                )
                 target = qs[0]
-
 
             list_of_targets.append(target)
 
-        print('ALERCE harvester: completed ingest of events, including ' + str(len(new_targets)) + ' new targets')
+        print(
+            "ALERCE harvester: completed ingest of events, including "
+            + str(len(new_targets))
+            + " new targets"
+        )
 
         return list_of_targets, new_targets
 
     def find_and_ingest_photometry(self, targets):
-        print('ALERCE harvester: ingesting photometry')
+        print("ALERCE harvester: ingesting photometry")
 
         for target in targets:
-            print('ALERCE harvester: ingesting photometry for event ' + target.name)
+            print("ALERCE harvester: ingesting photometry for event " + target.name)
             try:
-                detections_photometry, forced_photometry = self.read_ALERCE_lightcurve(target)
-                status = self.ingest_ALERCE_photometry(target, detections_photometry, forced_photometry)
-                print('ALERCE harvester: completed read and ingested photometry for event ' + target.name)
+                detections_photometry, forced_photometry = self.read_ALERCE_lightcurve(
+                    target
+                )
+                status = self.ingest_ALERCE_photometry(
+                    target, detections_photometry, forced_photometry
+                )
+                print(
+                    "ALERCE harvester: completed read and ingested photometry for event "
+                    + target.name
+                )
             except Exception as e:
-                print('ALERCE harvester: WARNING reading photometry failed for '
-                                    + target.name + ', skipping ingest ',e)
+                print(
+                    "ALERCE harvester: WARNING reading photometry failed for "
+                    + target.name
+                    + ", skipping ingest ",
+                    e,
+                )
 
-        print('ALERCE harvester: Completed ingest of photometry')
+        print("ALERCE harvester: Completed ingest of photometry")
 
-    def read_ALERCE_lightcurve(self, target, survey = 'ztf'):
+    def read_ALERCE_lightcurve(self, target, survey="ztf"):
         """Method to read the ALERCE lightcurve via alerce api client"""
         from alerce.core import Alerce
+
         alerce = Alerce()
         photometry = []
         ALERCE_name = target.name
-        detections_photometry = alerce.query_detections(ALERCE_name,
-                                     format="pandas", survey = survey)
-        #remove multiple detections
+        detections_photometry = alerce.query_detections(
+            ALERCE_name, format="pandas", survey=survey
+        )
+        # remove multiple detections
         detections_photometry = detections_photometry.drop_duplicates(subset="mjd")
-        forced_photometry = alerce.query_forced_photometry(ALERCE_name,
-                                     format="pandas", survey = survey)
+        forced_photometry = alerce.query_forced_photometry(
+            ALERCE_name, format="pandas", survey=survey
+        )
 
         return detections_photometry, forced_photometry
 
-    def ingest_ALERCE_photometry(self, target, detections_photometry, forced_photometry, survey = 'ztf', debug=False):
+    def ingest_ALERCE_photometry(
+        self,
+        target,
+        detections_photometry,
+        forced_photometry,
+        survey="ztf",
+        debug=False,
+    ):
         """Method to store the photometry datapoints in the OPM TOM as ReducedDatums"""
-        filter_definition = {1:"ZTF_g", 2:"ZTF_r", 3:"ZTF_i"}
+        filter_definition = {1: "ZTF_g", 2: "ZTF_r", 3: "ZTF_i"}
         for i, row in detections_photometry.iterrows():
-            jd = Time(row["mjd"], format='mjd', scale='utc')
+            jd = Time(row["mjd"], format="mjd", scale="utc")
             jd.to_datetime(timezone=TimezoneInfo())
-            if "magpsf_corr" in detections_photometry.columns :
-                if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"]<100.:
-                    datum = {'magnitude': row["magpsf_corr"],
-                            'filter': filter_definition[row["fid"]],
-                            'error': row["sigmapsf_corr_ext"]
-                            }          
+            if "magpsf_corr" in detections_photometry.columns:
+                if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"] < 100.0:
+                    datum = {
+                        "magnitude": row["magpsf_corr"],
+                        "filter": filter_definition[row["fid"]],
+                        "error": row["sigmapsf_corr_ext"],
+                    }
                     try:
                         with transaction.atomic():
-                            rd, created = PhotometryReducedDatum.objects.update_or_create(
-                                timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                brightness = datum["magnitude"],
-                                brightness_error = datum["error"],
-                                bandpass = datum["filter"],
-                                source_name='ALERCE',
-                                source_location=target.name,
-                                target=target)
+                            rd, created = (
+                                PhotometryReducedDatum.objects.update_or_create(
+                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                    brightness=datum["magnitude"],
+                                    brightness_error=datum["error"],
+                                    bandpass=datum["filter"],
+                                    source_name="ALERCE",
+                                    source_location=target.name,
+                                    target=target,
+                                )
+                            )
 
                     except IntegrityError as e:
                         if "unique_photometry" in str(e):
                             pass
 
                     except MultipleObjectsReturned:
-                        print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                        print(
+                            "ALERCE HARVESTER: Found duplicated data for event "
+                            + target.name
+                        )
                     except Exception as e:
-                        print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                        print(
+                            "ALERCE HARVERSTER: Exception occured while ingesting photometry"
+                        )
                         print(e.__class__.__name__)
                         print(e)
 
         for i, row in forced_photometry.iterrows():
-
-            jd = Time(row["mjd"], format='mjd', scale='utc')
+            jd = Time(row["mjd"], format="mjd", scale="utc")
             jd.to_datetime(timezone=TimezoneInfo())
-            if not pd.isna(row["mag_corr"]) and row["mag_corr"]<100.:
-                datum = {'magnitude': row["mag_corr"],
-                        'filter': filter_definition[row["fid"]],
-                        'error': row["e_mag_corr_ext"]
-                        }
+            if not pd.isna(row["mag_corr"]) and row["mag_corr"] < 100.0:
+                datum = {
+                    "magnitude": row["mag_corr"],
+                    "filter": filter_definition[row["fid"]],
+                    "error": row["e_mag_corr_ext"],
+                }
                 try:
                     with transaction.atomic():
                         rd, created = PhotometryReducedDatum.objects.update_or_create(
                             timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                            brightness = datum["magnitude"],
-                            brightness_error = datum["error"],
-                            bandpass = datum["filter"],
-                            source_name='ALERCE',
+                            brightness=datum["magnitude"],
+                            brightness_error=datum["error"],
+                            bandpass=datum["filter"],
+                            source_name="ALERCE",
                             source_location=target.name,
-                            target=target)
+                            target=target,
+                        )
 
                 except IntegrityError as e:
                     if "unique_photometry" in str(e):
                         pass
                     else:
-                        print('ANTARES HARVESTER: Encountered exception during photometry ingest for target')
+                        print(
+                            "ANTARES HARVESTER: Encountered exception during photometry ingest for target"
+                        )
                         print(e)
                 except MultipleObjectsReturned:
-                    print('ALERCE HARVESTER: Found duplicated data for event '+target.name)
+                    print(
+                        "ALERCE HARVESTER: Found duplicated data for event "
+                        + target.name
+                    )
                 except Exception as e:
-                    print('ALERCE HARVERSTER: Exception occured while ingesting photometry')
+                    print(
+                        "ALERCE HARVERSTER: Exception occured while ingesting photometry"
+                    )
                     print(e.__class__.__name__)
                     print(e)
-                
 
-        return 'OK'
-
+        return "OK"
 
     def to_generic_alert(self, alert):
         pass
-  

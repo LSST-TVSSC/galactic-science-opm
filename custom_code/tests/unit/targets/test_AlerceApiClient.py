@@ -143,7 +143,7 @@ class TestAlerceApiClient(TransactionTestCase):
                 self.assertEqual(call_args.kwargs["survey"], SURVEY)
 
     def _generate_alerce_data(self):
-        """ This is for testing purposes. """
+        """This is for testing purposes."""
         class_name = "Microlensing"
         alerce = Alerce()
         start_date = int(Time.now().mjd)
@@ -160,5 +160,6 @@ class TestAlerceApiClient(TransactionTestCase):
             page_size=50,
             survey=survey,
         )
-        make_pickle_from_data(f"alerce__query_objects_{class_name.replace('/', '')}_{start_date}.pkl", _)
-
+        make_pickle_from_data(
+            f"alerce__query_objects_{class_name.replace('/', '')}_{start_date}.pkl", _
+        )

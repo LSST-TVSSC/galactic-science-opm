@@ -1,4 +1,3 @@
-
 class AlerceZtfLightcurvesPipeline:
     def __init__(
         self,
@@ -9,7 +8,7 @@ class AlerceZtfLightcurvesPipeline:
         variability_checker,
         photometry_fetcher,
         photometry_creator,
-        logger
+        logger,
     ):
         self.target_api_client = target_api_client
         self.target_creator = target_creator
@@ -20,7 +19,15 @@ class AlerceZtfLightcurvesPipeline:
         self.photometry_creator = photometry_creator
         self.logger = logger
 
-    def run(self, class_names, since_n_days, start_date, survey, fetch_photometry_for_all_targets, event_name=None):
+    def run(
+        self,
+        class_names,
+        since_n_days,
+        start_date,
+        survey,
+        fetch_photometry_for_all_targets,
+        event_name=None,
+    ):
 
         START_DATE = start_date
         SURVEY = survey
@@ -30,11 +37,13 @@ class AlerceZtfLightcurvesPipeline:
         # get target candidates for all classes (currently probably Microlensing and CV/Nova)
         target_candidates = []
         for class_name in CLASS_NAMES:
-            target_candidates_for_class = self.target_api_client.fetch_potential_targets(
-                survey=SURVEY,
-                class_name=class_name,
-                since_n_days=DAYS,
-                start_date=START_DATE,
+            target_candidates_for_class = (
+                self.target_api_client.fetch_potential_targets(
+                    survey=SURVEY,
+                    class_name=class_name,
+                    since_n_days=DAYS,
+                    start_date=START_DATE,
+                )
             )
             target_candidates += target_candidates_for_class
         self.logger("success", f"Found {len(target_candidates)} potential targets.")
@@ -63,8 +72,10 @@ class AlerceZtfLightcurvesPipeline:
             self.logger("success", f"Targets received expected visits info.")
 
             # fetch and update known_variability
-            variability_info = self.variability_api_client.get_variability_info_for_targets(
-                new_targets
+            variability_info = (
+                self.variability_api_client.get_variability_info_for_targets(
+                    new_targets
+                )
             )
             self.target_creator.update_known_variability(new_targets, variability_info)
             self.logger("success", f"Targets received variability info.")
@@ -76,7 +87,9 @@ class AlerceZtfLightcurvesPipeline:
 
         # filter according to event_name
         if event_name:
-            targets_needing_photometry = [x for x in targets_needing_photometry if event_name in x.name]
+            targets_needing_photometry = [
+                x for x in targets_needing_photometry if event_name in x.name
+            ]
             pass
 
         PRIO_COUNT = 50
@@ -88,12 +101,15 @@ class AlerceZtfLightcurvesPipeline:
             photometry_data = self.photometry_api_client.fetch_photometry_for_targets(
                 targets_needing_photometry, survey=SURVEY
             )
-            self.logger("success", f"Photometry fetched for {len(targets_needing_photometry)} targets. ")
+            self.logger(
+                "success",
+                f"Photometry fetched for {len(targets_needing_photometry)} targets. ",
+            )
 
             # create photometry
-            errors, _ = self.photometry_creator.create_photometry_for_targets(photometry_data)
+            errors, _ = self.photometry_creator.create_photometry_for_targets(
+                photometry_data
+            )
             if errors:
                 self.logger("error", errors)
             self.logger("success", f"Photometry for targets created")
-
-

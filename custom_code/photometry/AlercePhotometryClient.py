@@ -2,7 +2,10 @@ from alerce.core import Alerce
 import pandas as pd
 
 from astropy.time import Time, TimezoneInfo
-from custom_code.photometry.PhotometryApiClient import PhotometryApiClient, PhotometryCandidate
+from custom_code.photometry.PhotometryApiClient import (
+    PhotometryApiClient,
+    PhotometryCandidate,
+)
 
 
 class AlercePhotometryClient(PhotometryApiClient):
@@ -28,7 +31,7 @@ class AlercePhotometryClient(PhotometryApiClient):
                 jd.to_datetime(timezone=TimezoneInfo())
                 timestamp = jd.to_datetime(timezone=TimezoneInfo())
                 if "magpsf_corr" in detections_photometry.columns:
-                    if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"] < 100.:
+                    if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"] < 100.0:
                         candidate = PhotometryCandidate(
                             magnitude=row["magpsf_corr"],
                             filter=filter_definition[row["fid"]],
@@ -44,7 +47,7 @@ class AlercePhotometryClient(PhotometryApiClient):
                 jd = Time(row["mjd"], format="mjd", scale="utc")
                 jd.to_datetime(timezone=TimezoneInfo())
                 timestamp = jd.to_datetime(timezone=TimezoneInfo())
-                if not pd.isna(row["mag_corr"]) and row["mag_corr"] < 100.:
+                if not pd.isna(row["mag_corr"]) and row["mag_corr"] < 100.0:
                     candidate = PhotometryCandidate(
                         magnitude=row["mag_corr"],
                         filter=filter_definition[row["fid"]],
@@ -54,6 +57,5 @@ class AlercePhotometryClient(PhotometryApiClient):
                         source="ALERCE",
                     )
                     results.append(candidate)
-
 
         return results

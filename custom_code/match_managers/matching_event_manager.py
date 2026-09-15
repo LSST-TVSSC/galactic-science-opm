@@ -1,6 +1,7 @@
 from django.db import models
 from tom_targets.base_models import TargetMatchManager
 
+
 class EventMatchManager(TargetMatchManager):
     """
     Function to check for duplications of targets already known to the database.
@@ -19,9 +20,10 @@ class EventMatchManager(TargetMatchManager):
         """
         queryset = super().match_target(target, *args, **kwargs)
 
-        search_radius = 2.0 # arcsec
+        search_radius = 2.0  # arcsec
 
-        cone_search_queryset = self.match_cone_search(target.ra, target.dec, search_radius)
+        cone_search_queryset = self.match_cone_search(
+            target.ra, target.dec, search_radius
+        )
 
         return queryset | cone_search_queryset
-
