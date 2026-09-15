@@ -49,7 +49,7 @@ class TestTargetCreator(TransactionTestCase):
         ]
 
         target_creator = TargetCreator()
-        # WHEN testee is called 
+        # WHEN testee is called
         all_targets, new_targets = target_creator.create_targets_from_candidates(
             TARGET_CANDIDATES
         )
@@ -75,7 +75,7 @@ class TestTargetCreator(TransactionTestCase):
         ]
 
         target_creator = TargetCreator()
-        # WHEN testee is called 
+        # WHEN testee is called
         target_creator.make_targets_public(TARGETS)
 
         # THEN existing targets should be public
@@ -94,7 +94,7 @@ class TestTargetCreator(TransactionTestCase):
             ),
         ]
 
-        # GIVEN a list of positive counts regarding extragalactic 
+        # GIVEN a list of positive counts regarding extragalactic
         info = {
             "ZTF21abasvhl": {"success": True, "count": 42, "name": "ZTF21abasvhl"},
             "ZTF19adcrpjd": {"success": True, "count": 42, "name": "ZTF19adcrpjd"},
@@ -122,14 +122,14 @@ class TestTargetCreator(TransactionTestCase):
             ),
         ]
 
-        # GIVEN a list of no counts regarding extragalactic 
+        # GIVEN a list of no counts regarding extragalactic
         info = {
             "ZTF21abasvhl": {"success": True, "count": 0, "name": "ZTF21abasvhl"},
             "ZTF19adcrpjd": {"success": True, "count": 0, "name": "ZTF19adcrpjd"},
         }
 
         target_creator = TargetCreator()
-        # WHEN testee is called 
+        # WHEN testee is called
         target_creator.update_known_extragalactic(TARGETS, info)
 
         created_targets = GalacticTarget.objects.all()
@@ -141,12 +141,12 @@ class TestTargetCreator(TransactionTestCase):
 
     def test_should_not_update_known_extragalactic_if_query_failed(self):
         """
-        @todo: This is how it is currently handled: if we don't receive valid 
-        results, the default value is not updated, which is an empty 
+        @todo: This is how it is currently handled: if we don't receive valid
+        results, the default value is not updated, which is an empty
         string. Is this correct?
         """
 
-        DEFAULT_VALUE = ''
+        DEFAULT_VALUE = ""
 
         TARGETS = [
             GalacticTarget.objects.create(
@@ -164,14 +164,13 @@ class TestTargetCreator(TransactionTestCase):
         }
 
         target_creator = TargetCreator()
-        # WHEN testee is called 
+        # WHEN testee is called
         target_creator.update_known_extragalactic(TARGETS, info)
 
         # THEN existing targets should still have their default value for known_extragalactic
         created_targets = GalacticTarget.objects.all()
         for target in created_targets:
-            self.assertEqual(
-                target.known_extragalactic, DEFAULT_VALUE)
+            self.assertEqual(target.known_extragalactic, DEFAULT_VALUE)
 
     def test_should_update_expected_visits(self):
 
@@ -191,7 +190,7 @@ class TestTargetCreator(TransactionTestCase):
         }
 
         target_creator = TargetCreator()
-        # WHEN testee is called 
+        # WHEN testee is called
         target_creator.update_expected_visits(TARGETS, info)
 
         # THEN existing targets should have the correct number of visits
@@ -277,7 +276,7 @@ class TestTargetCreator(TransactionTestCase):
                 name="ZTF19adcrpjd", ra=292.67285206700393, dec=-19.370104587239602
             ),
         ]
-        DEFAULT_VALUE = 'None'
+        DEFAULT_VALUE = "None"
 
         # GIVEN a list of successful infos on variability
         info = {

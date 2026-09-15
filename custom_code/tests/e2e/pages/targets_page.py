@@ -1,5 +1,7 @@
 import os
+
 from playwright.sync_api import Page
+
 
 class TargetsPage:
     def __init__(self, page: Page, base_url) -> None:
@@ -15,11 +17,11 @@ class TargetsPage:
         self.page.get_by_placeholder("Username").fill(username)
         self.page.get_by_placeholder("Password").fill(password)
         self.page.get_by_role("button", name="Login").click()
-    
+
     def filter(self, search_term):
         self.page.get_by_role("textbox", name="Name", exact=True).fill(search_term)
         self.page.get_by_role("button", name="Filter", exact=True).click()
-    
+
     def reset(self):
         self.page.get_by_role("link", name="Reset", exact=True).click()
 
@@ -32,22 +34,32 @@ class TargetsPage:
         self.page.get_by_role("textbox", name="Name").fill(str(name))
         self.page.get_by_role("textbox", name="Right Ascension*").fill(str(ra))
         self.page.get_by_role("textbox", name="Declination*").fill(str(dec))
-        self.page.get_by_label("Known extragalactic*").select_option("not in GLADE+ galaxy catalog")
+        self.page.get_by_label("Known extragalactic*").select_option(
+            "not in GLADE+ galaxy catalog"
+        )
         self.page.get_by_role("button", name="Submit").click()
 
     def assign_target_to_group(self, group_name, target_name):
-        self.page.locator("select[name=\"grouping\"]").select_option(label=group_name)
-        self.page.get_by_role("row", name=f"{target_name} SIDEREAL 0").get_by_role("checkbox").check()
+        self.page.locator('select[name="grouping"]').select_option(label=group_name)
+        self.page.get_by_role("row", name=f"{target_name} SIDEREAL 0").get_by_role(
+            "checkbox"
+        ).check()
         self.page.get_by_role("button", name="Add").click()
 
     def move_target_to_group(self, group_name, target_name):
-        self.page.locator("select[name=\"grouping\"]").select_option(label=group_name)
-        self.page.get_by_role("row", name=f"{target_name} SIDEREAL 0").get_by_role("checkbox").check()
+        self.page.locator('select[name="grouping"]').select_option(label=group_name)
+        self.page.get_by_role("row", name=f"{target_name} SIDEREAL 0").get_by_role(
+            "checkbox"
+        ).check()
         self.page.get_by_role("button", name="Move", exact=True).click()
 
     def merge_targets(self, one, other):
-        self.page.get_by_role("row", name=f"{one} SIDEREAL 0").get_by_role("checkbox").check()
-        self.page.get_by_role("row", name=f"{other} SIDEREAL 0").get_by_role("checkbox").check()
+        self.page.get_by_role("row", name=f"{one} SIDEREAL 0").get_by_role(
+            "checkbox"
+        ).check()
+        self.page.get_by_role("row", name=f"{other} SIDEREAL 0").get_by_role(
+            "checkbox"
+        ).check()
         self.page.get_by_role("button", name="Merge").click()
         self.page.get_by_role("button", name="Confirm").click()
 
@@ -72,7 +84,7 @@ class TargetsPage:
         BASE_PATH = os.path.dirname(os.path.abspath(__file__))
         with self.page.expect_download() as download:
             self.page.get_by_role("button", name="Export Filtered Targets").click()
-        
+
         path_to_download = os.path.join(BASE_PATH, download.value.suggested_filename)
         # Wait for the download process to complete and save the downloaded file somewhere
         download.value.save_as(path_to_download)

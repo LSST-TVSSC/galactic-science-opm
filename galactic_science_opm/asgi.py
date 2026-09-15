@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'galactic_science_opm.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "galactic_science_opm.settings")
 
 application = get_asgi_application()

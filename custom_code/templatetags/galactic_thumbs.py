@@ -56,4 +56,3 @@ def galactic_thumb_info(target, size=120, fov=0.035):
         "url": url,
         "fov_arcmin": f"{fov_arcmin:.2f}".rstrip("0").rstrip("."),  # e.g. 2.1 or 2
     }
-

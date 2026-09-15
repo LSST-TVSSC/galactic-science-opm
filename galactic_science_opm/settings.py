@@ -10,9 +10,10 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
-import logging.config
+
 import os
 import tempfile
+
 import environ
 
 env = environ.Env(DJANGO_DEBUG=(bool, False))
@@ -20,92 +21,94 @@ env = environ.Env(DJANGO_DEBUG=(bool, False))
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', default='7jj1ni6=mw867=jwr1(cr64()cdcj(igmj^@=7bc_s#xpwf8$m')
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY", default="7jj1ni6=mw867=jwr1(cr64()cdcj(igmj^@=7bc_s#xpwf8$m"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DJANGO_DEBUG',default=False)
+DEBUG = env("DJANGO_DEBUG", default=False)
 
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS',default=['127.0.0.1','localhost'])
-CSRF_TRUSTED_ORIGINS = env.list('DJANGO_CSRF_TRUSTED_ORIGIN',default=[])
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
+CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGIN", default=[])
 
-ANTARES_KEY = env("ANTARES_KEY",default=False)
-ANTARES_SECRET = env("ANTARES_SECRET",default = False)
+ANTARES_KEY = env("ANTARES_KEY", default=False)
+ANTARES_SECRET = env("ANTARES_SECRET", default=False)
 
 # Application definition
 
-TOM_NAME = 'galactic_science_opm'
+TOM_NAME = "galactic_science_opm"
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',
-    'django_extensions',
-    'django_tasks',
-    'django_tasks.backends.database',
-    'guardian',
-    'tom_common',
-    'django_comments',
-    'django_bootstrap5',
-    'crispy_bootstrap5',
-    'crispy_forms',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'django_filters',
-    'django_gravatar',
-    'django_htmx',
-    'tom_targets',
-    'tom_alerts',
-    'tom_catalogs',
-    'tom_observations',
-    'tom_dataproducts',
-    'tom_registration',
-    'custom_code',
-    'radar_plots',
-    'sed_plots'
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "django_extensions",
+    "django_tasks",
+    "django_tasks.backends.database",
+    "guardian",
+    "tom_common",
+    "django_comments",
+    "django_bootstrap5",
+    "crispy_bootstrap5",
+    "crispy_forms",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "django_filters",
+    "django_gravatar",
+    "django_htmx",
+    "tom_targets",
+    "tom_alerts",
+    "tom_catalogs",
+    "tom_observations",
+    "tom_dataproducts",
+    "tom_registration",
+    "custom_code",
+    "radar_plots",
+    "sed_plots",
 ]
 
 SITE_ID = 1
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_htmx.middleware.HtmxMiddleware',
-    'tom_common.middleware.Raise403Middleware',
-    'tom_common.middleware.ExternalServiceMiddleware',
-    'tom_common.middleware.AuthStrategyMiddleware',
-    'tom_registration.middleware.RedirectAuthenticatedUsersFromRegisterMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
+    "tom_common.middleware.Raise403Middleware",
+    "tom_common.middleware.ExternalServiceMiddleware",
+    "tom_common.middleware.AuthStrategyMiddleware",
+    "tom_registration.middleware.RedirectAuthenticatedUsersFromRegisterMiddleware",
 ]
 
-ROOT_URLCONF = 'galactic_science_opm.urls'
+ROOT_URLCONF = "galactic_science_opm.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'custom_code.context_processors.version_info',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "custom_code.context_processors.version_info",
             ],
         },
     },
@@ -114,7 +117,7 @@ TEMPLATES = [
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-WSGI_APPLICATION = 'galactic_science_opm.wsgi.application'
+WSGI_APPLICATION = "galactic_science_opm.wsgi.application"
 
 
 # Database
@@ -135,57 +138,57 @@ WSGI_APPLICATION = 'galactic_science_opm.wsgi.application'
 # Also, NOTE: the values in the configuration dictionary below are also referenced in the compose.yaml file!!
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'galactic_science_opm'),
-        'USER': os.getenv('DB_USER', 'opm'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'opm'),
-        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME", "galactic_science_opm"),
+        "USER": os.getenv("DB_USER", "opm"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "opm"),
+        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+        "PORT": "5432",
     },
-    'sqlite': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    "sqlite": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    },
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
+    "django.contrib.auth.backends.ModelBackend",
     # we're using open registration for now, but when that changes, you'll need this:
     # 'django.contrib.auth.backends.AllowAllUsersModelBackend',
-    'guardian.backends.ObjectPermissionBackend',
+    "guardian.backends.ObjectPermissionBackend",
 )
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -193,42 +196,37 @@ USE_L10N = False
 
 USE_TZ = True
 
-DATETIME_FORMAT = 'Y-m-d H:i:s'
-DATE_FORMAT = 'Y-m-d'
+DATETIME_FORMAT = "Y-m-d H:i:s"
+DATE_FORMAT = "Y-m-d"
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, '_static')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-MEDIA_ROOT = os.path.join(BASE_DIR, 'data')
-MEDIA_URL = '/data/'
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "_static")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+MEDIA_ROOT = os.path.join(BASE_DIR, "data")
+MEDIA_URL = "/data/"
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         }
     },
-    'loggers': {
-        '': {
-            'handlers': ['console'],
-            'level': 'WARN'
-        }
-    }
+    "loggers": {"": {"handlers": ["console"], "level": "WARN"}},
 }
 
 # Caching
 # https://docs.djangoproject.com/en/dev/topics/cache/#filesystem-caching
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': tempfile.gettempdir()
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": tempfile.gettempdir(),
     }
 }
 
@@ -242,10 +240,10 @@ TASKS = {
 #
 # TOM Specific configuration
 #
-TARGET_TYPE = 'SIDEREAL'
+TARGET_TYPE = "SIDEREAL"
 
 # Set to the full path of a custom target model to extend the BaseTarget Model with custom fields.
-TARGET_MODEL_CLASS = 'custom_code.target_models.GalacticTarget'
+TARGET_MODEL_CLASS = "custom_code.target_models.GalacticTarget"
 
 # Define MATCH_MANAGERS here. This is a dictionary that contains a dotted module path to the desired match manager
 # for a given model.
@@ -256,14 +254,14 @@ TARGET_MODEL_CLASS = 'custom_code.target_models.GalacticTarget'
 MATCH_MANAGERS = {}
 
 TOM_REGISTRATION = {
-    'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.ModelBackend',
+    "REGISTRATION_AUTHENTICATION_BACKEND": "django.contrib.auth.backends.ModelBackend",
     # we're using open registration for now, but when that changes, you'll need this:
     # 'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
-    'REGISTRATION_REDIRECT_PATTERN': 'home',
-    'REGISTRATION_STRATEGY': 'approval_required',  # ['open', 'approval_required']
-    'SEND_APPROVAL_EMAILS': False,  # Optional email behavior if `REGISTRATION_STRATEGY = 'approval_required'`, default is False
-    'APPROVAL_SUBJECT': f'Your {TOM_NAME} registration has been approved!',  # Optional subject line of approval email, (Default Shown)
-    'APPROVAL_MESSAGE': f'Your {TOM_NAME} registration has been approved. You can log in <a href="mytom.com/login">here</a>.'  # Optional html-enabled body for approval email, (Default Shown)
+    "REGISTRATION_REDIRECT_PATTERN": "home",
+    "REGISTRATION_STRATEGY": "approval_required",  # ['open', 'approval_required']
+    "SEND_APPROVAL_EMAILS": False,  # Optional email behavior if `REGISTRATION_STRATEGY = 'approval_required'`, default is False
+    "APPROVAL_SUBJECT": f"Your {TOM_NAME} registration has been approved!",  # Optional subject line of approval email, (Default Shown)
+    "APPROVAL_MESSAGE": f'Your {TOM_NAME} registration has been approved. You can log in <a href="mytom.com/login">here</a>.',  # Optional html-enabled body for approval email, (Default Shown)
 }
 
 # NOTE to Markus et al.: when we move to 'approval_required' REGISTRATION_STRATEGY, the following configuration
@@ -282,28 +280,28 @@ TOM_REGISTRATION = {
 
 
 FACILITIES = {
-    'LCO': {
-        'portal_url': 'https://observe.lco.global',
-        'api_key': '',
+    "LCO": {
+        "portal_url": "https://observe.lco.global",
+        "api_key": "",
     },
-    'GEM': {
-        'portal_url': {
-            'GS': 'https://139.229.34.15:8443',
-            'GN': 'https://128.171.88.221:8443',
+    "GEM": {
+        "portal_url": {
+            "GS": "https://139.229.34.15:8443",
+            "GN": "https://128.171.88.221:8443",
         },
-        'api_key': {
-            'GS': '',
-            'GN': '',
+        "api_key": {
+            "GS": "",
+            "GN": "",
         },
-        'user_email': '',
-        'programs': {
-            'GS-YYYYS-T-NNN': {
-                'MM': 'Std: Some descriptive text',
-                'NN': 'Rap: Some descriptive text'
+        "user_email": "",
+        "programs": {
+            "GS-YYYYS-T-NNN": {
+                "MM": "Std: Some descriptive text",
+                "NN": "Rap: Some descriptive text",
             },
-            'GN-YYYYS-T-NNN': {
-                'QQ': 'Std: Some descriptive text',
-                'PP': 'Rap: Some descriptive text',
+            "GN-YYYYS-T-NNN": {
+                "QQ": "Std: Some descriptive text",
+                "PP": "Rap: Some descriptive text",
             },
         },
     },
@@ -315,44 +313,44 @@ FACILITIES = {
 # Be careful when removing items, as previously valid types will no
 # longer be valid, and may cause issues unless the offending records are modified.
 DATA_PRODUCT_TYPES = {
-    'photometry': ('photometry', 'Photometry'),
-    'fits_file': ('fits_file', 'FITS File'),
-    'spectroscopy': ('spectroscopy', 'Spectroscopy'),
-    'image_file': ('image_file', 'Image File'),
-    'sed': ('sed', 'SED')
+    "photometry": ("photometry", "Photometry"),
+    "fits_file": ("fits_file", "FITS File"),
+    "spectroscopy": ("spectroscopy", "Spectroscopy"),
+    "image_file": ("image_file", "Image File"),
+    "sed": ("sed", "SED"),
 }
 
 DATA_PROCESSORS = {
-    'photometry': 'tom_dataproducts.processors.photometry_processor.PhotometryProcessor',
-    'spectroscopy': 'tom_dataproducts.processors.spectroscopy_processor.SpectroscopyProcessor',
-    'sed': 'custom_code.processors.vizier_sed_processor.VizierSEDProcessor',
+    "photometry": "tom_dataproducts.processors.photometry_processor.PhotometryProcessor",
+    "spectroscopy": "tom_dataproducts.processors.spectroscopy_processor.SpectroscopyProcessor",
+    "sed": "custom_code.processors.vizier_sed_processor.VizierSEDProcessor",
 }
 
 TOM_FACILITY_CLASSES = [
-    'tom_observations.facilities.lco.LCOFacility',
-    'tom_observations.facilities.gemini.GEMFacility',
-    'tom_observations.facilities.soar.SOARFacility',
-    'tom_observations.facilities.blanco.BLANCOFacility',
+    "tom_observations.facilities.lco.LCOFacility",
+    "tom_observations.facilities.gemini.GEMFacility",
+    "tom_observations.facilities.soar.SOARFacility",
+    "tom_observations.facilities.blanco.BLANCOFacility",
 ]
 
 TOM_ALERT_CLASSES = [
-    'tom_alerts.brokers.alerce.ALeRCEBroker',
+    "tom_alerts.brokers.alerce.ALeRCEBroker",
     #'tom_alerts.brokers.antares.ANTARESBroker',
-    'tom_alerts.brokers.gaia.GaiaBroker',
+    "tom_alerts.brokers.gaia.GaiaBroker",
     #  'tom_alerts.brokers.lasair.LasairBroker',
     #  'tom_alerts.brokers.tns.TNSBroker',
     #  'tom_alerts.brokers.fink.FinkBroker',
 ]
 
 BROKERS = {
-    'TNS': {
-        'api_key': '',
-        'bot_id': '',
-        'bot_name': '',
+    "TNS": {
+        "api_key": "",
+        "bot_id": "",
+        "bot_name": "",
     },
-    'LASAIR': {
-        'api_key': '',
-    }
+    "LASAIR": {
+        "api_key": "",
+    },
 }
 
 # Include or exclude specific dot separated harvester classes. If not set, all harvesters will be included based on
@@ -361,11 +359,7 @@ BROKERS = {
 # INCLUDE_HARVESTER_CLASSES = ['app.example.harvesters.ExampleHarvester']
 # EXCLUDE_HARVESTER_CLASSES = ['app.example.harvesters.ExampleHarvester']
 
-HARVESTERS = {
-    'TNS': {
-        'api_key': ''
-    }
-}
+HARVESTERS = {"TNS": {"api_key": ""}}
 
 # Define extra target fields here. Types can be any of "number", "string", "boolean" or "datetime"
 # See https://tomtoolkit.github.io/docs/target_fields for documentation on this feature
@@ -380,7 +374,7 @@ EXTRA_FIELDS = []
 
 # Authentication strategy can either be LOCKED (required login for all views)
 # or READ_ONLY (read only access to views)
-AUTH_STRATEGY = 'READ_ONLY'
+AUTH_STRATEGY = "READ_ONLY"
 
 # Row-level data permissions restrict users from viewing certain objects unless they are a member of the group to which
 # the object belongs. Setting this value to True will allow all `ObservationRecord`, `DataProduct`, and `ReducedDatum`
@@ -389,30 +383,26 @@ AUTH_STRATEGY = 'READ_ONLY'
 TARGET_PERMISSIONS_ONLY = True
 
 # Default permission for newly created targets. Values can be 'PRIVATE', 'PUBLIC', or 'OPEN'
-TARGET_DEFAULT_PERMISSION = 'PRIVATE'
+TARGET_DEFAULT_PERMISSION = "PRIVATE"
 
 # Display these columns in the target list table. Values can be attributes or properties on
 # the Target model, tags or extra fields. The fields `observations` and `saved_data` are
 # special cases with custom implementation.
-TARGET_LIST_COLUMNS = [
-    "name", "type", "observations", "saved_data"
-]
+TARGET_LIST_COLUMNS = ["name", "type", "observations", "saved_data"]
 
 # URLs that should be allowed access even with AUTH_STRATEGY = LOCKED
 # for example: OPEN_URLS = ['/', '/about']
 OPEN_URLS = []
 
 HOOKS = {
-    'target_post_save': 'tom_common.hooks.target_post_save',
-    'observation_change_state': 'tom_common.hooks.observation_change_state',
-    'data_product_post_upload': 'tom_dataproducts.hooks.data_product_post_upload',
-    'data_product_post_save': 'tom_dataproducts.hooks.data_product_post_save',
-    'multiple_data_products_post_save': 'tom_dataproducts.hooks.multiple_data_products_post_save',
+    "target_post_save": "tom_common.hooks.target_post_save",
+    "observation_change_state": "tom_common.hooks.observation_change_state",
+    "data_product_post_upload": "tom_dataproducts.hooks.data_product_post_upload",
+    "data_product_post_save": "tom_dataproducts.hooks.data_product_post_save",
+    "multiple_data_products_post_save": "tom_dataproducts.hooks.multiple_data_products_post_save",
 }
 
-TARGET_LIST_COLUMNS = [
-    "name", "type", "observations", "saved_data"
-]
+TARGET_LIST_COLUMNS = ["name", "type", "observations", "saved_data"]
 
 AUTO_THUMBNAILS = False
 
@@ -424,16 +414,15 @@ HINTS_ENABLED = False
 HINT_LEVEL = 20
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-    ],
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100
+    "DEFAULT_PERMISSION_CLASSES": [],
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 100,
 }
 
 # Default Plotly theme setting, can set to any valid theme:
 # 'plotly', 'plotly_white', 'plotly_dark', 'ggplot2', 'seaborn', 'simple_white', 'none'
-PLOTLY_THEME = 'plotly_white'
+PLOTLY_THEME = "plotly_white"
 
 # Setting for displaying pagination information (e.g., "(0-0 of 0)").
 # Set this to False if you have a particularly large DB and paginated views are slow.
@@ -448,27 +437,29 @@ BOOTSTRAP5 = {
     # or a dict with keys `url`, `integrity` and `crossorigin` like the default value below.
     "css_url": os.path.join(STATIC_URL, "bootstrap", "css", "bootstrap.min.css"),
     # The complete URL to the Bootstrap bundle JavaScript file.
-    "javascript_url": os.path.join(STATIC_URL, "bootstrap", "js", "bootstrap.bundle.min.js"),
+    "javascript_url": os.path.join(
+        STATIC_URL, "bootstrap", "js", "bootstrap.bundle.min.js"
+    ),
 }
 
 BOOTSTRAP4 = {
     "css_url": os.path.join(STATIC_URL, "bootstrap.min.css"),
     "javascript_url": os.path.join(STATIC_URL, "bootstrap.bundle.min.js"),
-    "jquery_url": os.path.join(STATIC_URL, "jquery-3.5.1.min.js")
+    "jquery_url": os.path.join(STATIC_URL, "jquery-3.5.1.min.js"),
 }
 
 GIT_COMMIT = os.environ.get("GIT_COMMIT", "n.a.")
 
 DATA_SHARING = {
-    'mop-tom': {
-        'DISPLAY_NAME': os.getenv('MOP_TOM_DISPLAY_NAME', 'MOP'),
-        'BASE_URL': os.getenv('MOP_TOM_BASE_URL'),
-        'USERNAME': os.getenv('MOP_TOM_USERNAME'),
-        'PASSWORD': os.getenv('MOP_TOM_PASSWORD'),
+    "mop-tom": {
+        "DISPLAY_NAME": os.getenv("MOP_TOM_DISPLAY_NAME", "MOP"),
+        "BASE_URL": os.getenv("MOP_TOM_BASE_URL"),
+        "USERNAME": os.getenv("MOP_TOM_USERNAME"),
+        "PASSWORD": os.getenv("MOP_TOM_PASSWORD"),
     }
 }
 
 try:
-    from local_settings import * # noqa
+    from local_settings import *
 except ImportError:
     pass

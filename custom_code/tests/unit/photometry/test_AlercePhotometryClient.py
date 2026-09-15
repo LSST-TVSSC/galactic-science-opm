@@ -1,17 +1,20 @@
 import datetime
-from os import path
-import pandas as pd
 from unittest import mock
-from astropy.time import TimezoneInfo
 
+import pandas as pd
+from astropy.time import TimezoneInfo
 from django.test import TransactionTestCase
 
 from custom_code.photometry.AlercePhotometryClient import AlercePhotometryClient
 from custom_code.photometry.PhotometryApiClient import PhotometryCandidate
 from custom_code.target_models import GalacticTarget
 from custom_code.tests.helpers import assert_instances_match
-from custom_code.tests.mocks.responses.alerce__query_detections__ZTF21abasvhl import DEFAULT_DETECTION_RESULT
-from custom_code.tests.mocks.responses.alerce__query_forced_photometry__ZTF21abasvhl import DEFAULT_FORCED_PHOTOMETRY_RESULT
+from custom_code.tests.mocks.responses.alerce__query_detections__ZTF21abasvhl import (
+    DEFAULT_DETECTION_RESULT,
+)
+from custom_code.tests.mocks.responses.alerce__query_forced_photometry__ZTF21abasvhl import (
+    DEFAULT_FORCED_PHOTOMETRY_RESULT,
+)
 
 
 class TestAlercePhotometryClient(TransactionTestCase):
@@ -135,23 +138,25 @@ class TestAlercePhotometryClient(TransactionTestCase):
                 ),
                 "ALERCE",
             ),
-
         ]
 
         with mock.patch(
             "custom_code.photometry.AlercePhotometryClient.Alerce"
         ) as mocked:
-            data_folder = path.join("custom_code", "tests", "mocks", "responses")
             # GIVEN mock implementation for Alerce query_detections
             def replacement_detections(*args, **kwargs):
                 _name = args[0]
-                result = pd.DataFrame.from_dict(DEFAULT_DETECTION_RESULT, orient='tight')
+                result = pd.DataFrame.from_dict(
+                    DEFAULT_DETECTION_RESULT, orient="tight"
+                )
                 return result
 
             # GIVEN mock implementation for Alerce query_forced_photometry
             def replacement_forced(*args, **kwargs):
                 _name = args[0]
-                result = pd.DataFrame.from_dict(DEFAULT_FORCED_PHOTOMETRY_RESULT, orient='tight')
+                result = pd.DataFrame.from_dict(
+                    DEFAULT_FORCED_PHOTOMETRY_RESULT, orient="tight"
+                )
                 return result
 
             instance = mocked.return_value

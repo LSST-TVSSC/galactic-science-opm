@@ -3,7 +3,9 @@ from unittest import mock
 
 from django.test import TransactionTestCase
 
-from custom_code.observations.HealpyExpectedVisitsClient import HealpyExpectedVisitsClient
+from custom_code.observations.HealpyExpectedVisitsClient import (
+    HealpyExpectedVisitsClient,
+)
 from custom_code.target_models import GalacticTarget
 
 
@@ -39,8 +41,10 @@ class TestHealpyExpectedVisitsClient(TransactionTestCase):
             fake_config = FakeAppConfig([42])
             # AND an ang2pix implementation that returns 0 (used as index for [42], thus returning 42)
             mocked_ang2pix.return_value = 0
+
             def provide_it(*args, **kwargs):
                 return fake_config
+
             mocked_get_app_config.side_effect = provide_it
             expected_visits_client = HealpyExpectedVisitsClient()
 
@@ -58,4 +62,3 @@ class TestHealpyExpectedVisitsClient(TransactionTestCase):
                 self.assertEqual(call.args[2], TARGETS[i].dec)
                 self.assertEqual(call.kwargs["lonlat"], True)
                 self.assertEqual(call.kwargs["nest"], True)
-

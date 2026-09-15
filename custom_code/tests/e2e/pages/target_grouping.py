@@ -2,6 +2,7 @@ from playwright.sync_api import Page
 
 from custom_code.tests.e2e.pages.targets_page import TargetsPage
 
+
 class TargetGroupingPage:
     def __init__(self, page: Page, base_url) -> None:
         self.page = page

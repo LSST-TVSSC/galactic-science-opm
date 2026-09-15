@@ -8,6 +8,7 @@ Since this is a module provided by tomtoolkit, the testing done here
 should be minimal.
 """
 
+
 def test_observations_page_is_available(page: Page):
     MINIMUM_EXPECTED_AMOUNT_OF_FACILITIES = 5
 

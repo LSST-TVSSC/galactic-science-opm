@@ -4,10 +4,11 @@ from abc import ABC, abstractmethod
 class PhotometryApiClient(ABC):
     @abstractmethod
     def fetch_photometry_for_targets(self, targets, survey):
-        """ 
-        Needs implementation. 
-        Returns a list of PhotometryCandidate. 
         """
+        Needs implementation.
+        Returns a list of PhotometryCandidate.
+        """
+
 
 class PhotometryCandidate:
     def __init__(self, magnitude, filter, error, location, timestamp, source):
@@ -34,5 +35,3 @@ class PhotometryCandidate:
             and self.source == other.source
             and self.timestamp == other.timestamp
         )
-
-

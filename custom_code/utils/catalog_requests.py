@@ -1,14 +1,14 @@
-from astroquery.vizier import Vizier
-import astropy.units as unit
-from astropy.coordinates import Angle
-import astropy.units as u
-from astropy.time import Time
-from astropy.coordinates import SkyCoord
-from io import StringIO, BytesIO
+from io import BytesIO, StringIO
 from urllib.parse import urlencode
+
+import astropy.units as u
+import astropy.units as unit
 import pandas as pd
 import requests
+from astropy.coordinates import Angle, SkyCoord
 from astropy.table import Table
+from astropy.time import Time
+from astroquery.vizier import Vizier
 
 # Where to find the VIZIER API
 VIZIER_SED_API_URL = "https://vizier.cds.unistra.fr/viz-bin/sed"
@@ -16,28 +16,33 @@ VIZIER_SED_VIEWER_URL = "https://vizier.cds.unistra.fr/vizier/sed/"
 
 NOT_IN_ANY_CATALOG = "None, queried"
 
+
 def get_glade_plus_count(coords):
     """
     Queries GLADE+ galaxy catalog VII/281 for given skzycoord
-    Returns the number of rows in the result table, 
+    Returns the number of rows in the result table,
     or -1.
     """
-    radius = Angle(1.5 / 60. / 60., "deg")
+    radius = Angle(1.5 / 60.0 / 60.0, "deg")
     try:
         vizier = Vizier()
-        result = vizier.query_region(coords, radius=radius, catalog='VII/281', cache=False)
+        result = vizier.query_region(
+            coords, radius=radius, catalog="VII/281", cache=False
+        )
         if not result or len(result) == 0:
-            return 0            
+            return 0
         return len(result[0])
     except:
         return -1
 
+
 def get_glade_plus_count_with_ra_dec(ra, dec):
-    
+
     sky_coords = SkyCoord(ra, dec, unit=(unit.deg, unit.deg), frame="icrs")
     return get_glade_plus_count(sky_coords)
 
-def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
+
+def get_var_star_variability_analysis(ra, dec, radius_arcsec=3):
     """
     Queries the Vizier catalog for variable stars within a given regions
     as detailed as possible
@@ -49,18 +54,18 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
     Returns:
         str: Summary of found variability classifications.
     """
-    
+
     try:
         VIZIER = Vizier(ucd="src.var", columns=["*"])
-        VIZIER.ROW_LIMIT = -1 
+        VIZIER.ROW_LIMIT = -1
     except Exception as e:
         print(f"Error initializing Vizier: {e}")
         VIZIER = None
-        
+
     if VIZIER is None:
         return "Error Vizier query: No Vizier connection."
 
-    coords = SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg), frame='icrs')
+    coords = SkyCoord(ra=ra, dec=dec, unit=(u.deg, u.deg), frame="icrs")
     radius = radius_arcsec * u.arcsec
 
     try:
@@ -71,12 +76,12 @@ def get_var_star_variability_analysis(ra , dec, radius_arcsec=3):
     if not results:
         return NOT_IN_ANY_CATALOG
 
-    result_string=""
-    for catalog_name in results.keys():
+    result_string = ""
+    for catalog_name in results.keys():  # noqa: SIM118
         table = results[catalog_name]
         var_col = None
         for col in table.colnames:
-             if col.lower() in [
+            if col.lower() in [
                 "vartype",
                 "type",
                 "class",
@@ -158,12 +163,17 @@ def query_vizier_sed(ra_deg, dec_deg, radius_arcsec=2.0, timeout=5.0):
     missing_columns = required_columns.difference(sed_table.colnames)
     if missing_columns:
         missing = ", ".join(sorted(missing_columns))
-        return None, f"The VizieR SED response is missing required column(s): {missing}."
+        return (
+            None,
+            f"The VizieR SED response is missing required column(s): {missing}.",
+        )
 
     return sed_table, None
 
 
-def query_ztf_lightcurve(ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r"):
+def query_ztf_lightcurve(
+    ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, passband="r"
+):
     """
     This function generates a pandas df formatted ZTF lightcurve using requests
     based on RA and Dec in degrees and a search radius in arcseconds.
@@ -184,24 +194,22 @@ def query_ztf_lightcurve(ra_deg, dec_deg, radius_arcsec, start_mjd=58500.0, pass
     pandas dataframe of the lightcurve
     """
     if ra_deg >= 0.0:
-        ra_str = " {0:.4f}".format(ra_deg)
+        ra_str = f" {ra_deg:.4f}"
     else:
-        ra_str = " {0:.4f}".format(ra_deg)
+        ra_str = f" {ra_deg:.4f}"
     if dec_deg >= 0.0:
-        dec_str = " {0:.4f}".format(dec_deg)
+        dec_str = f" {dec_deg:.4f}"
     else:
-        dec_str = " {0:.4f}".format(dec_deg)
-    radius_str = " {0:.4f}".format(radius_arcsec / 3600.0)
-    mjd_now_str = "{:.1f}".format(Time.now().mjd)
-    circle_position_string = "{}{}{}".format(ra_str, dec_str, radius_str)
-    start_mjd_str = "{0:.1f}".format(start_mjd)
+        dec_str = f" {dec_deg:.4f}"
+    radius_str = f" {radius_arcsec / 3600.0:.4f}"
+    mjd_now_str = f"{Time.now().mjd:.1f}"
+    circle_position_string = f"{ra_str}{dec_str}{radius_str}"
+    start_mjd_str = f"{start_mjd:.1f}"
     try:
         pandas_df_lightcurve = pd.read_csv(
             StringIO(
                 requests.get(
-                    "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?POS=CIRCLE{}&BANDNAME={}&NOBS_MIN=3&TIME={}+{}&BAD_CATFLAGS_MASK=32768&FORMAT=csv".format(
-                        circle_position_string, passband, start_mjd_str, mjd_now_str
-                    )
+                    f"https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?POS=CIRCLE{circle_position_string}&BANDNAME={passband}&NOBS_MIN=3&TIME={start_mjd_str}+{mjd_now_str}&BAD_CATFLAGS_MASK=32768&FORMAT=csv"
                 ).text
             )
         )

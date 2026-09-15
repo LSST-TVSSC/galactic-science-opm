@@ -4,11 +4,11 @@ from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
 
 def convert_all_reduceddatum_to_photometryreduceddatum():
     BATCH_SIZE = 2500
-    conversion_candiates = list()
+    conversion_candiates = []
     creation_counter = 0
     reduceddatums_for_target = ReducedDatum.objects.iterator(chunk_size=BATCH_SIZE)
     number_of_reduceddatums = ReducedDatum.objects.count()
-    errors = list()
+    errors = []
 
     for reduceddatum in reduceddatums_for_target:
         try:

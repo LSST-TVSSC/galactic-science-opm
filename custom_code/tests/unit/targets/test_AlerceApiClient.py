@@ -1,4 +1,3 @@
-import pickle
 from unittest import mock
 
 from alerce.core import Alerce
@@ -7,8 +6,8 @@ from django.test import TransactionTestCase
 
 from custom_code.targets.AlerceApiClient import AlerceApiClient
 from custom_code.tests.helpers import make_pickle_from_data
-from custom_code.tests.mocks.responses.alerce_api_client_results import EXPECTED_DATA
 from custom_code.tests.mocks.external.AlerceMock import AlerceMock
+from custom_code.tests.mocks.responses.alerce_api_client_results import EXPECTED_DATA
 
 
 # python manage.py test custom_code.tests.unit.targets.AlerceApiClient --settings=galactic_science_opm.settings_test
@@ -42,7 +41,7 @@ class TestAlerceApiClient(TransactionTestCase):
                 start_date=START_DATE,
             )
             # THEN the results should match the expected results
-            self.assertEquals(actual_result, EXPECTED_DATA)
+            self.assertEqual(actual_result, EXPECTED_DATA)
             # AND the third party API should be called correctly
             self.assertEqual(len(instance.query_objects.call_args_list), PAGES + 1)
             for i, call_args in enumerate(instance.query_objects.call_args_list):
@@ -85,7 +84,7 @@ class TestAlerceApiClient(TransactionTestCase):
                 start_date=START_DATE,
             )
             # THEN the correct results should be returned
-            self.assertEquals(actual_result, [])
+            self.assertEqual(actual_result, [])
             # AND the third party API should be called correctly
             for i, call_args in enumerate(instance.query_objects.call_args_list):
                 self.assertEqual(
@@ -126,7 +125,7 @@ class TestAlerceApiClient(TransactionTestCase):
                 since_n_days=DAYS,
                 start_date=START_DATE,
             )
-            self.assertEquals(actual_result, [])
+            self.assertEqual(actual_result, [])
             now = int(Time.now().mjd)
             for i, call_args in enumerate(instance.query_objects.call_args_list):
                 self.assertEqual(
@@ -143,7 +142,7 @@ class TestAlerceApiClient(TransactionTestCase):
                 self.assertEqual(call_args.kwargs["survey"], SURVEY)
 
     def _generate_alerce_data(self):
-        """ This is for testing purposes. """
+        """This is for testing purposes."""
         class_name = "Microlensing"
         alerce = Alerce()
         start_date = int(Time.now().mjd)
@@ -160,5 +159,6 @@ class TestAlerceApiClient(TransactionTestCase):
             page_size=50,
             survey=survey,
         )
-        make_pickle_from_data(f"alerce__query_objects_{class_name.replace('/', '')}_{start_date}.pkl", _)
-
+        make_pickle_from_data(
+            f"alerce__query_objects_{class_name.replace('/', '')}_{start_date}.pkl", _
+        )

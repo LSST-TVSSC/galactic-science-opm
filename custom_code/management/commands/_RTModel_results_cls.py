@@ -1,12 +1,14 @@
-from dataclasses import dataclass
-import numpy as np
-import pandas as pd
+import math
 import os
 import re
-import math
 import warnings
+from dataclasses import dataclass
 
-#Code by Stela Ishitani, cf https://github.com/stelais/jasmine
+import numpy as np
+import pandas as pd
+
+# Code by Stela Ishitani, cf https://github.com/stelais/jasmine
+
 
 class EventResults:
     """
@@ -15,9 +17,9 @@ class EventResults:
     """
 
     def __init__(self, event_folder_):
-        """ Initialize the EventResults class with the event folder path."""
+        """Initialize the EventResults class with the event folder path."""
         self.event_folder = event_folder_
-        self.event_name = event_folder_.split('/')[-1]
+        self.event_name = event_folder_.split("/")[-1]
 
         # Initialize other attributes that need function below
         self.ps_best = BestModel()
@@ -38,7 +40,7 @@ class EventResults:
         nature_file = os.path.join(self.event_folder, "Nature.txt")
         with open(nature_file, "r") as f:
             lines = f.readlines()
-            content = ''.join(lines)
+            content = "".join(lines)
         # Extract the line starting with 'Successful:'
         self.complete_classification = ""
         match = re.search(r"Successful:\s*(.*)", content)
@@ -54,7 +56,7 @@ class EventResults:
         # Extract the best fit names
         self.final_models = []
         if start is not None:
-            for line in lines[start + 1:]:
+            for line in lines[start + 1 :]:
                 parts = line.split()
                 if len(parts) != 2 or not parts[1].endswith(".txt"):
                     break
@@ -75,16 +77,19 @@ class EventResults:
                 model, value = match.groups()
                 self.best_chi2[model] = float(value)
 
-
     def looking_for_the_names_of_best_model_of_each_category(self):
         """Looks for the names of the best model of each category in the alternative models."""
-        files = [f for f in os.listdir(self.event_folder + '/Models') if f.endswith(".txt")]
+        files = [
+            f for f in os.listdir(self.event_folder + "/Models") if f.endswith(".txt")
+        ]
 
         for file_name in files:
             # Load model and get chi2
-            model_name = file_name.split('.')[0]
-            category = model_name[0:2]  # Get the first two characters to determine the category
-            model_path = os.path.join(self.event_folder + '/Models', file_name)
+            model_name = file_name.split(".")[0]
+            category = model_name[
+                0:2
+            ]  # Get the first two characters to determine the category
+            model_path = os.path.join(self.event_folder + "/Models", file_name)
             model = ModelResults(model_path)
             chi2 = model.model_parameters.chi2
 
@@ -114,32 +119,48 @@ class BestModel:
 class ModelResults:
     def __init__(self, file_to_be_read, *, data_challenge_lc_number=None):
         print(file_to_be_read)
-        self.model_type = file_to_be_read.split('/')[-1][0:2]
+        self.model_type = file_to_be_read.split("/")[-1][0:2]
         self.data_challenge_lc_number = data_challenge_lc_number
-        if self.model_type == 'PS':
-            self.model_type_extensive_name = 'Single Lens Single Source (1L1S)'
+        if self.model_type == "PS":
+            self.model_type_extensive_name = "Single Lens Single Source (1L1S)"
             self.model_parameters = SingleLensSingleSourcePS(file_to_be_read)
-        elif self.model_type == 'PX':
-            self.model_type_extensive_name = 'Single Lens Single Source with Parallax (1L1S+plx)'
-            self.model_parameters = SingleLensSingleSourceWithParallaxPX(file_to_be_read)
-        elif self.model_type == 'BS':
-            self.model_type_extensive_name = 'Single Lens Binary Source (1L2S)'
+        elif self.model_type == "PX":
+            self.model_type_extensive_name = (
+                "Single Lens Single Source with Parallax (1L1S+plx)"
+            )
+            self.model_parameters = SingleLensSingleSourceWithParallaxPX(
+                file_to_be_read
+            )
+        elif self.model_type == "BS":
+            self.model_type_extensive_name = "Single Lens Binary Source (1L2S)"
             self.model_parameters = SingleLensBinarySourceBS(file_to_be_read)
-        elif self.model_type == 'BO':
-            self.model_type_extensive_name = 'Single Lens Binary Source with Xallarap (1L2S+xlp)'
-            self.model_parameters = SingleLensBinarySourceWithXallarapBO(file_to_be_read)
-        elif self.model_type == 'LS':
-            self.model_type_extensive_name = 'Binary Lens Single Source (2L1S)'
+        elif self.model_type == "BO":
+            self.model_type_extensive_name = (
+                "Single Lens Binary Source with Xallarap (1L2S+xlp)"
+            )
+            self.model_parameters = SingleLensBinarySourceWithXallarapBO(
+                file_to_be_read
+            )
+        elif self.model_type == "LS":
+            self.model_type_extensive_name = "Binary Lens Single Source (2L1S)"
             self.model_parameters = BinaryLensSingleSourceLS(file_to_be_read)
-        elif self.model_type == 'LX':
-            self.model_type_extensive_name = 'Binary Lens Single Source with Parallax (2L1S+plx)'
-            self.model_parameters = BinaryLensSingleSourceWithParallaxLX(file_to_be_read)
-        elif self.model_type == 'LO':
-            self.model_type_extensive_name = 'Binary Lens Single Source with Parallax and Orbital Motion (2L1S+plx+OM)'
-            self.model_parameters = BinaryLensSingleSourceWithOrbitalMotionLO(file_to_be_read)
+        elif self.model_type == "LX":
+            self.model_type_extensive_name = (
+                "Binary Lens Single Source with Parallax (2L1S+plx)"
+            )
+            self.model_parameters = BinaryLensSingleSourceWithParallaxLX(
+                file_to_be_read
+            )
+        elif self.model_type == "LO":
+            self.model_type_extensive_name = "Binary Lens Single Source with Parallax and Orbital Motion (2L1S+plx+OM)"
+            self.model_parameters = BinaryLensSingleSourceWithOrbitalMotionLO(
+                file_to_be_read
+            )
         else:
             raise ValueError(f"Model type {self.model_type} not recognized.")
-        self.covariance_matrix = pd.read_csv(file_to_be_read, skiprows=2, header=None, sep=r'\s+')
+        self.covariance_matrix = pd.read_csv(
+            file_to_be_read, skiprows=2, header=None, sep=r"\s+"
+        )
 
 
 @dataclass
@@ -148,6 +169,7 @@ class SingleLensSingleSourcePS:
     PS	Single_lens_single_source
     4 parameters
     """
+
     number_of_parameters: int
     u0: float  # Impact parameter normalized to Einstein angle (internally fit in logarithmic (ln) scale)
     u0_error: float
@@ -169,10 +191,10 @@ class SingleLensSingleSourcePS:
 
     def __init__(self, file_to_be_read):
         self.number_of_parameters = 4
-        with open(file_to_be_read, 'r') as f:
+        with open(file_to_be_read, "r") as f:
             lines = f.readlines()
-            parameters = lines[0].split(' ')
-            errors = lines[1].split(' ')
+            parameters = lines[0].split(" ")
+            errors = lines[1].split(" ")
             self.u0 = float(parameters[0])
             self.u0_error = float(errors[0])
             self.tE = float(parameters[1])
@@ -182,18 +204,36 @@ class SingleLensSingleSourcePS:
             self.rho = float(parameters[3])
             self.rho_error = float(errors[3])
             self.t_star = self.rho * self.tE
-            self.t_star_error = np.sqrt(self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2)
+            self.t_star_error = np.sqrt(
+                self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2
+            )
             self.chi2 = float(parameters[-1])
 
             self.blends = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters, len(parameters) - 1, 2)])
-            blends_error = [float(errors[i]) for i in range(self.number_of_parameters, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(self.number_of_parameters, len(parameters) - 1, 2)
+                ]
+            )
+            blends_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters, len(errors), 2)
+            ]
             self.sources = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters + 1, len(parameters) - 1, 2)])
-            sources_error = [float(errors[i]) for i in range(self.number_of_parameters + 1, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(
+                        self.number_of_parameters + 1, len(parameters) - 1, 2
+                    )
+                ]
+            )
+            sources_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters + 1, len(errors), 2)
+            ]
 
             # TODO CHECK THIS
-            self.blendings = self.blends / (self.sources + 1.e-12 * self.blends)
+            self.blendings = self.blends / (self.sources + 1.0e-12 * self.blends)
             self.blendings_error = blends_error
             self.baselines = -2.5 * np.log10(self.blends + self.sources)
             self.baselines_error = sources_error
@@ -205,6 +245,7 @@ class SingleLensSingleSourceWithParallaxPX:
     PX	Single_lens_single_source with parallax
     6 parameters
     """
+
     number_of_parameters: int
     u0: float  # Impact parameter normalized to Einstein angle
     u0_error: float
@@ -230,10 +271,10 @@ class SingleLensSingleSourceWithParallaxPX:
 
     def __init__(self, file_to_be_read):
         self.number_of_parameters = 6
-        with open(file_to_be_read, 'r') as f:
+        with open(file_to_be_read, "r") as f:
             lines = f.readlines()
-            parameters = lines[0].split(' ')
-            errors = lines[1].split(' ')
+            parameters = lines[0].split(" ")
+            errors = lines[1].split(" ")
             self.u0 = float(parameters[0])
             self.u0_error = float(errors[0])
             self.tE = float(parameters[1])
@@ -243,7 +284,9 @@ class SingleLensSingleSourceWithParallaxPX:
             self.rho = float(parameters[3])
             self.rho_error = float(errors[3])
             self.t_star = self.rho * self.tE
-            self.t_star_error = np.sqrt(self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2)
+            self.t_star_error = np.sqrt(
+                self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2
+            )
             self.piEN = float(parameters[4])
             self.piEN_error = float(errors[4])
             self.piEE = float(parameters[5])
@@ -251,14 +294,30 @@ class SingleLensSingleSourceWithParallaxPX:
             self.chi2 = float(parameters[-1])
 
             self.blends = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters, len(parameters) - 1, 2)])
-            blends_error = [float(errors[i]) for i in range(self.number_of_parameters, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(self.number_of_parameters, len(parameters) - 1, 2)
+                ]
+            )
+            blends_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters, len(errors), 2)
+            ]
             self.sources = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters + 1, len(parameters) - 1, 2)])
-            sources_error = [float(errors[i]) for i in range(self.number_of_parameters + 1, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(
+                        self.number_of_parameters + 1, len(parameters) - 1, 2
+                    )
+                ]
+            )
+            sources_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters + 1, len(errors), 2)
+            ]
 
             # TODO CHECK THIS
-            self.blendings = self.blends / (self.sources + 1.e-12 * self.blends)
+            self.blendings = self.blends / (self.sources + 1.0e-12 * self.blends)
             self.blendings_error = blends_error
             self.baselines = -2.5 * np.log10(self.blends + self.sources)
             self.baselines_error = sources_error
@@ -270,6 +329,7 @@ class SingleLensBinarySourceBS:
     BS	Single_lens_binary_source
     7 parameters
     """
+
     number_of_parameters: int
     tE: float  # Einstein time in days (internally fit in logarithmic (ln) scale)
     tE_error: float
@@ -297,10 +357,10 @@ class SingleLensBinarySourceBS:
 
     def __init__(self, file_to_be_read):
         self.number_of_parameters = 7
-        with open(file_to_be_read, 'r') as f:
+        with open(file_to_be_read, "r") as f:
             lines = f.readlines()
-            parameters = lines[0].split(' ')
-            errors = lines[1].split(' ')
+            parameters = lines[0].split(" ")
+            errors = lines[1].split(" ")
             self.tE = float(parameters[0])
             self.tE_error = float(errors[0])
             self.flux_ratio = float(parameters[1])
@@ -316,18 +376,36 @@ class SingleLensBinarySourceBS:
             self.rho1 = float(parameters[6])
             self.rho1_error = float(errors[6])
             self.t_star1 = self.rho1 * self.tE
-            self.t_star1_error = np.sqrt(self.tE**2 * self.rho1_error**2 + self.rho1**2 * self.tE_error**2)
+            self.t_star1_error = np.sqrt(
+                self.tE**2 * self.rho1_error**2 + self.rho1**2 * self.tE_error**2
+            )
             self.chi2 = float(parameters[-1])
 
             self.blends = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters, len(parameters) - 1, 2)])
-            blends_error = [float(errors[i]) for i in range(self.number_of_parameters, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(self.number_of_parameters, len(parameters) - 1, 2)
+                ]
+            )
+            blends_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters, len(errors), 2)
+            ]
             self.sources = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters + 1, len(parameters) - 1, 2)])
-            sources_error = [float(errors[i]) for i in range(self.number_of_parameters + 1, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(
+                        self.number_of_parameters + 1, len(parameters) - 1, 2
+                    )
+                ]
+            )
+            sources_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters + 1, len(errors), 2)
+            ]
 
             # TODO CHECK THIS
-            self.blendings = self.blends / (self.sources + 1.e-12 * self.blends)
+            self.blendings = self.blends / (self.sources + 1.0e-12 * self.blends)
             self.blendings_error = blends_error
             self.baselines = -2.5 * np.log10(self.blends + self.sources)
             self.baselines_error = sources_error
@@ -339,6 +417,7 @@ class SingleLensBinarySourceWithXallarapBO:
     BO	Single_lens_binary_source with xallarap
     10 parameters
     """
+
     number_of_parameters: int
     u01: float  # Impact parameter of the primary source
     t01: float  # Closest approach time of the primary source
@@ -362,10 +441,10 @@ class SingleLensBinarySourceWithXallarapBO:
 
     def __init__(self, file_to_be_read):
         self.number_of_parameters = 10
-        with open(file_to_be_read, 'r') as f:
+        with open(file_to_be_read, "r") as f:
             lines = f.readlines()
-            parameters = lines[0].split(' ')
-            errors = lines[1].split(' ')
+            parameters = lines[0].split(" ")
+            errors = lines[1].split(" ")
             self.u01 = float(parameters[0])
             self.u01_error = float(errors[0])
             self.t01 = float(parameters[1])
@@ -375,7 +454,9 @@ class SingleLensBinarySourceWithXallarapBO:
             self.rho1 = float(parameters[3])
             self.rho1_error = float(errors[3])
             self.t_star1 = self.rho1 * self.tE
-            self.t_star1_error = np.sqrt(self.tE**2 * self.rho1_error**2 + self.rho1**2 * self.tE_error**2)
+            self.t_star1_error = np.sqrt(
+                self.tE**2 * self.rho1_error**2 + self.rho1**2 * self.tE_error**2
+            )
             self.xi1 = float(parameters[4])
             self.xi1_error = float(errors[4])
             self.xi2 = float(parameters[5])
@@ -391,14 +472,30 @@ class SingleLensBinarySourceWithXallarapBO:
             self.chi2 = float(parameters[-1])
 
             self.blends = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters, len(parameters) - 1, 2)])
-            blends_error = [float(errors[i]) for i in range(self.number_of_parameters, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(self.number_of_parameters, len(parameters) - 1, 2)
+                ]
+            )
+            blends_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters, len(errors), 2)
+            ]
             self.sources = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters + 1, len(parameters) - 1, 2)])
-            sources_error = [float(errors[i]) for i in range(self.number_of_parameters + 1, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(
+                        self.number_of_parameters + 1, len(parameters) - 1, 2
+                    )
+                ]
+            )
+            sources_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters + 1, len(errors), 2)
+            ]
 
             # TODO CHECK THIS
-            self.blendings = self.blends / (self.sources + 1.e-12 * self.blends)
+            self.blendings = self.blends / (self.sources + 1.0e-12 * self.blends)
             self.blendings_error = blends_error
             self.baselines = -2.5 * np.log10(self.blends + self.sources)
             self.baselines_error = sources_error
@@ -410,6 +507,7 @@ class BinaryLensSingleSourceLS:
     LS	Binary_lens_single_source
     7 parameters
     """
+
     number_of_parameters: int
     separation: float  # Separation between the lenses in Einstein radii (internally fit in logarithmic (ln) scale)
     separation_error: float
@@ -437,10 +535,10 @@ class BinaryLensSingleSourceLS:
 
     def __init__(self, file_to_be_read):
         self.number_of_parameters = 7
-        with (open(file_to_be_read, 'r') as f):
+        with open(file_to_be_read, "r") as f:
             lines = f.readlines()
-            parameters = lines[0].split(' ')
-            errors = lines[1].split(' ')
+            parameters = lines[0].split(" ")
+            errors = lines[1].split(" ")
             self.separation = float(parameters[0])
             self.separation_error = float(errors[0])
             self.mass_ratio = float(parameters[1])
@@ -454,22 +552,40 @@ class BinaryLensSingleSourceLS:
             self.tE = float(parameters[5])
             self.tE_error = float(errors[5])
             self.t_star = self.rho * self.tE
-            self.t_star_error = np.sqrt(self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2)
+            self.t_star_error = np.sqrt(
+                self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2
+            )
             self.t0 = float(parameters[6])
             self.t0_error = float(errors[6])
             self.chi2 = float(parameters[-1])
 
             # blends are odd indices starting from 7
             self.blends = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters, len(parameters) - 1, 2)])
-            blends_error = [float(errors[i]) for i in range(self.number_of_parameters, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(self.number_of_parameters, len(parameters) - 1, 2)
+                ]
+            )
+            blends_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters, len(errors), 2)
+            ]
             # sources are even indices starting from 8
             self.sources = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters + 1, len(parameters) - 1, 2)])
-            sources_error = [float(errors[i]) for i in range(self.number_of_parameters + 1, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(
+                        self.number_of_parameters + 1, len(parameters) - 1, 2
+                    )
+                ]
+            )
+            sources_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters + 1, len(errors), 2)
+            ]
 
             # TODO CHECK THIS
-            self.blendings = self.blends / (self.sources + 1.e-12 * self.blends)
+            self.blendings = self.blends / (self.sources + 1.0e-12 * self.blends)
             self.blendings_error = blends_error
             self.baselines = -2.5 * np.log10(self.blends + self.sources)
             self.baselines_error = sources_error
@@ -481,6 +597,7 @@ class BinaryLensSingleSourceWithParallaxLX:
     LX	Binary_lens_single_source with parallax
     9 parameters
     """
+
     number_of_parameters: int
     separation: float  # Separation between the lenses in Einstein radii (internally fit in logarithmic (ln) scale)
     separation_error: float
@@ -512,10 +629,10 @@ class BinaryLensSingleSourceWithParallaxLX:
 
     def __init__(self, file_to_be_read):
         self.number_of_parameters = 9
-        with open(file_to_be_read, 'r') as f:
+        with open(file_to_be_read, "r") as f:
             lines = f.readlines()
-            parameters = lines[0].split(' ')
-            errors = lines[1].split(' ')
+            parameters = lines[0].split(" ")
+            errors = lines[1].split(" ")
             self.separation = float(parameters[0])
             self.separation_error = float(errors[0])
             self.mass_ratio = float(parameters[1])
@@ -529,7 +646,9 @@ class BinaryLensSingleSourceWithParallaxLX:
             self.tE = float(parameters[5])
             self.tE_error = float(errors[5])
             self.t_star = self.rho * self.tE
-            self.t_star_error = np.sqrt(self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2)
+            self.t_star_error = np.sqrt(
+                self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2
+            )
             self.t0 = float(parameters[6])
             self.t0_error = float(errors[6])
             self.piEN = float(parameters[7])
@@ -540,15 +659,31 @@ class BinaryLensSingleSourceWithParallaxLX:
 
             # blends are odd indices starting from 9
             self.blends = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters, len(parameters) - 1, 2)])
-            blends_error = [float(errors[i]) for i in range(self.number_of_parameters, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(self.number_of_parameters, len(parameters) - 1, 2)
+                ]
+            )
+            blends_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters, len(errors), 2)
+            ]
             # sources are even indices starting from 10
             self.sources = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters + 1, len(parameters) - 1, 2)])
-            sources_error = [float(errors[i]) for i in range(self.number_of_parameters + 1, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(
+                        self.number_of_parameters + 1, len(parameters) - 1, 2
+                    )
+                ]
+            )
+            sources_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters + 1, len(errors), 2)
+            ]
 
             # TODO CHECK THIS
-            self.blendings = self.blends / (self.sources + 1.e-12 * self.blends)
+            self.blendings = self.blends / (self.sources + 1.0e-12 * self.blends)
             self.blendings_error = blends_error
             self.baselines = -2.5 * np.log10(self.blends + self.sources)
             self.baselines_error = sources_error
@@ -560,6 +695,7 @@ class BinaryLensSingleSourceWithOrbitalMotionLO:
     LO	Binary_lens_single_source with orbital motion
     12 parameters
     """
+
     number_of_parameters: int
     separation: float  # Separation between the lenses in Einstein radii (internally fit in logarithmic (ln) scale)
     separation_error: float
@@ -597,10 +733,10 @@ class BinaryLensSingleSourceWithOrbitalMotionLO:
 
     def __init__(self, file_to_be_read):
         self.number_of_parameters = 12
-        with open(file_to_be_read, 'r') as f:
+        with open(file_to_be_read, "r") as f:
             lines = f.readlines()
-            parameters = lines[0].split(' ')
-            errors = lines[1].split(' ')
+            parameters = lines[0].split(" ")
+            errors = lines[1].split(" ")
             self.separation = float(parameters[0])
             self.separation_error = float(errors[0])
             self.mass_ratio = float(parameters[1])
@@ -614,7 +750,9 @@ class BinaryLensSingleSourceWithOrbitalMotionLO:
             self.tE = float(parameters[5])
             self.tE_error = float(errors[5])
             self.t_star = self.rho * self.tE
-            self.t_star_error = np.sqrt(self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2)
+            self.t_star_error = np.sqrt(
+                self.tE**2 * self.rho_error**2 + self.rho**2 * self.tE_error**2
+            )
             self.t0 = float(parameters[6])
             self.t0_error = float(errors[6])
             self.piEN = float(parameters[7])
@@ -630,17 +768,34 @@ class BinaryLensSingleSourceWithOrbitalMotionLO:
             self.chi2 = float(parameters[-1])
 
             self.blends = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters, len(parameters) - 1, 2)])
-            blends_error = [float(errors[i]) for i in range(self.number_of_parameters, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(self.number_of_parameters, len(parameters) - 1, 2)
+                ]
+            )
+            blends_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters, len(errors), 2)
+            ]
             self.sources = np.array(
-                [float(parameters[i]) for i in range(self.number_of_parameters + 1, len(parameters) - 1, 2)])
-            sources_error = [float(errors[i]) for i in range(self.number_of_parameters + 1, len(errors), 2)]
+                [
+                    float(parameters[i])
+                    for i in range(
+                        self.number_of_parameters + 1, len(parameters) - 1, 2
+                    )
+                ]
+            )
+            sources_error = [
+                float(errors[i])
+                for i in range(self.number_of_parameters + 1, len(errors), 2)
+            ]
 
             # TODO CHECK THIS
-            self.blendings = self.blends / (self.sources + 1.e-12 * self.blends)
+            self.blendings = self.blends / (self.sources + 1.0e-12 * self.blends)
             self.blendings_error = blends_error
             self.baselines = -2.5 * np.log10(self.blends + self.sources)
             self.baselines_error = sources_error
+
 
 if __name__ == "__main__":
     # Example usage

@@ -1,13 +1,15 @@
 import re
 
-from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG, get_var_star_variability_analysis
+from custom_code.utils.catalog_requests import (
+    NOT_IN_ANY_CATALOG,
+    get_var_star_variability_analysis,
+)
 from custom_code.variability.VariabilityFlagsClient import VariabilityFlagsClient
 
 
 class VizierVariabilityFlagsClient(VariabilityFlagsClient):
-
     def get_variability_info_for_targets(self, targets):
-        results = dict()
+        results = {}
         success = False
         flags = []
         for target in targets:
@@ -28,4 +30,3 @@ class VizierVariabilityFlagsClient(VariabilityFlagsClient):
             }
 
         return results
-

@@ -1,5 +1,6 @@
 from unittest import mock
 
+import astropy.units as unit
 from astropy.coordinates import SkyCoord
 from django.test import TransactionTestCase
 from tom_targets.forms import Angle
@@ -7,7 +8,7 @@ from tom_targets.forms import Angle
 from custom_code.catalogs.GladePlusApiClient import GladeClientApi
 from custom_code.target_models import GalacticTarget
 from custom_code.tests.mocks.external.VizierMock import VizierMock
-import astropy.units as unit
+
 
 class TestGlasePlusClientApi(TransactionTestCase):
     def test_should_return_dict_with_results_if_vizier_has_results(
@@ -30,9 +31,7 @@ class TestGlasePlusClientApi(TransactionTestCase):
 
         EXPECTED_RADIUS = Angle(1.5 / 60.0 / 60.0, "deg")
 
-        with mock.patch(
-            "custom_code.utils.catalog_requests.Vizier"
-        ) as mocked:
+        with mock.patch("custom_code.utils.catalog_requests.Vizier") as mocked:
             # GIVEN a Vizier implementation that for each targets returns
             # a TableList with 1 table
             replacement = VizierMock()
@@ -74,17 +73,16 @@ class TestGlasePlusClientApi(TransactionTestCase):
 
         EXPECTED_RADIUS = Angle(1.5 / 60.0 / 60.0, "deg")
 
-        with mock.patch(
-            "custom_code.utils.catalog_requests.Vizier"
-        ) as mocked:
+        with mock.patch("custom_code.utils.catalog_requests.Vizier") as mocked:
             # GIVEN a Vizier implementation that return none for query_region
             instance = mocked.return_value
+
             def none_returning_vizier(*args, **kwargs):
                 return None
-            
+
             instance.query_region.side_effect = none_returning_vizier
             glade_checker = GladeClientApi()
-            # WHEN the testee is called 
+            # WHEN the testee is called
             actual_result = glade_checker.check_glade_plus_for_targets(TARGETS)
             # THEN the results should match the expected ones
             self.assertDictEqual(actual_result, EXPECTED_RESULTS)
@@ -118,11 +116,10 @@ class TestGlasePlusClientApi(TransactionTestCase):
 
         EXPECTED_RADIUS = Angle(1.5 / 60.0 / 60.0, "deg")
 
-        with mock.patch(
-            "custom_code.utils.catalog_requests.Vizier"
-        ) as mocked:
+        with mock.patch("custom_code.utils.catalog_requests.Vizier") as mocked:
             # GIVEN a mock Vizier implementation that returns an empty list
             instance = mocked.return_value
+
             def none_returning_vizier(*args, **kwargs):
                 return []
 
@@ -164,18 +161,17 @@ class TestGlasePlusClientApi(TransactionTestCase):
 
         EXPECTED_RADIUS = Angle(1.5 / 60.0 / 60.0, "deg")
 
-        with mock.patch(
-            "custom_code.utils.catalog_requests.Vizier"
-        ) as mocked:
+        with mock.patch("custom_code.utils.catalog_requests.Vizier") as mocked:
             # GIVEN a mock Vizier implementation that raises an exception when query_region is called
             instance = mocked.return_value
+
             def exception_raising_mock(*args, **kwargs):
-                raise Exception('This throws')
+                raise Exception("This throws")  # noqa: TRY002
 
             instance.query_region.side_effect = exception_raising_mock
             glade_checker = GladeClientApi()
 
-            # WHEN the testee is called 
+            # WHEN the testee is called
             actual_result = glade_checker.check_glade_plus_for_targets(TARGETS)
 
             # THEN the expected results should be returned

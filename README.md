@@ -310,3 +310,11 @@ common tasks more easy, but this is completely optional.
 
 After you installed [just](https://github.com/casey/just), you can do things
 like `just run-unittest` and the unit tests will run. 
+
+### pre-commit
+
+There is a pre-commit hook which lints and formats code with ruff on every commit.
+To use this, run `poetry run pre-commit install`. This only needs to happen once.
+Make sure to run `poetry install` first so that `pre-commit` is installed.
+
+
