@@ -111,36 +111,38 @@ class MicrolensingCoordsBroker:
 
         print(f'KMTNet: found {len(events)} event(s)')
         return events
-
     def fetch_vizier_coords(self, survey):
         print(f'Fetching {survey} coordinates from VizieR catalog {VIZIER_CATALOGS[survey]}')
         events = {}
-        Vizier.ROW_LIMIT = -1
-        catalogs = Vizier.get_catalogs(VIZIER_CATALOGS[survey])
+
+        v = Vizier(columns=['**'], row_limit=-1)
+        catalogs = v.get_catalogs(VIZIER_CATALOGS[survey])
         if len(catalogs) == 0:
             print(f'{survey}: no catalog data retrieved')
             return events
 
+        print(f'{survey}: retrieved tables {list(catalogs.keys())}')
         table = catalogs[0]
+        print(f'{survey}: table has {len(table)} rows, columns {table.colnames}')
+
+        id_col = 'MACHO' if survey == 'MACHO' else 'EROS2'
+
         for row in table:
             try:
-                if survey == 'MACHO':
-                    star_id = str(row['Star']) if 'Star' in row.colnames else str(row[0])
-                    name = f'MACHO_{star_id}'
-                else:
-                    star_id = str(row['EROS2']) if 'EROS2' in row.colnames else str(row[0])
-                    name = f'EROS2_{star_id}'
+                star_id = str(row[id_col]).strip()
+                name = f'{survey}_{star_id}'
 
-                ra = row['RAJ2000']
-                dec = row['DEJ2000']
-                s = SkyCoord(ra, dec, unit=(unit.hourangle, unit.deg), frame='icrs') \
-                    if isinstance(ra, str) else SkyCoord(ra, dec, unit=(unit.deg, unit.deg), frame='icrs')
+                ra_str = str(row['RAJ2000']).strip()
+                dec_str = str(row['DEJ2000']).strip()
+
+                s = SkyCoord(ra_str, dec_str, unit=(unit.hourangle, unit.deg), frame='icrs')
                 events[name] = (s.ra.deg, s.dec.deg)
             except Exception as e:
                 print(f'{survey}: could not parse row {row}: {e}')
 
         print(f'{survey}: found {len(events)} event(s)')
         return events
+
 
     def ingest_events(self, events, debug=False):
         
