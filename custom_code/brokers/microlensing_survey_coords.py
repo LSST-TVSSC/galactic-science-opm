@@ -33,7 +33,6 @@ class MicrolensingCoordsBroker:
             years = [str(Time.now().byear)[:4]]
 
         all_surveys = ['OGLE', 'KMTNET', 'MACHO', 'EROS2','PRIME'] #MOAPRIME missing...
-        all_surveys = ['PRIME'] 
         if str(surveys).lower() == 'all':
             survey_list = all_surveys
         else:
