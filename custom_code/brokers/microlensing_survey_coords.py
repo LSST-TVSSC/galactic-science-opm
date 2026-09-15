@@ -13,7 +13,7 @@ from custom_code.match_managers import validators
 
 OGLE_URL = 'https://www.astrouw.edu.pl/ogle/ogle4/ews'
 KMTNET_URL = 'https://kmtnet.kasi.re.kr/ulens/event/{year}/listpage.dat'
-MOA_PRIME_URL = 'https://moaprime.massey.ac.nz/alerts/index/prime/{year}'
+PRIME_URL = 'https://moaprime.massey.ac.nz/alerts/index/prime/{year}'
 
 VIZIER_CATALOGS = {
     'MACHO': 'J/ApJ/631/906',
@@ -32,7 +32,7 @@ class MicrolensingCoordsBroker:
         if years is None:
             years = [str(Time.now().byear)[:4]]
 
-        all_surveys = ['OGLE', 'KMTNET', 'MACHO', 'EROS2'] #MOAPRIME missing...
+        all_surveys = ['OGLE', 'KMTNET', 'MACHO', 'EROS2','PRIME'] #MOAPRIME missing...
         if str(surveys).lower() == 'all':
             survey_list = all_surveys
         else:
@@ -44,8 +44,8 @@ class MicrolensingCoordsBroker:
                 events = self.fetch_ogle_coords(years)
             elif survey == 'KMTNET':
                 events = self.fetch_kmtnet_coords(years)
-#            elif survey == 'MOAPRIME':
-#                events = self.fetch_moa_coords(years)
+            elif survey == 'PRIME':
+                events = self.fetch_prime_coords(years)
             elif survey == 'MACHO':
                 events = self.fetch_vizier_coords('MACHO')
             elif survey == 'EROS2':
@@ -57,6 +57,15 @@ class MicrolensingCoordsBroker:
             results[survey] = self.ingest_events(events)
 
         return results
+    
+    def fetch_prime_coords(self, years):
+        print('Fetching PRIME event coordinates for years ' + repr(years))
+        events = {}
+
+        for year in years:
+            url = PRIME_URL.format(year=year)
+            #TBD perhaps with BS
+        return events
 
     def fetch_ogle_coords(self, years):
         print('Fetching OGLE event coordinates for years ' + repr(years))
@@ -119,6 +128,7 @@ class MicrolensingCoordsBroker:
 
         print(f'KMTNet: found {len(events)} event(s)')
         return events
+    
     def fetch_vizier_coords(self, survey):
         print(f'Fetching {survey} coordinates from VizieR catalog {VIZIER_CATALOGS[survey]}')
         events = {}
