@@ -109,6 +109,13 @@ class MicrolensingCoordsBroker:
                         events[name] = (s.ra.deg, s.dec.deg)
                     except Exception:
                         print(f'KMTNet: could not parse coords for {name}')
+                elif ":" in entries[4] and ":" in entries[5]:
+                    ra_str, dec_str = entries[4], entries[5]
+                    try:
+                        s = SkyCoord(ra_str, dec_str, unit=(unit.hourangle, unit.deg), frame='icrs')
+                        events[name] = (s.ra.deg, s.dec.deg)
+                    except Exception:
+                        print(f'KMTNet: could not parse coords for {name}')
 
         print(f'KMTNet: found {len(events)} event(s)')
         return events
