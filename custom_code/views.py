@@ -179,8 +179,7 @@ def microlensing_rescaled_prob_view(request):
         .distinct()[:10]
     )
 
-    ogle_targets = GalacticTarget.objects.filter(name__icontains="OGLE")
-
+    ogle_targets = GalacticTarget.objects.filter(Q(name__icontains=f"OGLE-{current_year}") | Q(name__icontains=f"KMT-{current_year}"))
     ztf_aliases = TargetName.objects.filter(
         name__icontains="ZTF",
         target_id__in=ogle_targets.values_list("id", flat=True)
