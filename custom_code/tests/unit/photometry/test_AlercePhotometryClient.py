@@ -1,9 +1,8 @@
 import datetime
-from os import path
-import pandas as pd
 from unittest import mock
-from astropy.time import TimezoneInfo
 
+import pandas as pd
+from astropy.time import TimezoneInfo
 from django.test import TransactionTestCase
 
 from custom_code.photometry.AlercePhotometryClient import AlercePhotometryClient
@@ -144,8 +143,6 @@ class TestAlercePhotometryClient(TransactionTestCase):
         with mock.patch(
             "custom_code.photometry.AlercePhotometryClient.Alerce"
         ) as mocked:
-            data_folder = path.join("custom_code", "tests", "mocks", "responses")
-
             # GIVEN mock implementation for Alerce query_detections
             def replacement_detections(*args, **kwargs):
                 _name = args[0]

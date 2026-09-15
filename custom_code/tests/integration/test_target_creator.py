@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from custom_code.match_managers import validators
 from custom_code.target_models import GalacticTarget
 
@@ -44,8 +45,8 @@ class TargetCreatorTests(TestCase):
             },
         ]
         actual_total, actual_new = target_creator(objects_to_convert)
-        self.assertEquals(len(actual_total), len(expected_total))
-        self.assertEquals(len(actual_new), len(expected_new))
+        self.assertEqual(len(actual_total), len(expected_total))
+        self.assertEqual(len(actual_new), len(expected_new))
         for first, second in zip(actual_new, expected_new):
             result, error = galactic_target_is_equal(first, second)
             self.assertEqual(

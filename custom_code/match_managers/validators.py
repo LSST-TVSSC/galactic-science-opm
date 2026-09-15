@@ -15,30 +15,21 @@ def check_target_unique(name, ra, dec):
 
     result_qs = name_qs | cone_search_qs
 
-    if result_qs.count() > 0:
-        return False
-    else:
-        return True
+    return not result_qs.count() > 0
 
 
 def check_target_name_unique(name):
     """Function to verify that a new candidate Target has a unique name"""
     qs = Target.objects.filter(name=name)
 
-    if qs.count() > 0:
-        return False
-    else:
-        return True
+    return not qs.count() > 0
 
 
 def check_target_alias_unique(name):
     """Function to verify that a new candidate Target has a unique name"""
     qs = TargetName.objects.filter(name=name)
 
-    if qs.count() > 0:
-        return False
-    else:
-        return True
+    return not qs.count() > 0
 
 
 def check_target_coordinates_unique(ra, dec, radius=2.0):
@@ -49,10 +40,7 @@ def check_target_coordinates_unique(ra, dec, radius=2.0):
 
     qs = Target.matches.match_cone_search(ra, dec, radius)
 
-    if qs.count() > 0:
-        return False
-    else:
-        return True
+    return not qs.count() > 0
 
 
 def get_or_create_event(

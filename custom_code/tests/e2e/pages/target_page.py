@@ -1,6 +1,6 @@
-from playwright.sync_api import Page
-from playwright.sync_api import expect
 import os
+
+from playwright.sync_api import Page
 
 
 class TargetPage:

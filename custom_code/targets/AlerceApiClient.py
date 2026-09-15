@@ -1,7 +1,6 @@
+import pandas as pd
 from alerce.core import Alerce
 from astropy.time import Time
-from custom_code.tests.helpers import make_pickle_from_data
-import pandas as pd
 
 from custom_code.targets.TargetApiClient import TargetApiClient
 

@@ -1,9 +1,8 @@
 import datetime
 from unittest import mock
 
-from django.db import IntegrityError
-
 from astropy.time import TimezoneInfo
+from django.db import IntegrityError
 from django.test import TransactionTestCase
 from tom_dataproducts.models import PhotometryReducedDatum
 from tom_targets.models import Target

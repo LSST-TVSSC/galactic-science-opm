@@ -1,12 +1,9 @@
-from django.core.management.base import BaseCommand
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
-from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
-from custom_code.match_managers import validators
 import numpy as np
-import pandas as pd
-from astropy.coordinates import SkyCoord
-from astropy import units as u
 from astropy.time import Time, TimezoneInfo
+from django.core.management.base import BaseCommand
+from tom_dataproducts.models import PhotometryReducedDatum
+
+from custom_code.target_models import GalacticTarget
 
 
 class Command(BaseCommand):
@@ -35,7 +32,7 @@ class Command(BaseCommand):
                     "error": float(row[2]),
                 }
             try:
-                rd, created = PhotometryReducedDatum.objects.get_or_create(
+                _rd, _created = PhotometryReducedDatum.objects.get_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                     brightness=datum["magnitude"],
                     brightness_error=datum["error"],

@@ -1,8 +1,10 @@
-from datetime import date, datetime, timedelta
 import random
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
-from django.test import TestCase, TransactionTestCase
+
+from django.test import TransactionTestCase
 from tom_dataproducts.models import ReducedDatum
+
 from custom_code.management.commands.convert_reduceddatum_to_photometryreduceddatum import (
     convert_all_reduceddatum_to_photometryreduceddatum,
 )

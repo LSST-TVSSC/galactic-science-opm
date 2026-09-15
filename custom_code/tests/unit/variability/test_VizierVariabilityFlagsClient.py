@@ -1,9 +1,9 @@
-from os import path
 import pickle
-import astropy.units as unit
-from astropy.coordinates import SkyCoord
+from os import path
 from unittest import mock
 
+import astropy.units as unit
+from astropy.coordinates import SkyCoord
 from django.test import TransactionTestCase
 
 from custom_code.target_models import GalacticTarget
@@ -153,7 +153,7 @@ class TestVizierVariabilityFlagsClient(TransactionTestCase):
         with mock.patch("custom_code.utils.catalog_requests.Vizier") as mocked:
             # GIVEN a vizier instance that raises an for query_region
             def replacement(*args, **kwargs):
-                raise Exception("Vizier mock raised exception on purpose")
+                raise Exception("Vizier mock raised exception on purpose")  # noqa: TRY002
 
             instance = mocked.return_value
             instance.query_region.side_effect = replacement
@@ -202,7 +202,7 @@ class TestVizierVariabilityFlagsClient(TransactionTestCase):
         # GIVEN a vizier instance that raises an exception upon creation
         class Dummy:
             def __init__(self, *args, **kwargs) -> None:
-                raise Exception("Vizier mock raised exception on purpose")
+                raise Exception("Vizier mock raised exception on purpose")  # noqa: TRY002
 
         def provide():
             return Dummy

@@ -1,11 +1,12 @@
 import re
+
 from playwright.sync_api import Page, expect
+
 from custom_code.tests.e2e.data.test_data import (
     BASE_URL,
-    VALID_USER_CREDENTIALS,
     VALID_ADMIN_CREDENTIALS,
+    VALID_USER_CREDENTIALS,
 )
-
 from custom_code.tests.e2e.pages.users_page import UsersPage
 
 USER_DATA = ("max", "m k", "mk@example.com")

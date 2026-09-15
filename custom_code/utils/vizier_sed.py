@@ -8,7 +8,6 @@ from django.utils.dateparse import parse_datetime
 
 from custom_code.utils.catalog_requests import get_vizier_sed_url, query_vizier_sed
 
-
 VIZIER_SED_DATA_TYPE = "sed"
 VIZIER_SED_SOURCE_NAME = "CDS VizieR SED"
 VIZIER_SED_SOURCE_LOCATION = "VizieR SED API"

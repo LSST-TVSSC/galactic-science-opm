@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
-from plotly import offline
 import plotly.graph_objs as go
-
+from plotly import offline
 
 MIN_BLACKBODY_POINTS = 5
 MIN_DISTINCT_FILTERS = 5
@@ -232,14 +231,14 @@ def make_sed_plot(points, target_name):
             y=df["nu_fnu_w_m2"],
             mode="markers",
             text=marker_text,
-            marker=dict(
-                size=13,
-                opacity=0.77,
-                color=df["sed_freq_ghz"],
-                colorscale="Jet_r",
-                showscale=False,
-                line=dict(width=2, color="White"),
-            ),
+            marker={
+                "size": 13,
+                "opacity": 0.77,
+                "color": df["sed_freq_ghz"],
+                "colorscale": "Jet_r",
+                "showscale": False,
+                "line": {"width": 2, "color": "White"},
+            },
             hovertemplate=hovertemplate,
             name="VizieR SED",
         )
@@ -257,7 +256,7 @@ def make_sed_plot(points, target_name):
                 x=blackbody_fit["wavelength_um"],
                 y=blackbody_fit["nu_fnu_w_m2"],
                 mode="lines",
-                line=dict(color="White", width=3, dash="dash"),
+                line={"color": "White", "width": 3, "dash": "dash"},
                 name=f"Approx. blackbody guide ({blackbody_fit['temperature']:.0f} K{clipped_suffix})",
                 hovertemplate=(
                     "Approx. blackbody guide<br>"
@@ -274,7 +273,7 @@ def make_sed_plot(points, target_name):
     fig.update_layout(
         title=f"VizieR SED for {target_name}",
         template="plotly_dark",
-        margin=dict(l=50, r=30, t=60, b=50),
+        margin={"l": 50, "r": 30, "t": 60, "b": 50},
         showlegend=True,
     )
     fig.update_xaxes(type="log", title_text="Wavelength (μm)")

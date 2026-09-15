@@ -1,7 +1,7 @@
-from plotly import offline
 import plotly.graph_objs as go
 from django import template
-from custom_code.target_models import GalacticTarget
+from plotly import offline
+
 from custom_code.target_models import MicrolensingRadarData
 
 register = template.Library()
@@ -43,7 +43,7 @@ def microlensing_radar(targets=None):
             theta=categories,
             fill="toself",
             fillcolor="rgba(0, 255, 0, 0.3)",
-            line=dict(color="green", dash="dash"),
+            line={"color": "green", "dash": "dash"},
             name="Bogus",
             hoverinfo="skip",
         )
@@ -56,7 +56,7 @@ def microlensing_radar(targets=None):
         yref="paper",
         text=f"Bogus: {bogus_value}",
         showarrow=False,
-        font=dict(color="green", size=17),
+        font={"color": "green", "size": 17},
         bgcolor="white",
     )
 
@@ -66,16 +66,16 @@ def microlensing_radar(targets=None):
             theta=categories,
             fill="toself",
             name="Rescaled Probability",
-            marker=dict(color="red"),
+            marker={"color": "red"},
         )
     )
 
     fig.update_layout(
         template="plotly_dark",
-        polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+        polar={"radialaxis": {"visible": True, "range": [0, 1]}},
         showlegend=False,
         title="Microlensing Radar Transformed probabilities",
-        font=dict(size=17),
+        font={"size": 17},
     )
 
     figure = offline.plot(

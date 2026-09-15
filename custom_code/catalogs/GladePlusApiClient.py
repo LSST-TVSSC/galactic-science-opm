@@ -1,10 +1,5 @@
-from astropy.coordinates import SkyCoord
-import astropy.units as unit
-from astroquery.vizier import Vizier
-from custom_code.utils.catalog_requests import get_glade_plus_count_with_ra_dec
-from tom_targets.forms import Angle
-
 from custom_code.catalogs.ExtragalacticInfoApiClient import ExtragalacticInfoApi
+from custom_code.utils.catalog_requests import get_glade_plus_count_with_ra_dec
 
 
 class GladeClientApi(ExtragalacticInfoApi):
@@ -12,7 +7,7 @@ class GladeClientApi(ExtragalacticInfoApi):
         return {"success": success, "count": count, "name": name}
 
     def check_glade_plus_for_targets(self, targets):
-        results = dict()
+        results = {}
         for target in targets:
             name, ra, dec = target.name, target.ra, target.dec
 

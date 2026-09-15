@@ -11,9 +11,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
-import logging.config
 import os
 import tempfile
+
 import environ
 
 env = environ.Env(DJANGO_DEBUG=(bool, False))
@@ -460,6 +460,6 @@ DATA_SHARING = {
 }
 
 try:
-    from local_settings import *  # noqa
+    from local_settings import *
 except ImportError:
     pass

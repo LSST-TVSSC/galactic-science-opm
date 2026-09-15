@@ -1,13 +1,12 @@
+from astropy.time import Time
 from django.core.management.base import BaseCommand
-from astropy.time import Time, TimezoneInfo
+
 from custom_code.catalogs.GladePlusApiClient import GladeClientApi
 from custom_code.observations.HealpyExpectedVisitsClient import (
     HealpyExpectedVisitsClient,
 )
 from custom_code.photometry.AlercePhotometryClient import AlercePhotometryClient
 from custom_code.photometry.PhotometryCreator import PhotometryCreator
-from custom_code.target_models import GalacticTarget, MicrolensingRadarData
-from custom_code.brokers import alerce_ztf
 from custom_code.targets.AlerceApiClient import AlerceApiClient
 from custom_code.targets.AlerceZtfLightcurvesPipeline import (
     AlerceZtfLightcurvesPipeline,

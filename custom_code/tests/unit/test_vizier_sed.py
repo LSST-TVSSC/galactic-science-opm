@@ -1,9 +1,9 @@
 from io import BytesIO
 from unittest.mock import Mock, patch
 
-from astropy.table import Table
 import pytest
 import requests
+from astropy.table import Table
 
 from custom_code.utils.catalog_requests import get_vizier_sed_url, query_vizier_sed
 from custom_code.utils.vizier_sed import serialize_vizier_sed_table
@@ -161,6 +161,7 @@ def test_recent_and_priority_targets_does_not_filter_after_slice():
     # Keep the target outside the recent-target window so it must be
     # selected through the priority/radar queryset.
     from datetime import timedelta
+
     from django.utils import timezone
 
     GalacticTarget.objects.filter(pk=target.pk).update(

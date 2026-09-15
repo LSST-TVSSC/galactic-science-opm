@@ -1,8 +1,9 @@
 import datetime
 from unittest import TestCase
-from astropy.time import Time, TimezoneInfo
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+from astropy.time import Time, TimezoneInfo
 
 pd.set_option("future.no_silent_downcasting", True)
 
@@ -130,7 +131,7 @@ class AlercePhotometryConverterTests(TestCase):
             value=np.nan
         )
         converted = alerce_photometry_converter(TARGET_NAME_TO_TEST, alerce_photometry)
-        self.assertEquals(expected, converted)
+        self.assertEqual(expected, converted)
 
     def test_skips_alerce_photometry_for_magpsf_corr_greater_than_100(self):
         TARGET_NAME_TO_TEST = "ZTF26aarbgfh"
@@ -171,4 +172,4 @@ class AlercePhotometryConverterTests(TestCase):
             value=np.nan
         )
         converted = alerce_photometry_converter(TARGET_NAME_TO_TEST, alerce_photometry)
-        self.assertEquals(expected, converted)
+        self.assertEqual(expected, converted)

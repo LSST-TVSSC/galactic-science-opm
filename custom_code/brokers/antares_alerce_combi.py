@@ -1,22 +1,26 @@
-from django.core.exceptions import MultipleObjectsReturned
-from tom_alerts.alerts import GenericBroker, GenericQueryForm
-from django.db import IntegrityError, transaction
-from django import forms
-from django.apps import apps
-from custom_code.target_models import GalacticTarget
-from custom_code.match_managers import validators
-from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
-from astropy.coordinates import SkyCoord, Angle
-from astropy.time import Time, TimezoneInfo
+from math import log, log10
+
 import astropy.units as unit
-from astroquery.vizier import Vizier
-from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG, get_glade_plus_count
-from custom_code.utils.catalog_requests import get_var_star_variability_analysis
 import healpy as hp
-from math import log10, log
 import pandas as pd
 from alerce.core import Alerce
 from antares_client.search import search
+from astropy.coordinates import SkyCoord
+from astropy.time import Time, TimezoneInfo
+from django import forms
+from django.apps import apps
+from django.core.exceptions import MultipleObjectsReturned
+from django.db import IntegrityError, transaction
+from tom_alerts.alerts import GenericBroker, GenericQueryForm
+from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
+
+from custom_code.match_managers import validators
+from custom_code.target_models import GalacticTarget
+from custom_code.utils.catalog_requests import (
+    NOT_IN_ANY_CATALOG,
+    get_glade_plus_count,
+    get_var_star_variability_analysis,
+)
 
 
 class ANTARESQueryForm(GenericQueryForm):
@@ -143,7 +147,7 @@ class ANTARESBroker(GenericBroker):
                 )
                 try:
                     for alias_name in known_aliases:
-                        target_tmp, result_tmp = validators.get_or_create_event(
+                        _target_tmp, _result_tmp = validators.get_or_create_event(
                             alias_name,
                             locus.coordinates.ra.deg,
                             locus.coordinates.dec.deg,
@@ -214,48 +218,49 @@ class ANTARESBroker(GenericBroker):
             for i, row in lsst_df.iterrows():
                 jd = Time(row["ant_mjd"], format="mjd", scale="utc")
                 jd.to_datetime(timezone=TimezoneInfo())
-                if "ant_mag" in lsst_df.columns:
-                    if not pd.isna(row["ant_mag"]) and row["ant_mag"] < 100.0:
-                        datum = {
-                            "magnitude": row["ant_mag"],
-                            "filter": f"lsst_{row['ant_passband']}",
-                            "error": row["ant_magerr"],
-                        }
-                        try:
-                            with transaction.atomic():
-                                rd, created = (
-                                    PhotometryReducedDatum.objects.update_or_create(
-                                        timestamp=jd.to_datetime(
-                                            timezone=TimezoneInfo()
-                                        ),
-                                        value=datum,
-                                        brightness=datum["magnitude"],
-                                        brightness_error=datum["error"],
-                                        bandpass=datum["filter"],
-                                        source_name="ANTARES",
-                                        source_location=event_name,
-                                        target=target,
-                                    )
+                if (
+                    "ant_mag" in lsst_df.columns
+                    and not pd.isna(row["ant_mag"])
+                    and row["ant_mag"] < 100.0
+                ):
+                    datum = {
+                        "magnitude": row["ant_mag"],
+                        "filter": f"lsst_{row['ant_passband']}",
+                        "error": row["ant_magerr"],
+                    }
+                    try:
+                        with transaction.atomic():
+                            _rd, _created = (
+                                PhotometryReducedDatum.objects.update_or_create(
+                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                    value=datum,
+                                    brightness=datum["magnitude"],
+                                    brightness_error=datum["error"],
+                                    bandpass=datum["filter"],
+                                    source_name="ANTARES",
+                                    source_location=event_name,
+                                    target=target,
                                 )
-                        except IntegrityError as e:
-                            if "unique_photometry" in str(e):
-                                pass
-                            else:
-                                print(
-                                    "ANTARES Microlensing filter HARVESTER: Encountered exception during photometry ingest for target"
-                                )
-                                print(e)
-                        except MultipleObjectsReturned:
-                            print(
-                                "ANTARES Microlensing filter HARVESTER: Found duplicated data for event "
-                                + target.name
                             )
-                        except Exception as e:
+                    except IntegrityError as e:
+                        if "unique_photometry" in str(e):
+                            pass
+                        else:
                             print(
-                                "ANTARES HARVERSTER: Exception occured while ingesting photometry"
+                                "ANTARES Microlensing filter HARVESTER: Encountered exception during photometry ingest for target"
                             )
-                            print(e.__class__.__name__)
                             print(e)
+                    except MultipleObjectsReturned:
+                        print(
+                            "ANTARES Microlensing filter HARVESTER: Found duplicated data for event "
+                            + target.name
+                        )
+                    except Exception as e:
+                        print(
+                            "ANTARES HARVERSTER: Exception occured while ingesting photometry"
+                        )
+                        print(e.__class__.__name__)
+                        print(e)
             list_of_targets.append(target)
 
         print(
@@ -326,14 +331,13 @@ class ANTARESBroker(GenericBroker):
 
     def read_ALERCE_lightcurve(self, target, survey="ztf"):
         """Method to read the ALERCE lightcurve via alerce api client"""
-        from alerce.core import Alerce
 
         alerce = Alerce()
         detections_photometry = pd.DataFrame()
         forced_photometry = pd.DataFrame()
         if survey == "ztf":
             try:
-                target_name_ztf = [x for x in target.names if "ZTF" in x][0]
+                target_name_ztf = next(x for x in target.names if "ZTF" in x)
                 ALERCE_name = target_name_ztf
                 detections_photometry = alerce.query_detections(
                     ALERCE_name, format="pandas", survey=survey
@@ -345,13 +349,13 @@ class ANTARESBroker(GenericBroker):
                 forced_photometry = alerce.query_forced_photometry(
                     ALERCE_name, format="pandas", survey=survey
                 )
-            except:
+            except Exception as e:
                 print(f"No ZTF photometry, {e}")
 
         forced_photometry_lsst = pd.DataFrame()
         if survey == "lsst":
             try:
-                target_name_lsst = [x for x in target.names if "LSST" in x][0]
+                target_name_lsst = next(x for x in target.names if "LSST" in x)
                 ALERCE_name = target_name_lsst[5:]
                 # detections should have been ingested via ANTARES
                 forced_photometry_lsst = alerce.query_forced_photometry(
@@ -376,46 +380,47 @@ class ANTARESBroker(GenericBroker):
         for i, row in detections_photometry.iterrows():
             jd = Time(row["mjd"], format="mjd", scale="utc")
             jd.to_datetime(timezone=TimezoneInfo())
-            if "magpsf_corr" in detections_photometry.columns:
-                if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"] < 100.0:
-                    datum = {
-                        "magnitude": row["magpsf_corr"],
-                        "filter": filter_definition[row["fid"]],
-                        "error": row["sigmapsf_corr_ext"],
-                    }
-                    try:
-                        with transaction.atomic():
-                            rd, created = (
-                                PhotometryReducedDatum.objects.update_or_create(
-                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                    brightness=datum["magnitude"],
-                                    brightness_error=datum["error"],
-                                    bandpass=datum["filter"],
-                                    source_name="ALERCE",
-                                    source_location=target.name,
-                                    target=target,
-                                )
-                            )
+            if (
+                "magpsf_corr" in detections_photometry.columns
+                and not pd.isna(row["magpsf_corr"])
+                and row["magpsf_corr"] < 100.0
+            ):
+                datum = {
+                    "magnitude": row["magpsf_corr"],
+                    "filter": filter_definition[row["fid"]],
+                    "error": row["sigmapsf_corr_ext"],
+                }
+                try:
+                    with transaction.atomic():
+                        _rd, _created = PhotometryReducedDatum.objects.update_or_create(
+                            timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                            brightness=datum["magnitude"],
+                            brightness_error=datum["error"],
+                            bandpass=datum["filter"],
+                            source_name="ALERCE",
+                            source_location=target.name,
+                            target=target,
+                        )
 
-                    except IntegrityError as e:
-                        if "unique_photometry" in str(e):
-                            pass
-                        else:
-                            print(
-                                "ANTARES HARVESTER: Encountered exception during photometry ingest for target"
-                            )
-                            print(e)
-                    except MultipleObjectsReturned:
+                except IntegrityError as e:
+                    if "unique_photometry" in str(e):
+                        pass
+                    else:
                         print(
-                            "ALERCE HARVESTER: Found duplicated data for event "
-                            + target.name
+                            "ANTARES HARVESTER: Encountered exception during photometry ingest for target"
                         )
-                    except Exception as e:
-                        print(
-                            "ALERCE HARVERSTER: Exception occured while ingesting photometry"
-                        )
-                        print(e.__class__.__name__)
                         print(e)
+                except MultipleObjectsReturned:
+                    print(
+                        "ALERCE HARVESTER: Found duplicated data for event "
+                        + target.name
+                    )
+                except Exception as e:
+                    print(
+                        "ALERCE HARVERSTER: Exception occured while ingesting photometry"
+                    )
+                    print(e.__class__.__name__)
+                    print(e)
         if (
             "mag_corr" in forced_photometry.columns
             and "mjd" in forced_photometry.columns
@@ -431,7 +436,7 @@ class ANTARESBroker(GenericBroker):
                     }
                     try:
                         with transaction.atomic():
-                            rd, created = (
+                            _rd, _created = (
                                 PhotometryReducedDatum.objects.update_or_create(
                                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                                     brightness=datum["magnitude"],
@@ -482,7 +487,7 @@ class ANTARESBroker(GenericBroker):
                     }
                     try:
                         with transaction.atomic():
-                            rd, created = ReducedDatum.objects.update_or_create(
+                            _rd, _created = ReducedDatum.objects.update_or_create(
                                 timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                                 value=datum,
                                 source_name="ALERCE",

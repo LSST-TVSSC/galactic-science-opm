@@ -1,9 +1,10 @@
 import json
-from os import path, remove
 import os
+from os import path, remove
+
+from django.contrib.auth.models import Group, User
 from django.core import management
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import Group, User
 from django.test import Client
 from django.urls import reverse
 

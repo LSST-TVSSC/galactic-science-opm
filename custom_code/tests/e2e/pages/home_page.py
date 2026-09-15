@@ -1,6 +1,6 @@
 import re
-from playwright.sync_api import Page
-from playwright.sync_api import expect
+
+from playwright.sync_api import Page, expect
 
 from custom_code.tests.e2e.pages.users_page import UsersPage
 

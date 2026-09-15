@@ -1,7 +1,9 @@
 import re
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
 from playwright.sync_api import Page, expect
+
 from custom_code.tests.e2e.data.test_data import BASE_URL, BROKER_LINKS
 from custom_code.tests.e2e.pages.ranking_page import RankingPage
 

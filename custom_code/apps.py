@@ -1,8 +1,9 @@
 import json
-import joblib
 from pathlib import Path
-from django.apps import AppConfig
+
 import healpy as hp
+import joblib
+from django.apps import AppConfig
 
 
 class CustomCodeConfig(AppConfig):
@@ -43,7 +44,7 @@ class CustomCodeConfig(AppConfig):
         # it ourselves.
         # Further, this returns only the json from the backend to support loading
         # the script and plot only when it is visible.
-        import plotly.offline as offline
+        from plotly import offline
 
         _original_plot = offline.plot
 

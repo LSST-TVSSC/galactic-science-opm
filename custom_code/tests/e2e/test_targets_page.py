@@ -1,8 +1,10 @@
 import filecmp
 import os
 import re
-from playwright.sync_api import Page, expect
+
 import pytest
+from playwright.sync_api import Page, expect
+
 from custom_code.tests.e2e.data.test_data import (
     BASE_URL,
     TEST_TARGETS,
@@ -198,7 +200,7 @@ def test_authorized_user_can_search_catalogs(page: Page):
     target_page.login(*VALID_USER_CREDENTIALS)
 
     target_page.query_catalog(SEARCH_TERM, CATALOG)
-    message_container = page.get_by_text(f"Object not found")
+    message_container = page.get_by_text("Object not found")
     expect(message_container).to_be_visible()
 
 

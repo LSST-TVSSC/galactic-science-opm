@@ -1,15 +1,13 @@
-from django.core.management.base import BaseCommand
-from custom_code.helpers import create_and_attach_classifications_to_target
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
-from custom_code.match_managers import validators
+import io
+
 import numpy as np
 import pandas as pd
-import requests, io
-import datetime
+import requests
 from alerce.core import Alerce
-from astropy.time import Time, TimezoneInfo
-from astropy.coordinates import SkyCoord
-from astropy import units as u
+from django.core.management.base import BaseCommand
+
+from custom_code.helpers import create_and_attach_classifications_to_target
+from custom_code.target_models import Classification, GalacticTarget
 
 
 class Command(BaseCommand):
@@ -38,7 +36,6 @@ class Command(BaseCommand):
                 "Check lc_classifier_BHRF_forced_phot microlensing probability for event "
                 + target.name
             )
-            time_now = Time(datetime.datetime.now()).jd
             alerce = Alerce()
             probabilities = alerce.query_probabilities(target.name, survey="lsst")
 
@@ -91,7 +88,7 @@ class Command(BaseCommand):
                 pdf_fink = pd.read_json(io.BytesIO(r.content))
                 if len(r.content) > 2:
                     new_pdf_fink = pdf_fink[["i:jd", "d:mulens"]].copy()
-                    m = Classification.objects.update_or_create(
+                    _m = Classification.objects.update_or_create(
                         target=target,
                         source="fink_LSST",
                         class1="microlensing",
@@ -107,7 +104,7 @@ class Command(BaseCommand):
             except Exception as e:
                 print("Fink request not successful for ", target.name, e)
 
-            m = Classification.objects.update_or_create(
+            _m = Classification.objects.update_or_create(
                 target=target,
                 source="ALeRCE_LSST",
                 class1="microlensing",

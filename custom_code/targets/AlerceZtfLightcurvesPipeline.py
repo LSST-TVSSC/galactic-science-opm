@@ -57,19 +57,19 @@ class AlerceZtfLightcurvesPipeline:
         if new_targets:
             # make new targets public
             self.target_creator.make_targets_public(new_targets)
-            self.logger("success", f"Targets are now public.")
+            self.logger("success", "Targets are now public.")
 
             # fetch and update glade info
             glade_info = self.glade_api_client.check_glade_plus_for_targets(new_targets)
             self.target_creator.update_known_extragalactic(new_targets, glade_info)
-            self.logger("success", f"Targets received glade info.")
+            self.logger("success", "Targets received glade info.")
 
             # fetch and update expected visits for new targets
             visits_info = self.visits_api_client.get_expected_visits_for_targets(
                 new_targets
             )
             self.target_creator.update_expected_visits(new_targets, visits_info)
-            self.logger("success", f"Targets received expected visits info.")
+            self.logger("success", "Targets received expected visits info.")
 
             # fetch and update known_variability
             variability_info = (
@@ -78,7 +78,7 @@ class AlerceZtfLightcurvesPipeline:
                 )
             )
             self.target_creator.update_known_variability(new_targets, variability_info)
-            self.logger("success", f"Targets received variability info.")
+            self.logger("success", "Targets received variability info.")
 
         targets_needing_photometry = new_targets
 
@@ -90,7 +90,6 @@ class AlerceZtfLightcurvesPipeline:
             targets_needing_photometry = [
                 x for x in targets_needing_photometry if event_name in x.name
             ]
-            pass
 
         PRIO_COUNT = 50
         priority_targets = self.target_creator.get_priority_targets(PRIO_COUNT, survey)
@@ -112,4 +111,4 @@ class AlerceZtfLightcurvesPipeline:
             )
             if errors:
                 self.logger("error", errors)
-            self.logger("success", f"Photometry for targets created")
+            self.logger("success", "Photometry for targets created")

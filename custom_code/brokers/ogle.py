@@ -1,19 +1,20 @@
-from django.core.exceptions import MultipleObjectsReturned
-from tom_alerts.alerts import GenericBroker, GenericQueryForm
-from django.db import IntegrityError, transaction
-from django import forms
-from django.apps import apps
-from custom_code.target_models import GalacticTarget
-from custom_code.match_managers import validators
-from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
-from astropy.coordinates import SkyCoord
-from astropy.time import Time, TimezoneInfo
-import astropy.units as unit
-from astroquery.vizier import Vizier
-import healpy as hp
 import os
+
+import astropy.units as unit
+import healpy as hp
 import numpy as np
 import requests
+from astropy.coordinates import SkyCoord
+from astropy.time import Time, TimezoneInfo
+from django import forms
+from django.apps import apps
+from django.core.exceptions import MultipleObjectsReturned
+from django.db import IntegrityError, transaction
+from tom_alerts.alerts import GenericBroker, GenericQueryForm
+from tom_dataproducts.models import PhotometryReducedDatum
+
+from custom_code.match_managers import validators
+from custom_code.target_models import GalacticTarget
 
 BROKER_URL = "https://www.astrouw.edu.pl/ogle/ogle4/ews"
 
@@ -38,8 +39,11 @@ class OGLEBroker(GenericBroker):
     name = "OGLE"
     form = OGLEQueryForm
 
-    def fetch_alerts(self, years=[], events="all"):
+    def fetch_alerts(self, years=None, events="all"):
         """Fetch data on microlensing events discovered by OGLE"""
+
+        if years is None:
+            years = []
 
         # Read the lists of events for the given years
         ogle_events = self.fetch_lens_model_parameters(years)
@@ -151,21 +155,18 @@ class OGLEBroker(GenericBroker):
         return list_of_targets, new_targets
 
     def find_and_ingest_photometry(self, targets, full_phot=False):
-        current_year = str(int(Time.now().byear))
-        previous_year = str(int(Time.now().byear) - 1)
         print("OGLE harvester: ingesting photometry")
 
         for target in targets:
             print("OGLE harvester: ingesting photometry for event " + target.name)
             try:
                 year = target.name.split("-")[1]
-                event = target.name.split("-")[2] + "-" + target.name.split("-")[3]
 
                 # harvest the photometry for all years
                 if int(year) > 1990:
                     try:
                         photometry = self.read_ogle_lightcurve(target)
-                        status = self.ingest_ogle_photometry(target, photometry)
+                        _status = self.ingest_ogle_photometry(target, photometry)
                         print(
                             "OGLE harvester: completed read and ingested photometry for event "
                             + target.name
@@ -235,7 +236,7 @@ class OGLEBroker(GenericBroker):
             }
             try:
                 with transaction.atomic():
-                    rd, created = PhotometryReducedDatum.objects.update_or_create(
+                    _rd, _created = PhotometryReducedDatum.objects.update_or_create(
                         timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                         brightness=datum["magnitude"],
                         brightness_error=datum["error"],

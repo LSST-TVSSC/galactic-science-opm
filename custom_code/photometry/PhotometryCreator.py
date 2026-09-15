@@ -1,6 +1,4 @@
-from django.core.exceptions import MultipleObjectsReturned
 from django.db import IntegrityError
-
 from tom_alerts.alerts import Target
 from tom_dataproducts.models import PhotometryReducedDatum
 

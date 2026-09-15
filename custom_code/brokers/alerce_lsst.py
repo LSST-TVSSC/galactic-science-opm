@@ -1,19 +1,22 @@
-from django.core.exceptions import MultipleObjectsReturned
-from tom_alerts.alerts import GenericBroker, GenericQueryForm
-from django import forms
-from django.apps import apps
-from django.db import IntegrityError, transaction
-from custom_code.target_models import GalacticTarget
-from custom_code.match_managers import validators
-from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
-from astropy.coordinates import SkyCoord, Angle
-from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
-from astroquery.vizier import Vizier
-from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG, get_glade_plus_count
-from custom_code.utils.catalog_requests import get_var_star_variability_analysis
 import healpy as hp
 from alerce.core import Alerce
+from astropy.coordinates import SkyCoord
+from astropy.time import Time, TimezoneInfo
+from django import forms
+from django.apps import apps
+from django.core.exceptions import MultipleObjectsReturned
+from django.db import IntegrityError, transaction
+from tom_alerts.alerts import GenericBroker, GenericQueryForm
+from tom_dataproducts.models import PhotometryReducedDatum
+
+from custom_code.match_managers import validators
+from custom_code.target_models import GalacticTarget
+from custom_code.utils.catalog_requests import (
+    NOT_IN_ANY_CATALOG,
+    get_glade_plus_count,
+    get_var_star_variability_analysis,
+)
 
 
 class ALERCEQueryForm(GenericQueryForm):
@@ -38,7 +41,6 @@ class ALERCEBroker(GenericBroker):
 
     def fetch_alerts(self, events=5, days=5, survey="lsst"):
         """Fetch data on microlensing events discovered by ALERCE"""
-        from alerce.core import Alerce
 
         alerce = Alerce()
         # Query the list of microlensing events, last 10d, 10 events page1
@@ -153,7 +155,7 @@ class ALERCEBroker(GenericBroker):
                 detections_photometry, forced_photometry = self.read_ALERCE_lightcurve(
                     target
                 )
-                status = self.ingest_ALERCE_photometry(
+                _status = self.ingest_ALERCE_photometry(
                     target, detections_photometry, forced_photometry
                 )
                 print(
@@ -171,10 +173,8 @@ class ALERCEBroker(GenericBroker):
 
     def read_ALERCE_lightcurve(self, target, survey="lsst"):
         """Method to read the ALERCE lightcurve via alerce api client"""
-        from alerce.core import Alerce
 
         alerce = Alerce()
-        photometry = []
         ALERCE_name = target.name
         detections_photometry = alerce.query_detections(
             ALERCE_name, format="pandas", survey=survey
@@ -205,7 +205,7 @@ class ALERCEBroker(GenericBroker):
                 "error": row["sigmapsf_corr_ext"],
             }
             try:
-                rd, created = PhotometryReducedDatum.objects.update_or_create(
+                _rd, _created = PhotometryReducedDatum.objects.update_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                     brightness=datum["magnitude"],
                     brightness_error=datum["error"],
@@ -241,7 +241,7 @@ class ALERCEBroker(GenericBroker):
                 "error": row["e_mag_corr_ext"],
             }
             try:
-                rd, created = PhotometryReducedDatum.objects.get_or_create(
+                _rd, _created = PhotometryReducedDatum.objects.get_or_create(
                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                     brightness=datum["magnitude"],
                     brightness_error=datum["error"],

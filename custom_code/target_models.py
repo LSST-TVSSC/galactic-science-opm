@@ -1,10 +1,10 @@
 import hashlib
 from pathlib import Path
 
-from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-from tom_targets.base_models import BaseTarget
 from django.apps import apps
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from tom_targets.base_models import BaseTarget
 
 
 class GalacticTarget(BaseTarget):
@@ -70,18 +70,6 @@ class GalacticTarget(BaseTarget):
         Returns
             survey_name str Name string from the survey or None
         """
-
-        survey_name = None
-
-        # Check the primary name for the survey identifier
-        if survey in self.name:
-            survey_name = self.name
-
-        # If not, check the aliases for the survey identifier:
-        else:
-            for tn in self.aliases.all():
-                if survey in tn.name:
-                    survey_name = tn.name
 
     def latest_parameter_models(self):
         latest = []

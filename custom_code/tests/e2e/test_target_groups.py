@@ -1,6 +1,7 @@
 import re
-from playwright.sync_api import Page, expect
+
 import pytest
+from playwright.sync_api import Page, expect
 
 from custom_code.tests.e2e.data.test_data import (
     BASE_URL,

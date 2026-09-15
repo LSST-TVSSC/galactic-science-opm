@@ -1,39 +1,37 @@
-from django.core.management.base import BaseCommand
-from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
-from tom_targets.models import Target
+import matplotlib
+import RTModel
+from astropy.coordinates import EarthLocation, SkyCoord
+from astropy.time import Time, TimezoneInfo
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from django.db import transaction
-from astropy.time import Time
+from tom_dataproducts.models import PhotometryReducedDatum
+from tom_targets.models import Target
+
 from custom_code.target_models import GalacticTarget, MicrolensingModel
 from custom_code.utils.catalog_requests import query_ztf_lightcurve
-from astropy.time import Time, TimezoneInfo
-from astropy.coordinates import SkyCoord, EarthLocation
-import RTModel
-import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import RTModel.plotmodel as plm
-import astropy.units as u
-import pandas as pd
 import tempfile
-from os import path
-from os import makedirs, listdir
-import numpy as np
-from django.db import connection, transaction
-from ._RTModel_results_cls import EventResults, ModelResults
+from os import listdir, makedirs, path
+
+import astropy.units as u
+import matplotlib.pyplot as plt
+import pandas as pd
+import RTModel.plotmodel as plm
+
+from ._RTModel_results_cls import ModelResults
 
 
 def run_fit(target):
-    target_id = target.id
     tempdirname = "event001"
     print(target.name)
 
-    with tempfile.TemporaryDirectory() as tempdirname:
+    with tempfile.TemporaryDirectory():
         data_dir = path.join(tempdirname, "Data")
         makedirs(data_dir)
-        input_path = path.join(tempdirname, "input_data.csv")
-        model_output = path.join(tempdirname, "model_results.pkl")
+        _input_path = path.join(tempdirname, "input_data.csv")
+        _model_output = path.join(tempdirname, "model_results.pkl")
         # RTModel.fit(input_path, output=model_output)
         with transaction.atomic():
             photometry = PhotometryReducedDatum.objects.filter(target=target).order_by(
@@ -64,8 +62,6 @@ def run_fit(target):
                 )
                 hjd_values_rtm = t.jd + ltt_heliocentric.value - 2450000.0
                 try:
-                    current_time = Time.now()
-                    age = current_time - t
                     rd_data = {"timestamp": hjd_values_rtm}
                     rd_data["magnitude"] = reduced_datum.brightness
                     rd_data["error"] = reduced_datum.brightness_error
@@ -106,7 +102,7 @@ def run_fit(target):
                     plm.plotmodel(eventname=event_path, modelfile=model_path)
                     plt.savefig(saving_path, bbox_inches="tight", dpi=90)
                     with transaction.atomic():
-                        m = MicrolensingModel.objects.update_or_create(
+                        _m = MicrolensingModel.objects.update_or_create(
                             target=target,
                             u0=model_results.model_parameters.u0,
                             t0=model_results.model_parameters.t0,
@@ -155,16 +151,19 @@ class Command(BaseCommand):
                     for i, row in baseline_photometry.iterrows():
                         jd = Time(row["mjd"], format="mjd", scale="utc")
                         jd.to_datetime(timezone=TimezoneInfo())
-                        if "mag" in baseline_photometry.columns:
-                            if not pd.isna(row["mag"]) and row["mag"] < 100.0:
-                                datum = {
-                                    "magnitude": row["mag"],
-                                    "filter": filter_definition[row["filtercode"]],
-                                    "error": row["magerr"],
-                                }
+                        if (
+                            "mag" in baseline_photometry.columns
+                            and not pd.isna(row["mag"])
+                            and row["mag"] < 100.0
+                        ):
+                            datum = {
+                                "magnitude": row["mag"],
+                                "filter": filter_definition[row["filtercode"]],
+                                "error": row["magerr"],
+                            }
                         try:
                             with transaction.atomic():
-                                rd, created = (
+                                _rd, _created = (
                                     PhotometryReducedDatum.objects.get_or_create(
                                         timestamp=jd.to_datetime(
                                             timezone=TimezoneInfo()

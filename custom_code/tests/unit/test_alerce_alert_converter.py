@@ -1,6 +1,7 @@
 from unittest import TestCase
-from astropy.coordinates import SkyCoord
+
 import astropy.units as unit
+from astropy.coordinates import SkyCoord
 
 
 # A possible implementation. Should go into different folder.
@@ -25,4 +26,4 @@ class AlerceAlertConverterTests(TestCase):
         converted = alerce_alert_converter(
             TARGET_TO_TEST, 274.577805040264, 2.056956216712028
         )
-        self.assertEquals(expected, converted)
+        self.assertEqual(expected, converted)

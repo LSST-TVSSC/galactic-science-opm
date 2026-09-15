@@ -1,15 +1,16 @@
-from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User, Group
-from guardian.shortcuts import assign_perm
-from django.apps import apps
-from django.db import transaction
 import astropy.units as unit
-from astroquery.vizier import Vizier
-from astropy.coordinates import SkyCoord, Angle
 import healpy as hp
+from astropy.coordinates import SkyCoord
+from django.apps import apps
+from django.core.management.base import BaseCommand
+from django.db import transaction
+
 from custom_code.target_models import GalacticTarget, MicrolensingRadarData
-from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG, get_glade_plus_count
-from custom_code.utils.catalog_requests import get_var_star_variability_analysis
+from custom_code.utils.catalog_requests import (
+    NOT_IN_ANY_CATALOG,
+    get_glade_plus_count,
+    get_var_star_variability_analysis,
+)
 
 
 class Command(BaseCommand):

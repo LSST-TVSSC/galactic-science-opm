@@ -1,8 +1,11 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
-from custom_code.target_models import Classification, MicrolensingParameterModel
-from custom_code.target_models import MicrolensingRadarData
 
+from custom_code.target_models import (
+    Classification,
+    MicrolensingParameterModel,
+    MicrolensingRadarData,
+)
 
 register = template.Library()
 

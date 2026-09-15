@@ -1,14 +1,14 @@
-from astroquery.vizier import Vizier
-import astropy.units as unit
-from astropy.coordinates import Angle
-import astropy.units as u
-from astropy.time import Time
-from astropy.coordinates import SkyCoord
-from io import StringIO, BytesIO
+from io import BytesIO, StringIO
 from urllib.parse import urlencode
+
+import astropy.units as u
+import astropy.units as unit
 import pandas as pd
 import requests
+from astropy.coordinates import Angle, SkyCoord
 from astropy.table import Table
+from astropy.time import Time
+from astroquery.vizier import Vizier
 
 # Where to find the VIZIER API
 VIZIER_SED_API_URL = "https://vizier.cds.unistra.fr/viz-bin/sed"
@@ -77,7 +77,7 @@ def get_var_star_variability_analysis(ra, dec, radius_arcsec=3):
         return NOT_IN_ANY_CATALOG
 
     result_string = ""
-    for catalog_name in results.keys():
+    for catalog_name in results.keys():  # noqa: SIM118
         table = results[catalog_name]
         var_col = None
         for col in table.colnames:
@@ -194,24 +194,22 @@ def query_ztf_lightcurve(
     pandas dataframe of the lightcurve
     """
     if ra_deg >= 0.0:
-        ra_str = " {0:.4f}".format(ra_deg)
+        ra_str = f" {ra_deg:.4f}"
     else:
-        ra_str = " {0:.4f}".format(ra_deg)
+        ra_str = f" {ra_deg:.4f}"
     if dec_deg >= 0.0:
-        dec_str = " {0:.4f}".format(dec_deg)
+        dec_str = f" {dec_deg:.4f}"
     else:
-        dec_str = " {0:.4f}".format(dec_deg)
-    radius_str = " {0:.4f}".format(radius_arcsec / 3600.0)
-    mjd_now_str = "{:.1f}".format(Time.now().mjd)
-    circle_position_string = "{}{}{}".format(ra_str, dec_str, radius_str)
-    start_mjd_str = "{0:.1f}".format(start_mjd)
+        dec_str = f" {dec_deg:.4f}"
+    radius_str = f" {radius_arcsec / 3600.0:.4f}"
+    mjd_now_str = f"{Time.now().mjd:.1f}"
+    circle_position_string = f"{ra_str}{dec_str}{radius_str}"
+    start_mjd_str = f"{start_mjd:.1f}"
     try:
         pandas_df_lightcurve = pd.read_csv(
             StringIO(
                 requests.get(
-                    "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?POS=CIRCLE{}&BANDNAME={}&NOBS_MIN=3&TIME={}+{}&BAD_CATFLAGS_MASK=32768&FORMAT=csv".format(
-                        circle_position_string, passband, start_mjd_str, mjd_now_str
-                    )
+                    f"https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?POS=CIRCLE{circle_position_string}&BANDNAME={passband}&NOBS_MIN=3&TIME={start_mjd_str}+{mjd_now_str}&BAD_CATFLAGS_MASK=32768&FORMAT=csv"
                 ).text
             )
         )

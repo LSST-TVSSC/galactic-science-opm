@@ -1,9 +1,9 @@
-from django.core.management.base import BaseCommand
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
-from custom_code.match_managers import validators
-import numpy as np
-from astropy.coordinates import SkyCoord
 from astropy import units as u
+from astropy.coordinates import SkyCoord
+from django.core.management.base import BaseCommand
+
+from custom_code.match_managers import validators
+from custom_code.target_models import Classification, GalacticTarget, MicrolensingModel
 
 
 class Command(BaseCommand):
@@ -62,7 +62,7 @@ class Command(BaseCommand):
                     # If the target is new, ingest other parameters
                     if result == "new_target":
                         # Create classification as microlensing
-                        c = Classification.objects.create(
+                        _c = Classification.objects.create(
                             target=target,
                             source=options["source"],
                             class1="microlensing",
@@ -74,6 +74,6 @@ class Command(BaseCommand):
                             and "none" not in str(tE).lower()
                             and "none" not in str(u0).lower()
                         ):
-                            m = MicrolensingModel.objects.create(
+                            _m = MicrolensingModel.objects.create(
                                 target=target, t0=float(t0), tE=float(tE), u0=float(u0)
                             )

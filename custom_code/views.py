@@ -1,30 +1,35 @@
-from datetime import timedelta, date
+import datetime
 import os
 import tempfile
 import zipfile
-from astropy.time import Time
-from django.contrib.auth.models import User
+from datetime import timedelta
+
 import numpy as np
-from tom_dataproducts.models import PhotometryReducedDatum
+from astropy.time import Time
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core import management
-from django.views.decorators.cache import cache_page
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import OperationalError, connection, connections
+from django.db.models import Q
 from django.http import FileResponse, JsonResponse
 from django.shortcuts import render
-from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
+from django.views.decorators.cache import cache_page
+from django.views.generic import TemplateView
+from tom_dataproducts.models import PhotometryReducedDatum
 from tom_dataproducts.sharing import get_sharing_destination_options
 from tom_targets.forms import TargetShareForm
 from tom_targets.models import TargetName
-from custom_code.target_models import GalacticTarget, MicrolensingParameterModel
-from custom_code.target_models import Classification
-from custom_code.target_models import MicrolensingRadarData
-from django.db.models import Q
-from django.views.generic import TemplateView
-from django.utils import timezone
-
-from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
 from tom_targets.views import TargetDetailView, TargetShareView
+
+from custom_code.target_models import (
+    Classification,
+    GalacticTarget,
+    MicrolensingParameterModel,
+    MicrolensingRadarData,
+)
+from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
 
 
 def microlensing_model_view(request):
@@ -83,7 +88,7 @@ def microlensing_rescaled_prob_view_ztf25(request):
             )
         return processed_list
 
-    current_year = str(date.today().year)
+    current_year = str(datetime.datetime.now(tz=datetime.timezone.utc).date().year)
     distinct_ids_queried = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
@@ -138,7 +143,7 @@ def microlensing_rescaled_prob_view(request):
             )
         return processed_list
 
-    current_year = str(date.today().year)
+    current_year = str(datetime.datetime.now(tz=datetime.timezone.utc).date().year)
     distinct_ids = (
         MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
@@ -284,7 +289,7 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         AMOUNT_OF_FEATURED_TARGETS = 4
-        current_year = str(date.today().year)
+        current_year = str(datetime.datetime.now(tz=datetime.timezone.utc).date().year)
         distinct_ids = (
             MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
             .distinct("target_id")
@@ -357,10 +362,7 @@ def repackage_lightcurves(qs):
         if rd.source_name != "Interferometry_predictor":
             # Identify different lightcurves from the filter label given
             passband = rd.bandpass
-            if passband in datasets.keys():
-                lc = datasets[passband]
-            else:
-                lc = []
+            lc = datasets.get(passband, [])
 
             # Append the datapoint to the corresponding dataset
             try:
@@ -415,7 +417,7 @@ def download_lightcurve_data_for_target(_, pk):
                 zf.writestr(file_path, file_contents)
 
         response = FileResponse(
-            open(tmp_path, "rb"),
+            open(tmp_path, "rb"),  # noqa: SIM115
             as_attachment=True,
             filename=f"lightcurves_export_{target.name}.zip",
         )

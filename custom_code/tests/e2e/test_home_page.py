@@ -1,6 +1,8 @@
 import os
 import re
+
 from playwright.sync_api import Page, expect
+
 from custom_code.tests.e2e.data.test_data import (
     BASE_URL,
     BROKER_LINKS,
@@ -40,7 +42,7 @@ def test_existing_user_can_not_register(page: Page):
     USERNAME_OF_SEEDED_USER = VALID_USER_CREDENTIALS[0]
     home_page = HomePage(page, BASE_URL)
     home_page.open_it()
-    home_page.register(**{**REGISTERABLE_USER, **{"username": USERNAME_OF_SEEDED_USER}})
+    home_page.register(**{**REGISTERABLE_USER, "username": USERNAME_OF_SEEDED_USER})
 
     expect(page).to_have_title(re.compile(r".*Sign up"))
     hint_text = "A user with that username already exists."
@@ -51,7 +53,7 @@ def test_user_with_too_short_password_can_not_register(page: Page):
     home_page = HomePage(page, BASE_URL)
     home_page.open_it()
     home_page.register(
-        **{**REGISTERABLE_USER, **{"password": "1", "password_confirm": "1"}}
+        **{**REGISTERABLE_USER, "password": "1", "password_confirm": "1"}
     )
     expect(page).to_have_title(re.compile(r".*Sign up"))
     hint_text = "This password is too short. It must contain at least 8 characters."
@@ -62,7 +64,7 @@ def test_user_with_too_short_password_can_not_register(page: Page):
 def test_user_with_invalid_user_name_can_not_register_dollar(page: Page):
     home_page = HomePage(page, BASE_URL)
     home_page.open_it()
-    home_page.register(**{**REGISTERABLE_USER, **{"username": "$"}})
+    home_page.register(**{**REGISTERABLE_USER, "username": "$"})
     expect(page).to_have_title(re.compile(r".*Sign up"))
     hint_text = "Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters."
     expect(page.get_by_text(hint_text)).to_be_visible()

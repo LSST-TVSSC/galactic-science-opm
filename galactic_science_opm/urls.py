@@ -14,11 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from custom_code.views import GsoOpmTargetDetailView, GsoOpmTargetShareView, HomeView
+from django.urls import include, path
+
 from custom_code import views
+from custom_code.views import GsoOpmTargetDetailView, GsoOpmTargetShareView, HomeView
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),

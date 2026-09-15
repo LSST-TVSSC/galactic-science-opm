@@ -1,10 +1,7 @@
 import datetime
-from astropy.time import Time, TimezoneInfo
 
+from astropy.time import Time, TimezoneInfo
 from django.test import TransactionTestCase
-from custom_code.targets.AlerceZtfLightcurvesPipeline import (
-    AlerceZtfLightcurvesPipeline,
-)
 from tom_dataproducts.models import PhotometryReducedDatum
 from tom_targets.models import BaseTarget
 
@@ -16,6 +13,9 @@ from custom_code.photometry.PhotometryApiClient import (
 )
 from custom_code.photometry.PhotometryCreator import PhotometryCreator
 from custom_code.target_models import GalacticTarget, MicrolensingRadarData
+from custom_code.targets.AlerceZtfLightcurvesPipeline import (
+    AlerceZtfLightcurvesPipeline,
+)
 from custom_code.targets.TargetApiClient import TargetApiClient
 from custom_code.targets.TargetCreator import TargetCreator
 from custom_code.tests.helpers import assert_instances_match

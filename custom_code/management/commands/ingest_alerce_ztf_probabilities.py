@@ -1,16 +1,19 @@
-from django.core.management.base import BaseCommand
-from custom_code.helpers import create_and_attach_classifications_to_target
-from custom_code.helpers import create_and_attach_classifications_to_target_antares
-from custom_code.target_models import GalacticTarget, Classification
-from django.db import transaction
+from datetime import timedelta
+
 import numpy as np
 import pandas as pd
-import datetime
 from alerce.core import Alerce
-from django.utils import timezone
-from datetime import timedelta
-from django.db.models import Q
 from antares_client.search import get_by_lsst_dia_object_id, get_by_ztf_object_id
+from django.core.management.base import BaseCommand
+from django.db import transaction
+from django.db.models import Q
+from django.utils import timezone
+
+from custom_code.helpers import (
+    create_and_attach_classifications_to_target,
+    create_and_attach_classifications_to_target_antares,
+)
+from custom_code.target_models import Classification, GalacticTarget
 
 
 class Command(BaseCommand):
@@ -46,7 +49,7 @@ class Command(BaseCommand):
             alerce = Alerce()
             try:
                 if "ZTF" in "".join([x for x in target.names if "ZTF" in x]):
-                    target_name_ztf = [x for x in target.names if "ZTF" in x][0]
+                    target_name_ztf = next(x for x in target.names if "ZTF" in x)
                     probabilities = alerce.query_probabilities(
                         target_name_ztf, survey="ztf"
                     )
@@ -71,7 +74,7 @@ class Command(BaseCommand):
                         print(f"Could not ingest ANTARES filter data {e}.")
 
                 elif "LSST" in "".join([x for x in target.names if "LSST" in x]):
-                    target_name_lsst = [x for x in target.names if "LSST" in x][0]
+                    target_name_lsst = next(x for x in target.names if "LSST" in x)
                     probabilities = alerce.query_probabilities(
                         target_name_lsst[5:], survey="lsst"
                     )
@@ -211,7 +214,7 @@ class Command(BaseCommand):
             try:
                 if prob_class1 > 0 or prob_class2 > 0:
                     with transaction.atomic():
-                        m = Classification.objects.update_or_create(
+                        _m = Classification.objects.update_or_create(
                             target=target,
                             source="ALeRCE_ZTF",
                             class1="microlensing",

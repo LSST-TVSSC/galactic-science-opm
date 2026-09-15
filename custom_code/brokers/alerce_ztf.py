@@ -1,20 +1,23 @@
-from django.core.exceptions import MultipleObjectsReturned
-from tom_alerts.alerts import GenericBroker, GenericQueryForm
-from django.db import IntegrityError, transaction
-from django import forms
-from django.apps import apps
-from custom_code.target_models import GalacticTarget
-from custom_code.match_managers import validators
-from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
-from astropy.coordinates import SkyCoord, Angle
-from astropy.time import Time, TimezoneInfo
 import astropy.units as unit
-from astroquery.vizier import Vizier
-from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG, get_glade_plus_count
-from custom_code.utils.catalog_requests import get_var_star_variability_analysis
 import healpy as hp
 import pandas as pd
 from alerce.core import Alerce
+from astropy.coordinates import SkyCoord
+from astropy.time import Time, TimezoneInfo
+from django import forms
+from django.apps import apps
+from django.core.exceptions import MultipleObjectsReturned
+from django.db import IntegrityError, transaction
+from tom_alerts.alerts import GenericBroker, GenericQueryForm
+from tom_dataproducts.models import PhotometryReducedDatum
+
+from custom_code.match_managers import validators
+from custom_code.target_models import GalacticTarget
+from custom_code.utils.catalog_requests import (
+    NOT_IN_ANY_CATALOG,
+    get_glade_plus_count,
+    get_var_star_variability_analysis,
+)
 
 
 class ALERCEQueryForm(GenericQueryForm):
@@ -39,7 +42,6 @@ class ALERCEBroker(GenericBroker):
 
     def fetch_alerts(self, days=10, survey="ztf"):
         """Fetch data on microlensing events discovered by ALERCE"""
-        from alerce.core import Alerce
 
         alerce = Alerce()
         not_at_end_of_pages = True
@@ -107,7 +109,6 @@ class ALERCEBroker(GenericBroker):
 
     def fetch_alert(self, name, survey="ztf"):
         """Fetch data on microlensing events discovered by ALERCE"""
-        from alerce.core import Alerce
 
         alerce = Alerce()
         # Query the list of microlensing events, last 10d, 10 events page1
@@ -115,7 +116,7 @@ class ALERCEBroker(GenericBroker):
         alerce_results = alerce.query_objects(oid=name, survey=survey)
 
         # ingest the OPM TOM db and restart CV query
-        (list_of_targets, new_targets) = self.ingest_events(alerce_results)
+        (list_of_targets, _new_targets) = self.ingest_events(alerce_results)
 
         return list_of_targets, None
 
@@ -214,7 +215,7 @@ class ALERCEBroker(GenericBroker):
                 detections_photometry, forced_photometry = self.read_ALERCE_lightcurve(
                     target
                 )
-                status = self.ingest_ALERCE_photometry(
+                _status = self.ingest_ALERCE_photometry(
                     target, detections_photometry, forced_photometry
                 )
                 print(
@@ -233,10 +234,8 @@ class ALERCEBroker(GenericBroker):
 
     def read_ALERCE_lightcurve(self, target, survey="ztf"):
         """Method to read the ALERCE lightcurve via alerce api client"""
-        from alerce.core import Alerce
 
         alerce = Alerce()
-        photometry = []
         ALERCE_name = target.name
         detections_photometry = alerce.query_detections(
             ALERCE_name, format="pandas", survey=survey
@@ -262,42 +261,43 @@ class ALERCEBroker(GenericBroker):
         for i, row in detections_photometry.iterrows():
             jd = Time(row["mjd"], format="mjd", scale="utc")
             jd.to_datetime(timezone=TimezoneInfo())
-            if "magpsf_corr" in detections_photometry.columns:
-                if not pd.isna(row["magpsf_corr"]) and row["magpsf_corr"] < 100.0:
-                    datum = {
-                        "magnitude": row["magpsf_corr"],
-                        "filter": filter_definition[row["fid"]],
-                        "error": row["sigmapsf_corr_ext"],
-                    }
-                    try:
-                        with transaction.atomic():
-                            rd, created = (
-                                PhotometryReducedDatum.objects.update_or_create(
-                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                    brightness=datum["magnitude"],
-                                    brightness_error=datum["error"],
-                                    bandpass=datum["filter"],
-                                    source_name="ALERCE",
-                                    source_location=target.name,
-                                    target=target,
-                                )
-                            )
-
-                    except IntegrityError as e:
-                        if "unique_photometry" in str(e):
-                            pass
-
-                    except MultipleObjectsReturned:
-                        print(
-                            "ALERCE HARVESTER: Found duplicated data for event "
-                            + target.name
+            if (
+                "magpsf_corr" in detections_photometry.columns
+                and not pd.isna(row["magpsf_corr"])
+                and row["magpsf_corr"] < 100.0
+            ):
+                datum = {
+                    "magnitude": row["magpsf_corr"],
+                    "filter": filter_definition[row["fid"]],
+                    "error": row["sigmapsf_corr_ext"],
+                }
+                try:
+                    with transaction.atomic():
+                        _rd, _created = PhotometryReducedDatum.objects.update_or_create(
+                            timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                            brightness=datum["magnitude"],
+                            brightness_error=datum["error"],
+                            bandpass=datum["filter"],
+                            source_name="ALERCE",
+                            source_location=target.name,
+                            target=target,
                         )
-                    except Exception as e:
-                        print(
-                            "ALERCE HARVERSTER: Exception occured while ingesting photometry"
-                        )
-                        print(e.__class__.__name__)
-                        print(e)
+
+                except IntegrityError as e:
+                    if "unique_photometry" in str(e):
+                        pass
+
+                except MultipleObjectsReturned:
+                    print(
+                        "ALERCE HARVESTER: Found duplicated data for event "
+                        + target.name
+                    )
+                except Exception as e:
+                    print(
+                        "ALERCE HARVERSTER: Exception occured while ingesting photometry"
+                    )
+                    print(e.__class__.__name__)
+                    print(e)
 
         for i, row in forced_photometry.iterrows():
             jd = Time(row["mjd"], format="mjd", scale="utc")
@@ -310,7 +310,7 @@ class ALERCEBroker(GenericBroker):
                 }
                 try:
                     with transaction.atomic():
-                        rd, created = PhotometryReducedDatum.objects.update_or_create(
+                        _rd, _created = PhotometryReducedDatum.objects.update_or_create(
                             timestamp=jd.to_datetime(timezone=TimezoneInfo()),
                             brightness=datum["magnitude"],
                             brightness_error=datum["error"],

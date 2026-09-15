@@ -1,18 +1,17 @@
-from django.core.management.base import BaseCommand
+import healpy as hp
+import numpy as np
 from django.apps import apps
+from django.core.management.base import BaseCommand
 from django.db import transaction
+
 from custom_code.target_models import (
-    GalacticTarget,
     Classification,
+    ClassificationGeneralized,
+    GalacticTarget,
+    MicrolensingParameterModel,
     MicrolensingRadarData,
 )
-from custom_code.target_models import (
-    MicrolensingParameterModel,
-    ClassificationGeneralized,
-    ClassificationSource,
-)
-import numpy as np
-import healpy as hp
+
 from ._rescale_ztf_microlensing_prob import psi_planet_priority_peak
 
 
@@ -36,7 +35,6 @@ class Command(BaseCommand):
         model_qt_psi = config.model_qt_psi
         model_qt_fink = config.model_qt_fink
         model_qt_alerce = config.model_qt_alerce
-        model_qt_alerce_atat = config.model_qt_alerce_atat
         hpx_map = config.nsquare_map
         visit_map = config.nvisits_10yrs_map
         nside = config.nside
@@ -74,7 +72,7 @@ class Command(BaseCommand):
                     else:
                         ratio = ratio_numerator / ratio_denominator
                         prob_contrast = ratio / (1 + ratio)
-                except Exception as e:
+                except Exception:
                     print("no microlensing prob contrast available.")
                     prob_contrast = 0.0
             else:
@@ -107,7 +105,7 @@ class Command(BaseCommand):
                         latest_probabilities[0].probability,
                         1 / latest_probabilities[0].probability,
                     )
-                except Exception as e:
+                except Exception:
                     print("no microlensing red_chisqr available.")
 
             microlensing_model = MicrolensingParameterModel.objects.filter(
@@ -197,7 +195,7 @@ class Command(BaseCommand):
                         for entry in latest_probabilities:
                             if entry.source.class_name == "bogus":
                                 prob_bogus = float(entry.probability)
-                except Exception as e:
+                except Exception:
                     print("no bogus available.")
 
                 try:
@@ -213,7 +211,7 @@ class Command(BaseCommand):
                 transformed_prob_antares = 0  # to be included when filter is available
                 try:
                     with transaction.atomic():
-                        m = MicrolensingRadarData.objects.update_or_create(
+                        _m = MicrolensingRadarData.objects.update_or_create(
                             target=target,
                             metric_fink=transformed_prob_fink[0][0],
                             metric_alerce=transformed_prob_alerce[0][0],

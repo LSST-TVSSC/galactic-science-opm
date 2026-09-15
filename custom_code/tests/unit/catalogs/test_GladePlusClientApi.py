@@ -1,5 +1,6 @@
 from unittest import mock
 
+import astropy.units as unit
 from astropy.coordinates import SkyCoord
 from django.test import TransactionTestCase
 from tom_targets.forms import Angle
@@ -7,7 +8,6 @@ from tom_targets.forms import Angle
 from custom_code.catalogs.GladePlusApiClient import GladeClientApi
 from custom_code.target_models import GalacticTarget
 from custom_code.tests.mocks.external.VizierMock import VizierMock
-import astropy.units as unit
 
 
 class TestGlasePlusClientApi(TransactionTestCase):
@@ -166,7 +166,7 @@ class TestGlasePlusClientApi(TransactionTestCase):
             instance = mocked.return_value
 
             def exception_raising_mock(*args, **kwargs):
-                raise Exception("This throws")
+                raise Exception("This throws")  # noqa: TRY002
 
             instance.query_region.side_effect = exception_raising_mock
             glade_checker = GladeClientApi()

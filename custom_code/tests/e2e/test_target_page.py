@@ -1,8 +1,8 @@
-import os
-import filecmp
 import re
 import zipfile
+
 from playwright.sync_api import Page, expect
+
 from custom_code.tests.e2e.data.test_data import (
     BASE_URL,
     TOP_TARGETS,

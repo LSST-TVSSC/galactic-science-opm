@@ -1,9 +1,6 @@
 from django.core.management.base import BaseCommand
-from custom_code.target_models import GalacticTarget, MicrolensingModel, Classification
-from custom_code.match_managers import validators
+
 from custom_code.brokers import ogle
-import numpy as np
-from astropy import units as u
 
 
 class Command(BaseCommand):

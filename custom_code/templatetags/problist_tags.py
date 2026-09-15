@@ -1,13 +1,14 @@
+from astropy.time import Time
 from django import template
 from django.utils.safestring import mark_safe
-from astropy.time import Time
+
 from custom_code.target_models import MicrolensingParameterModel
 
 register = template.Library()
 
 
 def make_target_tags_list(target):
-    tags = list()
+    tags = []
     DAYS_CUTOFF = 5
 
     if target["age_days"] < DAYS_CUTOFF:
@@ -26,7 +27,6 @@ def make_target_tags_list(target):
     )
 
     t0 = tE = None
-    sigmat0 = sigmatE = None
     if params is not None:
         if params.t0 is not None:
             t0 = params.t0 + 2450000.0
@@ -62,7 +62,7 @@ def target_tags_list(target):
 @register.simple_tag
 def target_tags_elements(target):
     tags = make_target_tags_list(target)
-    elements = list()
+    elements = []
 
     bad_tags = ("bogus",)
     for tag in tags:
