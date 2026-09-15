@@ -33,6 +33,7 @@ class MicrolensingCoordsBroker:
             years = [str(Time.now().byear)[:4]]
 
         all_surveys = ['OGLE', 'KMTNET', 'MACHO', 'EROS2','PRIME'] #MOAPRIME missing...
+        all_surveys = ['PRIME'] 
         if str(surveys).lower() == 'all':
             survey_list = all_surveys
         else:
@@ -61,10 +62,36 @@ class MicrolensingCoordsBroker:
     def fetch_prime_coords(self, years):
         print('Fetching PRIME event coordinates for years ' + repr(years))
         events = {}
-
         for year in years:
             url = PRIME_URL.format(year=year)
-            #TBD perhaps with BS
+            headers = {'User-Agent': 'Mozilla/5.0'}
+            response = requests.get(url, headers=headers)
+            events = {}
+            name = None
+            for line in response.text.split("\n"):
+                if 'PRIME-' in line:
+                    start = line.find('PRIME-')
+                    end = line.find('<', start)
+                    name = line[start:end].split()[0]
+                    print(name)
+                elif ':' in line and name and not "T" in line:
+                    value = line.strip()
+                    if '<td>' in value:
+                        value = value.split('<td>')[1].split('</td>')[0]
+                    if not name in events:
+                        events[name] = [value]
+                    else:
+                        events[name].append(value)
+                        if len(events[name]) == 2:
+                            events[name] = tuple(events[name])
+                            name = None 
+            for name in events:
+                ra, dec = events[name][0],events[name][1]
+                try:
+                    s = SkyCoord(ra, dec, unit=(unit.hourangle, unit.deg), frame='icrs')
+                    events[name] = (s.ra.deg, s.dec.deg)
+                except Exception:
+                    print(f'PRIME: could not parse coords for {name}')
         return events
 
     def fetch_ogle_coords(self, years):
