@@ -26,6 +26,8 @@ def test_all_targets_are_displayed(page: Page):
         (
             r"ZTF26aarbgfh\s+ALeRCE\s+fink\s+ANTARES",  # name
             "",
+            r"16.07\s+\(ZTF_r\)",
+            r"274.57781(\s+|.+|)2.05696",
             0.4639,  # prob rescaled average
             "None, queried",  # variability flags
             created_ago,  # days since created
@@ -41,6 +43,8 @@ def test_all_targets_are_displayed(page: Page):
         (
             r"ZTF26aaivmks\s+ALeRCE\s+fink\s+ANTARES",
             "active",
+            r"16.56\s+\(ZTF_i\)",
+            r"283.17555(\s+|.+|)0.46239",
             0.4616,
             "None, queried",
             created_ago,
@@ -56,6 +60,8 @@ def test_all_targets_are_displayed(page: Page):
         (
             r"ZTF26aajaofr\s+ALeRCE\s+fink\s+ANTARES",
             "",
+            r"16.58\s+\(ZTF_i\)",
+            r"274.50616(\s+|.+|)\-3.99875",
             0.4580,
             "None, queried",
             created_ago,
