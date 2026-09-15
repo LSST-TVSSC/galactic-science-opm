@@ -24,10 +24,9 @@ from ._RTModel_results_cls import ModelResults
 
 
 def run_fit(target):
-    tempdirname = "event001"
     print(target.name)
 
-    with tempfile.TemporaryDirectory():
+    with tempfile.TemporaryDirectory() as tempdirname:
         data_dir = path.join(tempdirname, "Data")
         makedirs(data_dir)
         _input_path = path.join(tempdirname, "input_data.csv")

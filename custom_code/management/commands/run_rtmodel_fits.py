@@ -37,9 +37,8 @@ from ._RTModel_results_cls import ModelResults
 
 def run_fit(target):
     if "ZTF" in target.name or "LSST" in target.name or "OGLE" in target.name:
-        tempdirname = "event001"
         print(f"Prepare RTModel fit for {target.name}")
-        with tempfile.TemporaryDirectory():
+        with tempfile.TemporaryDirectory() as tempdirname:
             data_dir = path.join(tempdirname, "Data")
             makedirs(data_dir)
             _input_path = path.join(tempdirname, "input_data.csv")
