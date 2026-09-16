@@ -1,136 +1,148 @@
-from django.apps import apps
-from django.db import transaction
+import os
+
+import astropy.units as unit
+import healpy as hp
+import requests
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
-import astropy.units as unit
 from astroquery.vizier import Vizier
-import healpy as hp
-import os
-import requests
+from django.apps import apps
+from django.db import transaction
 
-from custom_code.target_models import GalacticTarget
 from custom_code.match_managers import validators
+from custom_code.target_models import GalacticTarget
 
-OGLE_URL = 'https://www.astrouw.edu.pl/ogle/ogle4/ews'
-KMTNET_URL = 'https://kmtnet.kasi.re.kr/ulens/event/{year}/listpage.dat'
-PRIME_URL = 'https://moaprime.massey.ac.nz/alerts/index/prime/{year}'
+OGLE_URL = "https://www.astrouw.edu.pl/ogle/ogle4/ews"
+KMTNET_URL = "https://kmtnet.kasi.re.kr/ulens/event/{year}/listpage.dat"
+PRIME_URL = "https://moaprime.massey.ac.nz/alerts/index/prime/{year}"
 
 VIZIER_CATALOGS = {
-    'MACHO': 'J/ApJ/631/906',
-    'EROS2': 'J/A+A/454/185',
+    "MACHO": "J/ApJ/631/906",
+    "EROS2": "J/A+A/454/185",
+    "Gaia": "J/A+A/674/A23",
 }
+
 
 class MicrolensingCoordsBroker:
     """Ingest coordinate and targets into the OPM database.
-       Purpose: cross-match through validator and ZTF/LSST matched targets 
+    Purpose: cross-match through validator and ZTF/LSST matched targets
 
     """
 
-    name = 'MicrolensingCoords'
+    name = "MicrolensingCoords"
 
-    def fetch_alerts(self, years=None, surveys='all'):
+    def fetch_alerts(self, years=None, surveys="all"):
         if years is None:
             years = [str(Time.now().byear)[:4]]
 
-        all_surveys = ['OGLE', 'KMTNET', 'MACHO', 'EROS2','PRIME'] #MOAPRIME missing...
-        if str(surveys).lower() == 'all':
+        all_surveys = [
+            "OGLE",
+            "KMTNET",
+            "MACHO",
+            "EROS2",
+            "PRIME",
+            "Gaia",
+        ]  # MOAPRIME missing...
+        if str(surveys).lower() == "all":
             survey_list = all_surveys
         else:
             survey_list = [surveys] if isinstance(surveys, str) else surveys
 
         results = {}
         for survey in survey_list:
-            if survey == 'OGLE':
+            if survey == "OGLE":
                 events = self.fetch_ogle_coords(years)
-            elif survey == 'KMTNET':
+            elif survey == "KMTNET":
                 events = self.fetch_kmtnet_coords(years)
-            elif survey == 'PRIME':
+            elif survey == "PRIME":
                 events = self.fetch_prime_coords(years)
-            elif survey == 'MACHO':
-                events = self.fetch_vizier_coords('MACHO')
-            elif survey == 'EROS2':
-                events = self.fetch_vizier_coords('EROS2')
+            elif survey == "MACHO":
+                events = self.fetch_vizier_coords("MACHO")
+            elif survey == "EROS2":
+                events = self.fetch_vizier_coords("EROS2")
+            elif survey == "Gaia":
+                events = self.fetch_vizier_coords("Gaia")
             else:
-                print(f'Unknown survey {survey}, skipping')
+                print(f"Unknown survey {survey}, skipping")
                 continue
 
             results[survey] = self.ingest_events(events)
 
         return results
-    
+
     def fetch_prime_coords(self, years):
-        print('Fetching PRIME event coordinates for years ' + repr(years))
+        print("Fetching PRIME event coordinates for years " + repr(years))
         events = {}
         for year in years:
             url = PRIME_URL.format(year=year)
-            headers = {'User-Agent': 'Mozilla/5.0'}
+            headers = {"User-Agent": "Mozilla/5.0"}
             response = requests.get(url, headers=headers)
             events = {}
             name = None
             for line in response.text.split("\n"):
-                if 'PRIME-' in line:
-                    start = line.find('PRIME-')
-                    end = line.find('<', start)
+                if "PRIME-" in line:
+                    start = line.find("PRIME-")
+                    end = line.find("<", start)
                     name = line[start:end].split()[0]
                     print(name)
-                elif ':' in line and name and not "T" in line:
+                elif ":" in line and name and not "T" in line:
                     value = line.strip()
-                    if '<td>' in value:
-                        value = value.split('<td>')[1].split('</td>')[0]
+                    if "<td>" in value:
+                        value = value.split("<td>")[1].split("</td>")[0]
                     if not name in events:
                         events[name] = [value]
                     else:
                         events[name].append(value)
                         if len(events[name]) == 2:
                             events[name] = tuple(events[name])
-                            name = None 
+                            name = None
             for name in events:
-                ra, dec = events[name][0],events[name][1]
+                ra, dec = events[name][0], events[name][1]
                 try:
-                    s = SkyCoord(ra, dec, unit=(unit.hourangle, unit.deg), frame='icrs')
+                    s = SkyCoord(ra, dec, unit=(unit.hourangle, unit.deg), frame="icrs")
                     events[name] = (s.ra.deg, s.dec.deg)
                 except Exception:
-                    print(f'PRIME: could not parse coords for {name}')
+                    print(f"PRIME: could not parse coords for {name}")
         return events
 
     def fetch_ogle_coords(self, years):
-        print('Fetching OGLE event coordinates for years ' + repr(years))
+        print("Fetching OGLE event coordinates for years " + repr(years))
         events = {}
         for year in years:
-            par_file_url = os.path.join(OGLE_URL, year, 'lenses.par')
+            par_file_url = os.path.join(OGLE_URL, year, "lenses.par")
             response = requests.get(par_file_url)
-            print(f'OGLE {year}: status {response.status_code}')
+            print(f"OGLE {year}: status {response.status_code}")
             if response.status_code != 200:
                 continue
 
             for line in response.iter_lines():
                 line = str(line)
-                if 'StarNo' in line or len(line) <= 5:
+                if "StarNo" in line or len(line) <= 5:
                     continue
                 entries = line.split()
-                name = 'OGLE-' + entries[0].replace("b'", "")
+                name = "OGLE-" + entries[0].replace("b'", "")
                 ra, dec = entries[3], entries[4]
                 try:
-                    s = SkyCoord(ra, dec, unit=(unit.hourangle, unit.deg), frame='icrs')
+                    s = SkyCoord(ra, dec, unit=(unit.hourangle, unit.deg), frame="icrs")
                     events[name] = (s.ra.deg, s.dec.deg)
                 except Exception:
-                    print(f'OGLE: could not parse coords for {name}')
+                    print(f"OGLE: could not parse coords for {name}")
 
-        print(f'OGLE: found {len(events)} event(s)')
+        print(f"OGLE: found {len(events)} event(s)")
         return events
 
     def fetch_kmtnet_coords(self, years):
-        print('Fetching KMTNet event coordinates for years ' + repr(years))
+        print("Fetching KMTNet event coordinates for years " + repr(years))
         events = {}
         for year in years:
             url = KMTNET_URL.format(year=year)
             response = requests.get(url)
-            print(f'KMTNet {year}: status {response.status_code}')
+            print(f"KMTNet {year}: status {response.status_code}")
             if response.status_code != 200:
                 continue
 
             for line in response.iter_lines():
-                line = line.decode('utf-8', errors='ignore').strip()
+                line = line.decode("utf-8", errors="ignore").strip()
                 if not line:
                     continue
                 entries = line.split()
@@ -140,58 +152,87 @@ class MicrolensingCoordsBroker:
                 ra_str, dec_str = entries[3], entries[4]
                 if ":" in entries[3] and ":" in entries[4]:
                     try:
-                        s = SkyCoord(ra_str, dec_str, unit=(unit.hourangle, unit.deg), frame='icrs')
+                        s = SkyCoord(
+                            ra_str,
+                            dec_str,
+                            unit=(unit.hourangle, unit.deg),
+                            frame="icrs",
+                        )
                         events[name] = (s.ra.deg, s.dec.deg)
                     except Exception:
-                        print(f'KMTNet: could not parse coords for {name}')
+                        print(f"KMTNet: could not parse coords for {name}")
                 elif ":" in entries[4] and ":" in entries[5]:
                     ra_str, dec_str = entries[4], entries[5]
                     try:
-                        s = SkyCoord(ra_str, dec_str, unit=(unit.hourangle, unit.deg), frame='icrs')
+                        s = SkyCoord(
+                            ra_str,
+                            dec_str,
+                            unit=(unit.hourangle, unit.deg),
+                            frame="icrs",
+                        )
                         events[name] = (s.ra.deg, s.dec.deg)
                     except Exception:
-                        print(f'KMTNet: could not parse coords for {name}')
+                        print(f"KMTNet: could not parse coords for {name}")
 
-        print(f'KMTNet: found {len(events)} event(s)')
+        print(f"KMTNet: found {len(events)} event(s)")
         return events
-    
+
     def fetch_vizier_coords(self, survey):
-        print(f'Fetching {survey} coordinates from VizieR catalog {VIZIER_CATALOGS[survey]}')
+        print(
+            f"Fetching {survey} coordinates from VizieR catalog {VIZIER_CATALOGS[survey]}"
+        )
         events = {}
 
-        v = Vizier(columns=['**'], row_limit=-1)
+        v = Vizier(columns=["**"], row_limit=-1)
         catalogs = v.get_catalogs(VIZIER_CATALOGS[survey])
         if len(catalogs) == 0:
-            print(f'{survey}: no catalog data retrieved')
+            print(f"{survey}: no catalog data retrieved")
             return events
 
-        print(f'{survey}: retrieved tables {list(catalogs.keys())}')
+        print(f"{survey}: retrieved tables {list(catalogs.keys())}")
         table = catalogs[0]
-        print(f'{survey}: table has {len(table)} rows, columns {table.colnames}')
 
-        id_col = 'MACHO' if survey == 'MACHO' else 'EROS2'
-
+        if survey == "Gaia":
+            id_col = "ID"
+        elif survey == "MACHO":
+            id_col = "MACHO"
+        else:
+            id_col = "EROS2"
         for row in table:
             try:
                 star_id = str(row[id_col]).strip()
-                name = f'{survey}_{star_id}'
 
-                ra_str = str(row['RAJ2000']).strip()
-                dec_str = str(row['DEJ2000']).strip()
+                if survey == "Gaia":
+                    name = f"GaiaDR3-ULENS-{star_id}"
+                else:
+                    name = f"{survey}_{star_id}"
 
-                s = SkyCoord(ra_str, dec_str, unit=(unit.hourangle, unit.deg), frame='icrs')
+                ra_deg = float(row["RAJ2000"])
+                dec_deg = float(row["DEJ2000"])
+
+                if survey == "Gaia":
+                    s = SkyCoord(
+                        ra=ra_deg * unit.deg, dec=dec_deg * unit.deg, frame="icrs"
+                    )
+                else:
+                    s = SkyCoord(
+                        str(ra_deg),
+                        str(dec_deg),
+                        unit=(unit.hourangle, unit.deg),
+                        frame="icrs",
+                    )
+
                 events[name] = (s.ra.deg, s.dec.deg)
             except Exception as e:
-                print(f'{survey}: could not parse row {row}: {e}')
+                print(f"{survey}: could not parse row {row}: {e}")
 
-        print(f'{survey}: found {len(events)} event(s)')
+        print(f"{survey}: found {len(events)} event(s)")
         return events
 
-
     def ingest_events(self, events, debug=False):
-        
-        print(f'Ingesting {len(events)} event(s)')
-        config = apps.get_app_config('custom_code')
+
+        print(f"Ingesting {len(events)} event(s)")
+        config = apps.get_app_config("custom_code")
         visit_map = config.nvisits_10yrs_map
         list_of_targets = []
         new_targets = []
@@ -199,24 +240,38 @@ class MicrolensingCoordsBroker:
         for event_name, (ra, dec) in events.items():
             qs = GalacticTarget.objects.filter(name=event_name)
             if len(qs) == 0:
-                target, result = validators.get_or_create_event(event_name, ra, dec, debug=debug)
-                if result == 'new_target':
-                    print(f'Added event {event_name}')
+                target, result = validators.get_or_create_event(
+                    event_name, ra, dec, debug=debug
+                )
+                if result == "new_target":
+                    print(f"Added event {event_name}")
                     new_targets.append(target)
-                    filtered_target = GalacticTarget.objects.filter(name__icontains=target)
-                    filtered_target.update(permissions=GalacticTarget.Permissions.PUBLIC)
+                    filtered_target = GalacticTarget.objects.filter(
+                        name__icontains=target
+                    )
+                    filtered_target.update(
+                        permissions=GalacticTarget.Permissions.PUBLIC
+                    )
                     try:
                         with transaction.atomic():
-                            filtered_target = GalacticTarget.objects.filter(name__icontains=target)
-                            pixel_index = hp.ang2pix(128, target.ra, target.dec, lonlat=True, nest=True)
-                            filtered_target.update(expected_visits=visit_map[pixel_index])
+                            filtered_target = GalacticTarget.objects.filter(
+                                name__icontains=target
+                            )
+                            pixel_index = hp.ang2pix(
+                                128, target.ra, target.dec, lonlat=True, nest=True
+                            )
+                            filtered_target.update(
+                                expected_visits=visit_map[pixel_index]
+                            )
                     except Exception:
-                        print('Expected visits failed for ' + target.name)
+                        print("Expected visits failed for " + target.name)
             else:
-                print(f'Found {qs.count()} existing target(s) with name {event_name}')
+                print(f"Found {qs.count()} existing target(s) with name {event_name}")
                 target = qs[0]
 
             list_of_targets.append(target)
 
-        print(f'Completed ingest: {len(new_targets)} new target(s) of {len(list_of_targets)} total')
+        print(
+            f"Completed ingest: {len(new_targets)} new target(s) of {len(list_of_targets)} total"
+        )
         return list_of_targets, new_targets
