@@ -232,6 +232,32 @@ docker-compose -f compose.base.yaml -f compose.local.yaml -f compose.e2e.yaml up
 
 ## Notes on testing
 
+### Unit test coverage report for the current branch
+
+If you are working on a new feature or fixing a bug, you should make sure that
+there are tests that make sure that your feature works and that it keeps working 
+in the future or the bug won't go unnoticed again.
+
+To check whether you have sufficiently tested your code, you can generate a
+coverage report for just the difference of your branch in relation to the dev 
+branch. 
+
+Currently this works for unit tests only, but this will be expanded, once we introduce
+more integration tests.
+
+To generate a HTML report, use the `just` command `just show-branch-coverage-as-html`. 
+For this to work, you have to first run the unit test suite by e.g. running the `just`
+command `just run-unittest`. If you don't use just, you can look into `justfile`
+and copy the corresponding command. 
+
+A coverage of 100% should not always be the main goal. Rather you should make sure
+that all the important aspects of your feature are tested in a way, so that 
+you immediately notice, if a feature no longer works or no longer works as intended. 
+
+There is also a `just` command for generating a markdown report. This can be used
+to insert the coverage report for your feature into your PR description, so 
+the reviewers can see, if the required coverage goals have been met. 
+
 ### Running unit tests
 
 Can also be run in your local directory, because nothing django related should
