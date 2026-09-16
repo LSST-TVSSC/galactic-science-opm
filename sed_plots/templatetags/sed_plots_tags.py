@@ -1,6 +1,7 @@
 import math
 
 from django import template
+
 from custom_code.target_models import MicrolensingModel
 from custom_code.utils.catalog_requests import get_vizier_sed_url
 from custom_code.utils.vizier_sed import (
@@ -9,7 +10,6 @@ from custom_code.utils.vizier_sed import (
 )
 from sed_plots.permissions import can_fetch_sed
 from sed_plots.plotting import make_sed_plot
-
 
 register = template.Library()
 
@@ -39,17 +39,21 @@ def _blend_warning(target):
     if blend_to_source_flux >= 1.0:
         return (
             "danger",
-            "Strong blending warning: the fitted blend flux is comparable to or "
-            f"larger than the fitted source flux (F_blend/F_source ≈ {blend_to_source_flux:.2f}). "
-            "The archive SED should not be interpreted as the source SED.",
+            (
+                "Strong blending warning: the fitted blend flux is comparable to or "
+                f"larger than the fitted source flux (F_blend/F_source ≈ {blend_to_source_flux:.2f}). "
+                "The archive SED should not be interpreted as the source SED."
+            ),
         )
 
     if blend_to_source_flux >= 0.25:
         return (
             "warning",
-            "Blending warning: the fitted blend flux is a non-negligible fraction "
-            f"of the fitted source flux (F_blend/F_source ≈ {blend_to_source_flux:.2f}). "
-            "The archive SED may be significantly contaminated.",
+            (
+                "Blending warning: the fitted blend flux is a non-negligible fraction "
+                f"of the fitted source flux (F_blend/F_source ≈ {blend_to_source_flux:.2f}). "
+                "The archive SED may be significantly contaminated."
+            ),
         )
 
     return None, ""

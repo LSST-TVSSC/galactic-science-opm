@@ -17,14 +17,15 @@ def _recent_and_priority_targets(event_name, recent_days, priority_limit):
     event_name = str(event_name)
 
     if event_name not in {"ZTF", "LSST"}:
-        return list(GalacticTarget.objects.filter(name__icontains=event_name).distinct())
+        return list(
+            GalacticTarget.objects.filter(name__icontains=event_name).distinct()
+        )
 
     time_window = timezone.now() - timedelta(days=recent_days)
 
     new_or_modified_targets = (
         GalacticTarget.objects.filter(
-            Q(modified__gte=time_window)
-            | Q(reduceddatum__timestamp__gte=time_window)
+            Q(modified__gte=time_window) | Q(reduceddatum__timestamp__gte=time_window)
         )
         .filter(name__icontains=event_name)
         .filter(known_variability__icontains="queried")
@@ -32,10 +33,9 @@ def _recent_and_priority_targets(event_name, recent_days, priority_limit):
     )
 
     if event_name == "LSST":
-        radar_qs = (
-            MicrolensingRadarData.objects.filter(target__name__icontains=event_name)
-            .distinct()
-        )
+        radar_qs = MicrolensingRadarData.objects.filter(
+            target__name__icontains=event_name
+        ).distinct()
     else:
         distinct_ids = (
             MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
@@ -54,9 +54,7 @@ def _recent_and_priority_targets(event_name, recent_days, priority_limit):
         )
 
     target_ids = set(new_or_modified_targets.values_list("id", flat=True))
-    target_ids.update(
-        radar_qs.values_list("target_id", flat=True)
-    )
+    target_ids.update(radar_qs.values_list("target_id", flat=True))
 
     return list(GalacticTarget.objects.filter(id__in=target_ids).distinct())
 
@@ -71,7 +69,9 @@ class Command(BaseCommand):
             default="ZTF",
             help="Event-name filter. Use ZTF or LSST for recent/priority target selection.",
         )
-        parser.add_argument("--radius-arcsec", type=float, default=VIZIER_SED_DEFAULT_RADIUS_ARCSEC)
+        parser.add_argument(
+            "--radius-arcsec", type=float, default=VIZIER_SED_DEFAULT_RADIUS_ARCSEC
+        )
         parser.add_argument("--timeout", type=float, default=VIZIER_SED_DEFAULT_TIMEOUT)
         parser.add_argument("--recent-days", type=int, default=3)
         parser.add_argument("--priority-limit", type=int, default=35)

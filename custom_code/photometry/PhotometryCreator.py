@@ -1,6 +1,4 @@
-from django.core.exceptions import MultipleObjectsReturned
 from django.db import IntegrityError
-
 from tom_alerts.alerts import Target
 from tom_dataproducts.models import PhotometryReducedDatum
 
@@ -27,8 +25,10 @@ class PhotometryCreator:
                     pass
 
             except Exception as e:
-                message = ('ALERCE HARVERSTER: Exception occured while ingesting photometry')
-                message += (e.__class__.__name__)
+                message = (
+                    "ALERCE HARVERSTER: Exception occured while ingesting photometry"
+                )
+                message += e.__class__.__name__
                 message += str(e)
                 error = {"message": message, "target": target.name}
                 errors.append(error)

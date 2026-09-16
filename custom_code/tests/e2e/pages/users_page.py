@@ -1,5 +1,6 @@
 from playwright.sync_api import Page, expect
 
+
 class UsersPage:
     def __init__(self, page: Page, base_url) -> None:
         self.page = page
@@ -7,7 +8,7 @@ class UsersPage:
 
     def open_it(self):
         self.page.goto(f"{self.base_url}/users/")
-    
+
     def login(self, username, password):
         self.page.get_by_placeholder("Username").fill(username)
         self.page.get_by_placeholder("Password").fill(password)
@@ -37,11 +38,15 @@ class UsersPage:
 
     # These are very brittle...
     def get_groups_table(self):
-        return self.page.get_by_role("columnheader", name="Members").locator('xpath=../../..')
-    
+        return self.page.get_by_role("columnheader", name="Members").locator(
+            "xpath=../../.."
+        )
+
     # These are very brittle...
     def get_active_users_table(self):
-        return self.page.get_by_role("columnheader", name="Change Password").locator('xpath=../../..')
+        return self.page.get_by_role("columnheader", name="Change Password").locator(
+            "xpath=../../.."
+        )
 
     def get_number_of_pending_users(self):
         table = self.get_pending_users_table()
@@ -58,7 +63,16 @@ class UsersPage:
         rows = table.locator("tbody tr")
         return rows.count()
 
-    def register(self, username, first_name, last_name, email, password, password_confirm, affiliation):
+    def register(
+        self,
+        username,
+        first_name,
+        last_name,
+        email,
+        password,
+        password_confirm,
+        affiliation,
+    ):
         self.page.get_by_text("Register").click()
         self.page.get_by_placeholder("Username").fill(username)
         self.page.get_by_placeholder("First name").fill(first_name)
@@ -72,14 +86,13 @@ class UsersPage:
     def approve(self, username):
         self.page.get_by_role("link", name="Users").click()
         table = self.get_pending_users_table()
-        row = table.get_by_role("cell", name=username).locator('xpath=..')
+        row = table.get_by_role("cell", name=username).locator("xpath=..")
         row.get_by_role("link", name="Approve").click()
         self.page.get_by_role("button", name="Approve").click()
 
     def delete_pending_user(self, username):
         self.page.get_by_role("link", name="Users").click()
         table = self.get_pending_users_table()
-        row = table.get_by_role("cell", name=username).locator('xpath=..')
+        row = table.get_by_role("cell", name=username).locator("xpath=..")
         row.get_by_role("link", name="Delete").click()
         self.page.get_by_role("button", name="Confirm").click()
-

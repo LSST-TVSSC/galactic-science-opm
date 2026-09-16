@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 class VariabilityFlagsClient(ABC):
     @abstractmethod
     def get_variability_info_for_targets(self, targets):
-        """ 
-        Needs implementation. 
+        """
+        Needs implementation.
         Returns dict with the following structure:
         {
             "ZTF26abdwauc": {

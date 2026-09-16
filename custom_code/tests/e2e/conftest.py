@@ -1,4 +1,5 @@
 import os
+
 import pytest
 import requests
 
@@ -12,7 +13,7 @@ def flush_db_and_seed_e2e_data():
     BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
     response = requests.get(BASE_URL + ("/flush_and_seed"))
     if response.status_code != 201:
-        raise Exception(
+        raise Exception(  # noqa: TRY002
             "/flush_and_seed failed. Maybe the endpoint does not exist? "
             "Is the dump in the right folder? Cancelling tests. Run in E2E setup."
         )

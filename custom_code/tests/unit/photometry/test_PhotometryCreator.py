@@ -1,9 +1,8 @@
 import datetime
 from unittest import mock
 
-from django.db import IntegrityError
-
 from astropy.time import TimezoneInfo
+from django.db import IntegrityError
 from django.test import TransactionTestCase
 from tom_dataproducts.models import PhotometryReducedDatum
 from tom_targets.models import Target
@@ -80,9 +79,9 @@ class TestPhotometryCreator(TransactionTestCase):
             "source_location",
             "timestamp",
             "source_name",
-            # mkistner: it seems tomtk uses BaseTarget here, not Target, so 
+            # mkistner: it seems tomtk uses BaseTarget here, not Target, so
             # I can't compare them here and have to do it separately.
-            # "target", 
+            # "target",
         ]
 
         # It should create PhotometryReducedDatum instances from candidates in the DB
@@ -127,21 +126,23 @@ class TestPhotometryCreator(TransactionTestCase):
                 target=target_ZTF21abasvhl,
             ),
         ]
-        
-        expected_error_message = ('ALERCE HARVERSTER: Exception occured while ingesting photometry')
-        expected_error_message += ('Exception')
-        expected_error_message += 'oops'
-        EXPECTED_ERRORS = [{"message": expected_error_message, "target":target_ZTF21abasvhl.name}]
 
+        expected_error_message = (
+            "ALERCE HARVERSTER: Exception occured while ingesting photometry"
+        )
+        expected_error_message += "Exception"
+        expected_error_message += "oops"
+        EXPECTED_ERRORS = [
+            {"message": expected_error_message, "target": target_ZTF21abasvhl.name}
+        ]
 
         # GIVEN a PhotometryReducedDatum implementation which raises an exception
         # on create_or_update
         with mock.patch(
             "custom_code.photometry.PhotometryCreator.PhotometryReducedDatum",
             new_callable=create_raising_create_or_update(
-                EXPECTED_DATUMS,
-                make_exception_to_be_raised(Exception, "oops")
-            )
+                EXPECTED_DATUMS, make_exception_to_be_raised(Exception, "oops")
+            ),
         ):
             photometry_creator = PhotometryCreator()
             # WHEN testee is run
@@ -203,8 +204,7 @@ class TestPhotometryCreator(TransactionTestCase):
             ),
         ]
 
-
-        # GIVEN a PhotometryReducedDatum implementation that raises an 
+        # GIVEN a PhotometryReducedDatum implementation that raises an
         # IntegrityError on create_or_update
         with mock.patch(
             "custom_code.photometry.PhotometryCreator.PhotometryReducedDatum",
@@ -214,7 +214,7 @@ class TestPhotometryCreator(TransactionTestCase):
             ),
         ):
             photometry_creator = PhotometryCreator()
-            # WHEN testee is called 
+            # WHEN testee is called
             errors, results = photometry_creator.create_photometry_for_targets(
                 PHOTOMETRY_CANDIDATES
             )
@@ -234,5 +234,5 @@ class TestPhotometryCreator(TransactionTestCase):
             for e in EXPECTED_DATUMS:
                 self.assertEqual(e.target.name, target_ZTF21abasvhl.name)
             # AND no errors should be logged, since IntegrityError regarding
-            # unique_photometry are ok. 
+            # unique_photometry are ok.
             self.assertEqual(len(errors), 0)

@@ -1,5 +1,4 @@
 from os import path
-import os
 from pathlib import Path
 
 from django.conf import settings
@@ -25,19 +24,28 @@ class Command(BaseCommand):
         existing_targets = GalacticTarget.objects.all()
 
         for target in existing_targets:
-
             if target.statistical_models.count() > 0:
-                self.stdout.write(self.style.NOTICE(f"Target {target.name} already has statistical_models. Skipping."))
+                self.stdout.write(
+                    self.style.NOTICE(
+                        f"Target {target.name} already has statistical_models. Skipping."
+                    )
+                )
                 continue
 
-            microlensing_models_for_target = MicrolensingModel.objects.filter(target=target)
+            microlensing_models_for_target = MicrolensingModel.objects.filter(
+                target=target
+            )
             if not microlensing_models_for_target.exists():
-                self.stdout.write(self.style.NOTICE(f"Target {target.name} has no MicrolensingModel instances. Skipping."))
+                self.stdout.write(
+                    self.style.NOTICE(
+                        f"Target {target.name} has no MicrolensingModel instances. Skipping."
+                    )
+                )
                 continue
 
             latest_model = microlensing_models_for_target.latest()
 
-            path_to_current_image = path.join(settings.MEDIA_ROOT, f"{target.name}.png")  
+            path_to_current_image = path.join(settings.MEDIA_ROOT, f"{target.name}.png")
             ml_model = MicrolensingParameterModel.objects.create(
                 target=target,
                 u0=latest_model.u0,
@@ -58,8 +66,15 @@ class Command(BaseCommand):
                         statistical_model=ml_model, image=image
                     )
                     # Do not remove the image for now.
-                    #os.remove(path_to_current_image)
-                    self.stdout.write(self.style.SUCCESS(f"Migrated model and image for target {target.name}"))
+                    # os.remove(path_to_current_image)
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"Migrated model and image for target {target.name}"
+                        )
+                    )
             else:
-                self.stdout.write(self.style.SUCCESS(f"Migrated model {target.name}, could not find image."))
-
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"Migrated model {target.name}, could not find image."
+                    )
+                )

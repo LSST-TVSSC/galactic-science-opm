@@ -13,34 +13,58 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path, include
+
 from django.conf import settings
 from django.conf.urls.static import static
-from custom_code.views import GsoOpmTargetDetailView,GsoOpmTargetShareView, HomeView
+from django.urls import include, path
+
 from custom_code import views
+from custom_code.views import GsoOpmTargetDetailView, GsoOpmTargetShareView, HomeView
 
 urlpatterns = [
-    path('', HomeView.as_view(), name='home'),
+    path("", HomeView.as_view(), name="home"),
     path(
         "targets/<int:pk>/",
         GsoOpmTargetDetailView.as_view(),
         name="target-detail",
     ),
-    path('targets/<int:pk>/share/', GsoOpmTargetShareView.as_view(), name='share'),
-    path('sed-plots/', include('sed_plots.urls')),
-    path('', include('tom_common.urls')),
-    path('custom_code/model_list.html', views.microlensing_model_view, name='microlensing_model_view'),
-    path('custom_code/prob_list_lsst.html', views.microlensing_rescaled_prob_view_lsst, name='microlensing_rescaled_prob_view_lsst'),
-    path('custom_code/prob_list.html', views.microlensing_rescaled_prob_view, name='microlensing_rescaled_prob_view'),
-    path('custom_code/ztf_2025_and_before.html', views.microlensing_rescaled_prob_view_ztf25, name='microlensing_rescaled_prob_view_ztf25'),
-    path('health/', views.health, name="health"),
-    path('version/', views.version, name="version"),
-    path('metrics/', views.metrics, name="metrics"),
-    path('download-data/lightcurves/<int:pk>/', views.download_lightcurve_data_for_target, name='download_lightcurve_data_for_target'),
+    path("targets/<int:pk>/share/", GsoOpmTargetShareView.as_view(), name="share"),
+    path("sed-plots/", include("sed_plots.urls")),
+    path("", include("tom_common.urls")),
+    path(
+        "custom_code/model_list.html",
+        views.microlensing_model_view,
+        name="microlensing_model_view",
+    ),
+    path(
+        "custom_code/prob_list_lsst.html",
+        views.microlensing_rescaled_prob_view_lsst,
+        name="microlensing_rescaled_prob_view_lsst",
+    ),
+    path(
+        "custom_code/prob_list.html",
+        views.microlensing_rescaled_prob_view,
+        name="microlensing_rescaled_prob_view",
+    ),
+    path(
+        "custom_code/ztf_2025_and_before.html",
+        views.microlensing_rescaled_prob_view_ztf25,
+        name="microlensing_rescaled_prob_view_ztf25",
+    ),
+    path("health/", views.health, name="health"),
+    path("version/", views.version, name="version"),
+    path("metrics/", views.metrics, name="metrics"),
+    path(
+        "download-data/lightcurves/<int:pk>/",
+        views.download_lightcurve_data_for_target,
+        name="download_lightcurve_data_for_target",
+    ),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.TESTING:
-    urlpatterns.append(path('flush_and_seed/', views.flush_and_seed, name="flush_and_seed"))
+    urlpatterns.append(
+        path("flush_and_seed/", views.flush_and_seed, name="flush_and_seed")
+    )

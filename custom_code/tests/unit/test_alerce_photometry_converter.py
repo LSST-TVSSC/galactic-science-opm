@@ -1,9 +1,12 @@
 import datetime
 from unittest import TestCase
-from astropy.time import Time, TimezoneInfo
-import pandas as pd
+
 import numpy as np
-pd.set_option('future.no_silent_downcasting', True)
+import pandas as pd
+from astropy.time import Time, TimezoneInfo
+
+pd.set_option("future.no_silent_downcasting", True)
+
 
 # A possible implementation. Should go into different file.
 def alerce_photometry_converter(target_name, detections_photometry):
@@ -33,7 +36,6 @@ def alerce_photometry_converter(target_name, detections_photometry):
 
 
 class AlercePhotometryConverterTests(TestCase):
-
     def test_converts_alerce_photometry_to_dto_all_good(self):
         self.maxDiff = 1000
         TARGET_NAME_TO_TEST = "ZTF26aarbgfh"
@@ -67,12 +69,14 @@ class AlercePhotometryConverterTests(TestCase):
             "step_id_corr": {0: "27.5.7a32.dev1"},
             "phase": {0: 0.0},
             "parent_candid": {0: 3.381400920515015e18},
-            "drb": {0: None}, # this was nan
-            "rfid": {0: None}, # this was nan
+            "drb": {0: None},  # this was nan
+            "rfid": {0: None},  # this was nan
         }
         expected = [
             {
-                "timestamp": datetime.datetime(2026, 3, 6, 12, 54, 31, 323, tzinfo=TimezoneInfo()),
+                "timestamp": datetime.datetime(
+                    2026, 3, 6, 12, 54, 31, 323, tzinfo=TimezoneInfo()
+                ),
                 "value": {
                     "magnitude": 15.695387,
                     "filter": "ZTF_r",
@@ -83,10 +87,12 @@ class AlercePhotometryConverterTests(TestCase):
                 "data_type": "photometry",
             }
         ]
-        alerce_photometry = pd.DataFrame.from_dict(alerce_data_as_dict).fillna(value=np.nan)
+        alerce_photometry = pd.DataFrame.from_dict(alerce_data_as_dict).fillna(
+            value=np.nan
+        )
         converted = alerce_photometry_converter(TARGET_NAME_TO_TEST, alerce_photometry)
         self.assertCountEqual(expected, converted)
-    
+
     def test_skips_alerce_photometry_when_magpsf_corr_is_missing(self):
         TARGET_NAME_TO_TEST = "ZTF26aarbgfh"
         alerce_data_as_dict = {
@@ -117,13 +123,15 @@ class AlercePhotometryConverterTests(TestCase):
             "step_id_corr": {0: "27.5.7a32.dev1"},
             "phase": {0: 0.0},
             "parent_candid": {0: 3.381400920515015e18},
-            "drb": {0: None}, # this was nan
-            "rfid": {0: None}, # this was nan
+            "drb": {0: None},  # this was nan
+            "rfid": {0: None},  # this was nan
         }
         expected = []
-        alerce_photometry = pd.DataFrame.from_dict(alerce_data_as_dict).fillna(value=np.nan)
+        alerce_photometry = pd.DataFrame.from_dict(alerce_data_as_dict).fillna(
+            value=np.nan
+        )
         converted = alerce_photometry_converter(TARGET_NAME_TO_TEST, alerce_photometry)
-        self.assertEquals(expected, converted)
+        self.assertEqual(expected, converted)
 
     def test_skips_alerce_photometry_for_magpsf_corr_greater_than_100(self):
         TARGET_NAME_TO_TEST = "ZTF26aarbgfh"
@@ -156,10 +164,12 @@ class AlercePhotometryConverterTests(TestCase):
             "step_id_corr": {0: "27.5.7a32.dev1"},
             "phase": {0: 0.0},
             "parent_candid": {0: 3.381400920515015e18},
-            "drb": {0: None}, # this was nan
-            "rfid": {0: None}, # this was nan
+            "drb": {0: None},  # this was nan
+            "rfid": {0: None},  # this was nan
         }
         expected = []
-        alerce_photometry = pd.DataFrame.from_dict(alerce_data_as_dict).fillna(value=np.nan)
+        alerce_photometry = pd.DataFrame.from_dict(alerce_data_as_dict).fillna(
+            value=np.nan
+        )
         converted = alerce_photometry_converter(TARGET_NAME_TO_TEST, alerce_photometry)
-        self.assertEquals(expected, converted)
+        self.assertEqual(expected, converted)

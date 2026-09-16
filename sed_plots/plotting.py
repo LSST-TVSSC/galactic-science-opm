@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
-from plotly import offline
 import plotly.graph_objs as go
-
+from plotly import offline
 
 MIN_BLACKBODY_POINTS = 5
 MIN_DISTINCT_FILTERS = 5
@@ -133,16 +132,14 @@ def _sigma_clipped_blackbody_fit(df):
     long_wavelength_threshold = max(6.0 * robust_sigma, np.log(10.0) * 1.75)
 
     abs_residual = np.abs(residuals - median_residual)
-    keep = (
-        (~is_long_wavelength.to_numpy() & (abs_residual <= normal_threshold))
-        | (is_long_wavelength.to_numpy() & (abs_residual <= long_wavelength_threshold))
+    keep = (~is_long_wavelength.to_numpy() & (abs_residual <= normal_threshold)) | (
+        is_long_wavelength.to_numpy() & (abs_residual <= long_wavelength_threshold)
     )
 
     # Do not over-prune. If the clipping removes too many points, the model is
     # simply a poor guide for this SED, so keep the all-point fit.
-    if (
-        keep.sum() < MIN_BLACKBODY_POINTS
-        or keep.sum() < MIN_RETAINED_FRACTION * len(keep)
+    if keep.sum() < MIN_BLACKBODY_POINTS or keep.sum() < MIN_RETAINED_FRACTION * len(
+        keep
     ):
         return initial_fit
 
@@ -210,7 +207,10 @@ def make_sed_plot(points, target_name):
     df = _points_to_dataframe(points)
 
     if df.empty:
-        return None, "No stored positive finite VizieR SED points are available for this target."
+        return (
+            None,
+            "No stored positive finite VizieR SED points are available for this target.",
+        )
 
     if "sed_filter" in df.columns:
         marker_text = df["sed_filter"].fillna("").astype(str)
@@ -222,11 +222,7 @@ def make_sed_plot(points, target_name):
         )
     else:
         marker_text = None
-        hovertemplate = (
-            "Wavelength: %{x:.4g} μm<br>"
-            "νFν: %{y:.3e} W m⁻²"
-            "<extra></extra>"
-        )
+        hovertemplate = "Wavelength: %{x:.4g} μm<br>νFν: %{y:.3e} W m⁻²<extra></extra>"
 
     fig = go.Figure()
     fig.add_trace(
@@ -235,14 +231,14 @@ def make_sed_plot(points, target_name):
             y=df["nu_fnu_w_m2"],
             mode="markers",
             text=marker_text,
-            marker=dict(
-                size=13,
-                opacity=0.77,
-                color=df["sed_freq_ghz"],
-                colorscale="Jet_r",
-                showscale=False,
-                line=dict(width=2, color="White"),
-            ),
+            marker={
+                "size": 13,
+                "opacity": 0.77,
+                "color": df["sed_freq_ghz"],
+                "colorscale": "Jet_r",
+                "showscale": False,
+                "line": {"width": 2, "color": "White"},
+            },
             hovertemplate=hovertemplate,
             name="VizieR SED",
         )
@@ -260,7 +256,7 @@ def make_sed_plot(points, target_name):
                 x=blackbody_fit["wavelength_um"],
                 y=blackbody_fit["nu_fnu_w_m2"],
                 mode="lines",
-                line=dict(color="White", width=3, dash="dash"),
+                line={"color": "White", "width": 3, "dash": "dash"},
                 name=f"Approx. blackbody guide ({blackbody_fit['temperature']:.0f} K{clipped_suffix})",
                 hovertemplate=(
                     "Approx. blackbody guide<br>"
@@ -277,7 +273,7 @@ def make_sed_plot(points, target_name):
     fig.update_layout(
         title=f"VizieR SED for {target_name}",
         template="plotly_dark",
-        margin=dict(l=50, r=30, t=60, b=50),
+        margin={"l": 50, "r": 30, "t": 60, "b": 50},
         showlegend=True,
     )
     fig.update_xaxes(type="log", title_text="Wavelength (μm)")
@@ -288,4 +284,6 @@ def make_sed_plot(points, target_name):
         showexponent="all",
     )
 
-    return offline.plot(fig, output_type="div", show_link=False, include_plotlyjs=False), None
+    return offline.plot(
+        fig, output_type="div", show_link=False, include_plotlyjs=False
+    ), None

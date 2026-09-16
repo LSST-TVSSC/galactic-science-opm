@@ -4,17 +4,17 @@ from custom_code.target_models import ClassificationGeneralized, ClassificationS
 def create_and_attach_classifications_to_target(target, probabilities):
     sources, classifications_new, classifications_updated = [], [], []
     for prob in probabilities:
-        classification_source, created_source = ClassificationSource.objects.get_or_create(
-            classification_origin="ALeRCE_ZTF",
-            classifier_name=prob["classifier_name"],
-            class_name=prob["class_name"],
-            classifier_version=prob["classifier_version"],
+        classification_source, created_source = (
+            ClassificationSource.objects.get_or_create(
+                classification_origin="ALeRCE_ZTF",
+                classifier_name=prob["classifier_name"],
+                class_name=prob["class_name"],
+                classifier_version=prob["classifier_version"],
+            )
         )
         try:
             classification = ClassificationGeneralized.objects.get(
-                target=target,
-                source=classification_source,
-                name=prob["class_name"]
+                target=target, source=classification_source, name=prob["class_name"]
             )
             classification.probability = prob["probability"]
             classification.save()
@@ -38,7 +38,9 @@ def create_and_attach_classifications_to_target(target, probabilities):
     return sources, classifications_new, classifications_updated
 
 
-def create_and_attach_classifications_to_target_antares(target, antares_probability, antares_version):
+def create_and_attach_classifications_to_target_antares(
+    target, antares_probability, antares_version
+):
     sources, classifications_new, classifications_updated = [], [], []
     classification_source, created_source = ClassificationSource.objects.get_or_create(
         classification_origin="ANTARES",
@@ -48,9 +50,7 @@ def create_and_attach_classifications_to_target_antares(target, antares_probabil
     )
     try:
         classification = ClassificationGeneralized.objects.get(
-            target=target,
-            source=classification_source,
-            name="microlensing"
+            target=target, source=classification_source, name="microlensing"
         )
         classification.probability = antares_probability
         classification.save()
@@ -71,4 +71,3 @@ def create_and_attach_classifications_to_target_antares(target, antares_probabil
     else:
         classifications_updated.append(classification)
     return sources, classifications_new, classifications_updated
-
