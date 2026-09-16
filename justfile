@@ -34,9 +34,18 @@ log-e2e:
 run-unittest:
   docker compose exec galactic-science-opm  coverage run -m pytest custom_code/tests/unit/
 
-show-html-coverage:
+show-total-coverage-as-html:
   docker compose exec galactic-science-opm coverage html
   open ./htmlcov/index.html
+
+show-branch-coverage-as-html:
+  docker compose exec galactic-science-opm coverage xml
+  poetry run diff-cover coverage.xml --format html:report.html --compare-branch=origin/dev
+  open ./report.html
+
+show-branch-coverage-as-markdown:
+  docker compose exec galactic-science-opm coverage xml
+  poetry run diff-cover coverage.xml --format markdown:report.md --compare-branch=origin/dev
 
 exec-django:
   docker compose exec -it galactic-science-opm  /bin/bash
