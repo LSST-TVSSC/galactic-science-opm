@@ -248,7 +248,8 @@ more integration tests.
 To generate a HTML report, use the `just` command `just show-branch-coverage-as-html`. 
 For this to work, you have to first run the unit test suite by e.g. running the `just`
 command `just run-unittest`. If you don't use just, you can look into `justfile`
-and copy the corresponding command. 
+and copy the corresponding command (if you happen to use `podman`, replacing 
+`docker` with `podman` should be enough to make it work).
 
 A coverage of 100% should not always be the main goal. Rather you should make sure
 that all the important aspects of your feature are tested in a way, so that 
@@ -336,6 +337,12 @@ common tasks more easy, but this is completely optional.
 
 After you installed [just](https://github.com/casey/just), you can do things
 like `just run-unittest` and the unit tests will run. 
+
+This assumes that you can use `docker`. If you happen to use `podman`, replacing 
+`docker` with `podman` should be enough to make the commands inside the 
+justfile work, if you want to run the commands manually. If you use `podman` and
+want to use the justfile, consider setting up an alias, so `docker` points to
+`podman`. 
 
 ### pre-commit
 
