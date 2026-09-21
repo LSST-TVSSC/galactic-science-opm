@@ -134,7 +134,8 @@ def earth_visibility_plot(targets=None):
             lat=[rubin_lat],
             mode="markers",
             marker={"size": 12, "color": "white", "symbol": "star"},
-            name="Rubin Observatory (Cerro Pachón)",
+            name="Rubin Observatory",
+            showlegend=False,
         )
     )
 
@@ -144,7 +145,7 @@ def earth_visibility_plot(targets=None):
             lat=term_lats,
             mode="lines",
             marker={"size": 4, "color": "rgb(68, 85, 90)"},
-            name="Terminator Day/Night",
+            name="Day/Night",
         )
     )
 
@@ -152,7 +153,7 @@ def earth_visibility_plot(targets=None):
         go.Scattergeo(
             lon=target_lons_30,
             lat=target_lats_30,
-            mode="markers",
+            mode="lines",
             marker={"size": 4, "color": "rgb(255, 140, 0)"},
             name="Target > 30°",
         )
@@ -200,7 +201,7 @@ def earth_visibility_plot(targets=None):
             "y": -0.05,
             "xanchor": "center",
             "x": 0.5,
-            "font": {"size": 21},
+            "font": {"size": 19},
         },
     )
 
