@@ -344,6 +344,13 @@ justfile work, if you want to run the commands manually. If you use `podman` and
 want to use the justfile, consider setting up an alias, so `docker` points to
 `podman`. 
 
+If you do not want to use justfile or use a non-docker workflow i.e. running
+only the database in docker and the django dev server locally, you have 
+to prefix the commands that use external packages (e.g. `coverage` or `diff-cover`)
+with `poetry run`. So, if you want to use the justfile command `show-branch-coverage-as-html` locally,
+`docker compose exec galactic-science-opm coverage xml` will have to be changed to
+`poetry run coverage xml`.
+
 ### pre-commit
 
 There is a pre-commit hook which lints and formats code with ruff on every commit.
