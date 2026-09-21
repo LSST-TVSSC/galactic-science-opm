@@ -219,8 +219,8 @@ export class AladinSkymapElement extends LitElement {
   addSurveys() {
     for (const { name, url, color } of this.surveys) {
       const surveyDefinition = this.A.MOCFromURL(url, {
-        lineWidth: 2,
-        opacity: 0.3,
+        lineWidth: 3,
+        opacity: 0.5,
         color,
         name,
       });

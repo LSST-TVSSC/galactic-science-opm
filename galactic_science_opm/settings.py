@@ -14,7 +14,11 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 import tempfile
 
+import astropy.utils.iers
 import environ
+
+# Disable downloading the IERS-A data over network
+astropy.utils.iers.conf.auto_download = False
 
 env = environ.Env(DJANGO_DEBUG=(bool, False))
 
@@ -75,6 +79,7 @@ INSTALLED_APPS = [
     "custom_code",
     "radar_plots",
     "sed_plots",
+    "earth_visibility_plot",
 ]
 
 SITE_ID = 1

@@ -1,4 +1,5 @@
 {% load tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags vite %}
+{% load earth_visibility_plot_tags %}
 <div data-testid="exchange-tab">
         <h4>Exchange</h4>
         
@@ -6,5 +7,11 @@
           <a class="btn btn-outline-secondary" href="/download-data/lightcurves/{{target.id}}">Download lightcurve data for target</a>
           {% target_buttons target %}
         </div>
-      
+         <plotly-chart-element id="earth_visibility_plot">
+        {% earth_visibility_plot target %}
+    </plotly-chart-element>
+    <!--    render_visibility_plot target_id -->
+    <section>
+        {{ plot_data.figure|safe }}
+    </section>
 </div>
