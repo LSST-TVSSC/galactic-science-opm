@@ -179,10 +179,10 @@ def earth_visibility_plot(targets=None):
         )
     )
     fig.update_layout(
-        title="Target Visibility",
         paper_bgcolor="rgb(0, 0, 0)",
         plot_bgcolor="rgb(0, 0, 0)",
         font={"size": 17},
+        margin={"l": 0, "r": 0, "t": 10, "b": 0},
         geo={
             "bgcolor": "rgb(0, 0, 0)",
             "showland": True,
@@ -206,7 +206,10 @@ def earth_visibility_plot(targets=None):
     )
 
     figure = offline.plot(
-        fig, output_type="div", show_link=False, include_plotlyjs=False
+        fig,
+        output_type="div",
+        show_link=False,
+        include_plotlyjs=False,
     )
 
     return {"figure": figure}
