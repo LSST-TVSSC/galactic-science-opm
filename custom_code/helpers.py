@@ -71,3 +71,14 @@ def create_and_attach_classifications_to_target_antares(
     else:
         classifications_updated.append(classification)
     return sources, classifications_new, classifications_updated
+
+
+def greet_user(name, tone):
+    """
+    This is just a sample function to show the git-branch-coverage report.
+    """
+
+    if tone == "formal":
+        return f"Good day, {name}! How may I help you today?"
+    else:
+        return f"Hey there, {name}! How's it hangin'?"

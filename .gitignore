@@ -142,3 +142,7 @@ compose.yaml
 
 /database
 node_modules
+
+# converage reports 
+report.md
+report.html

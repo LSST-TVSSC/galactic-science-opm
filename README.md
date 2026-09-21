@@ -232,6 +232,33 @@ docker-compose -f compose.base.yaml -f compose.local.yaml -f compose.e2e.yaml up
 
 ## Notes on testing
 
+### Unit test coverage report for the current branch
+
+If you are working on a new feature or fixing a bug, you should make sure that
+there are tests that make sure that your feature works and that it keeps working 
+in the future or the bug won't go unnoticed again.
+
+To check whether you have sufficiently tested your code, you can generate a
+coverage report for just the difference of your branch in relation to the dev 
+branch. 
+
+Currently this works for unit tests only, but this will be expanded, once we introduce
+more integration tests.
+
+To generate a HTML report, use the `just` command `just show-branch-coverage-as-html`. 
+For this to work, you have to first run the unit test suite by e.g. running the `just`
+command `just run-unittest`. If you don't use just, you can look into `justfile`
+and copy the corresponding command (if you happen to use `podman`, replacing 
+`docker` with `podman` should be enough to make it work).
+
+A coverage of 100% should not always be the main goal. Rather you should make sure
+that all the important aspects of your feature are tested in a way, so that 
+you immediately notice, if a feature no longer works or no longer works as intended. 
+
+There is also a `just` command for generating a markdown report. This can be used
+to insert the coverage report for your feature into your PR description, so 
+the reviewers can see, if the required coverage goals have been met. 
+
 ### Running unit tests
 
 Can also be run in your local directory, because nothing django related should
@@ -310,6 +337,19 @@ common tasks more easy, but this is completely optional.
 
 After you installed [just](https://github.com/casey/just), you can do things
 like `just run-unittest` and the unit tests will run. 
+
+This assumes that you can use `docker`. If you happen to use `podman`, replacing 
+`docker` with `podman` should be enough to make the commands inside the 
+justfile work, if you want to run the commands manually. If you use `podman` and
+want to use the justfile, consider setting up an alias, so `docker` points to
+`podman`. 
+
+If you do not want to use justfile or use a non-docker workflow i.e. running
+only the database in docker and the django dev server locally, you have 
+to prefix the commands that use external packages (e.g. `coverage` or `diff-cover`)
+with `poetry run`. So, if you want to use the justfile command `show-branch-coverage-as-html` locally,
+`docker compose exec galactic-science-opm coverage xml` will have to be changed to
+`poetry run coverage xml`.
 
 ### pre-commit
 
