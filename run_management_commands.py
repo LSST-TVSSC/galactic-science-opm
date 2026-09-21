@@ -25,6 +25,7 @@ def run_ztf26():
             "--all_years",
             "True",
         ],
+        ["./manage.py", "ingest_survey_coords_only", "2026", "KMTNET,OGLE,PRIME"],
         ["./manage.py", "ingest_alerce_ztf_probabilities", "ZTF26", "2"],
         ["./manage.py", "ingest_alerce_ztf_probabilities", "LSST", "2"],
         ["./manage.py", "run_rtmodel_fits", "ZTF"],
