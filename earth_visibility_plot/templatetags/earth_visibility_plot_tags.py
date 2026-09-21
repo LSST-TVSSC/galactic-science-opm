@@ -73,7 +73,6 @@ def earth_visibility_plot(targets=None):
     except Exception as e:
         values = [0.0, 0.0]
         print(e)
-    print(values)
     sites_mpc = (
         ("262", 289.26626, 0.873440, -0.486052, "La Silla"),
         ("X11", 291.59604, 0.909953, -0.414324, "VLT"),
