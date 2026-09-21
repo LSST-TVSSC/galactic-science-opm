@@ -94,7 +94,7 @@ def earth_visibility_plot(targets=None):
     moon_lat, moon_lon = get_subpoint(moon_coord, current_time)
 
     target_lats_30, target_lons_30 = get_astronomical_circle_boundary(
-        values[0], values[1], 30.0, n_points=350
+        values[0], values[1], 60.0, n_points=350
     )
     term_lats, term_lons = get_circle_boundary(
         sun_lat, sun_lon, radius_deg=90, n_points=350
