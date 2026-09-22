@@ -351,8 +351,7 @@ class GsoOpmTargetShareView(TargetShareView):
         return context
 
 
-# mhundertmark:
-#
+# mhundertmark: Comprehensive DE, MCMC and model comparison script tbd
 
 
 def download_pylima_script(_, pk):
