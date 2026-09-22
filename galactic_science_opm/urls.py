@@ -59,6 +59,11 @@ urlpatterns = [
         views.download_lightcurve_data_for_target,
         name="download_lightcurve_data_for_target",
     ),
+    path(
+        "download-data/pylima_script/<int:pk>/",
+        views.download_pylima_script,
+        name="download_pylima_script",
+    ),
 ]
 
 if settings.DEBUG:
