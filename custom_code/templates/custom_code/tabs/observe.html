@@ -5,6 +5,7 @@
         
         <div>
           <a class="btn btn-outline-secondary" href="/download-data/lightcurves/{{target.id}}">Download lightcurve data for target</a>
+          <a class="btn btn-outline-secondary" href="{% url 'download_pylima_script' target.id %}">Download pyLIMA PSPL script for target (experimental)</a>
           {% target_buttons target %}
         </div>
          <plotly-chart-element id="earth_visibility_plot">

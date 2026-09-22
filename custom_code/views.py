@@ -12,7 +12,7 @@ from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import OperationalError, connection, connections
 from django.db.models import Q
-from django.http import FileResponse, JsonResponse
+from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
@@ -187,7 +187,10 @@ def microlensing_rescaled_prob_view(request):
         .distinct()[:10]
     )
 
-    ogle_targets = GalacticTarget.objects.filter(Q(name__icontains=f"OGLE-{current_year}") | Q(name__icontains=f"KMT-{current_year}"))
+    ogle_targets = GalacticTarget.objects.filter(
+        Q(name__icontains=f"OGLE-{current_year}")
+        | Q(name__icontains=f"KMT-{current_year}")
+    )
     ztf_aliases = TargetName.objects.filter(
         name__icontains="ZTF", target_id__in=ogle_targets.values_list("id", flat=True)
     )
@@ -346,6 +349,109 @@ class GsoOpmTargetShareView(TargetShareView):
         context["form"] = form
 
         return context
+
+
+# mhundertmark: Comprehensive DE, MCMC and model comparison script tbd
+
+
+def download_pylima_script(_, pk):
+    qs = GalacticTarget.objects.filter(id=pk)
+    target = qs[0]
+    script_content = f"""# Automatically generated pyLIMA script for target {target.name}
+# Created: {datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}
+# Target ID: {target.id}
+
+import os
+import tempfile
+import zipfile
+
+import matplotlib.pyplot as plt
+import numpy as np
+from pyLIMA import event, telescopes
+from pyLIMA.fits import TRF_fit
+from pyLIMA.models import PSPL_model
+
+zip_path = f"lightcurves_export_{target.name}.zip"
+with tempfile.TemporaryDirectory(prefix="lc_") as tmpdir:
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        zip_ref.extractall(tmpdir)
+
+    all_files = [f for f in os.listdir(tmpdir) if f.endswith((".dat", ".txt"))]
+    if not all_files:
+        raise FileNotFoundError("No .dat or .txt files found in the zip archive")
+    # Create event
+    your_event = event.Event(ra={target.ra},dec={target.dec})
+    your_event.name = "PSPL OPM Event {target.name}"
+    nmax = 0
+    for data_file in all_files:
+        # Load data as strings
+        data = np.genfromtxt(os.path.join(tmpdir, data_file), comments="#", dtype=str)
+
+        # Extract passband
+        passband = str(data[0, 3])
+
+        if "_" in passband:
+            telescope_name, camera_filter = passband.rsplit("_", 1)
+            telescope_name = f"{{telescope_name}}{{camera_filter}}"
+        else:
+            telescope_name = passband
+            camera_filter = "unknown"
+
+        # Convert first three columns to float
+        lightcurve_data = np.column_stack(
+            [
+                data[:, 0].astype(float),
+                data[:, 1].astype(float),
+                data[:, 2].astype(float),
+            ]
+        )
+        # Create telescope
+        telescope = telescopes.Telescope(
+            name=telescope_name,
+            camera_filter=camera_filter,
+            lightcurve=lightcurve_data,
+            lightcurve_names=["time", "mag", "err_mag"],
+            lightcurve_units=["JD", "mag", "mag"],
+        )
+
+        if len(lightcurve_data) > 3:
+            your_event.telescopes.append(telescope)
+        if len(lightcurve_data) > nmax:
+            nmax = len(lightcurve_data)
+            survey = telescope_name
+
+    your_event.find_survey(survey)
+    results = []
+    # Create PSPL model
+    pspl = PSPL_model.PSPLmodel(
+        your_event, parallax=["None", 2460000.0], blend_flux_parameter="noblend"
+    )
+    my_fit = TRF_fit.TRFfit(pspl)
+    my_fit.fit()
+    my_fit.fit_outputs()
+    pspl = PSPL_model.PSPLmodel(
+        your_event, parallax=["None", 2460000.0], blend_flux_parameter="ftotal"
+    )
+    my_fit = TRF_fit.TRFfit(pspl)
+    guessed_parameters = my_fit.initial_guess()
+    my_fit.fit()
+    pspl = PSPL_model.PSPLmodel(
+        your_event,
+        parallax=["Annual", guessed_parameters[0]],
+        blend_flux_parameter="ftotal",
+    )
+    my_fit = TRF_fit.TRFfit(pspl)
+    my_fit.fit()
+    my_fit.fit_outputs()
+    my_fit.fit_outputs(bokeh_plot=True)
+    plt.show()
+"""
+    # Create response with file download headers
+    response = HttpResponse(script_content, content_type="text/x-python")
+    response["Content-Disposition"] = (
+        f'attachment; filename="observe_{target.id}_{target.name}.py"'
+    )
+    return response
 
 
 # mkistner: This was taken from here:
