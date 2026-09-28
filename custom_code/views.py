@@ -23,6 +23,9 @@ from tom_targets.forms import TargetShareForm
 from tom_targets.models import TargetName
 from tom_targets.views import TargetDetailView, TargetShareView
 
+from astropy.utils.iers import conf
+conf.auto_max_age = None
+
 from custom_code.target_models import (
     Classification,
     GalacticTarget,
