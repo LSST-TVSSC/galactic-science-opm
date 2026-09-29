@@ -1,5 +1,6 @@
 {% load tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags vite %}
 {% load earth_visibility_plot_tags %}
+{% load custom_observation_extras %}
 <div data-testid="exchange-tab">
         <h4>Exchange</h4>
         
@@ -9,10 +10,9 @@
           {% target_buttons target %}
         </div>
          <plotly-chart-element id="earth_visibility_plot">
-        {% earth_visibility_plot target %}
-    </plotly-chart-element>
-    <!--    render_visibility_plot target_id -->
-    <section>
-        {{ plot_data.figure|safe }}
-    </section>
+            {% earth_visibility_plot target %}
+        </plotly-chart-element>
+        <plotly-chart-element id="observation_plan_plot">
+          {% custom_observation_plan target %}
+        </plotly-chart-element>
 </div>
