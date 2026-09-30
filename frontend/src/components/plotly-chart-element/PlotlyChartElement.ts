@@ -100,7 +100,7 @@ export class PlotlyChartElement extends LitElement {
           orientation: 'h',
           x: 0.5,
           xanchor: 'center',
-          y: -0.2,
+          y: -0.8,
           yanchor: 'top'
         }
       };
