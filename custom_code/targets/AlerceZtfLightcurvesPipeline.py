@@ -109,6 +109,7 @@ class AlerceZtfLightcurvesPipeline:
             errors, _ = self.photometry_creator.create_photometry_for_targets(
                 photometry_data
             )
-            if errors:
-                self.logger("error", errors)
+            for error in errors:
+                self.logger("error", str(error))
+
             self.logger("success", "Photometry for targets created")
