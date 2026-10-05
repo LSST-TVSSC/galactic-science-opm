@@ -6,6 +6,7 @@ from datetime import timedelta
 
 import numpy as np
 from astropy.time import Time
+from astropy.utils.iers import conf
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import management
@@ -13,7 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import OperationalError, connection, connections
 from django.db.models import Q
 from django.http import FileResponse, HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import Http404, render
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
 from django.views.generic import TemplateView
@@ -23,7 +24,8 @@ from tom_targets.forms import TargetShareForm
 from tom_targets.models import TargetName
 from tom_targets.views import TargetDetailView, TargetShareView
 
-from astropy.utils.iers import conf
+from galactic_science_opm.settings import env
+
 conf.auto_max_age = None
 
 from custom_code.target_models import (
@@ -549,12 +551,21 @@ def health(_request):
     return JsonResponse({"status": "healthy"}, status=200)
 
 
-def flush_and_seed(_request):
+def flush_and_seed(request):
     """
     FOR TESTING ONLY!
     This endpoint flushes the database and imports test data.
     It is only added to urlpatterns if SETTINGS.TESTING is True.
     """
+    if not settings.TESTING:
+        raise Http404()
+
+    if (
+        request.headers.get("X-Test-Auth") != env("TEST_ENDPOINT_SECRET")
+        or env("TEST_ENDPOINT_SECRET") is None
+    ):
+        raise Http404()
+
     _ = management.call_command("flush", "--noinput")
     _ = management.call_command("migrate", "--noinput")
     _ = management.call_command("seed_e2e_data")
