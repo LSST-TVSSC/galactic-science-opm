@@ -503,6 +503,7 @@ def repackage_lightcurves(qs):
 
 # mkistner: the export part was adapted from here:
 # https://github.com/LCOGT/mop/blob/600eed8c6d420c709a13bb2310e6310e9248a2b7/mop/management/commands/download_event_lc_data.py
+@login_required
 def download_lightcurve_data_for_target(_, pk):
 
     with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
@@ -535,10 +536,11 @@ def download_lightcurve_data_for_target(_, pk):
                     )
                 zf.writestr(file_path, file_contents)
 
+        safe_name = re.sub(r"[^A-Za-z0-9_.-]", "_", target.name)
         response = FileResponse(
             open(tmp_path, "rb"),  # noqa: SIM115
             as_attachment=True,
-            filename=f"lightcurves_export_{target.name}.zip",
+            filename=f"lightcurves_export_{safe_name}.zip",
         )
         response["Content-Type"] = "application/zip"
         return response
