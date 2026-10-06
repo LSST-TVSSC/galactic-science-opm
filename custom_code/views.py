@@ -18,14 +18,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import OperationalError, connection, connections
 from django.db.models import Q
 from django.http import FileResponse, HttpResponse, JsonResponse
-from django.shortcuts import Http404, render
+from django.shortcuts import Http404, get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
 from django.views.generic import TemplateView
 from tom_dataproducts.models import PhotometryReducedDatum
 from tom_dataproducts.sharing import get_sharing_destination_options
 from tom_targets.forms import TargetShareForm
-from tom_targets.models import TargetName
+from tom_targets.models import Target, TargetName
+from tom_targets.permissions import targets_for_user
 from tom_targets.views import TargetDetailView, TargetShareView
 
 from galactic_science_opm.settings import env
@@ -364,11 +365,13 @@ class GsoOpmTargetShareView(TargetShareView):
 
 
 @login_required
-def download_pylima_script(_, pk):
-    qs = GalacticTarget.objects.filter(id=pk)
-    target = qs[0]
+def download_pylima_script(request, pk):
+    target = get_object_or_404(
+        targets_for_user(request.user, Target.objects.all(), "view_target"),
+        pk=pk,
+    )
     safe_name = re.sub(r"[^A-Za-z0-9_.-]", "_", target.name)
-    script_content = f"""# Automatically generated pyLIMA script for target {target.name}
+    script_content = f"""# Automatically generated pyLIMA script for target {safe_name}
 # Created: {datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}
 # Target ID: {target.id}
 
@@ -505,13 +508,16 @@ def repackage_lightcurves(qs):
 # mkistner: the export part was adapted from here:
 # https://github.com/LCOGT/mop/blob/600eed8c6d420c709a13bb2310e6310e9248a2b7/mop/management/commands/download_event_lc_data.py
 @login_required
-def download_lightcurve_data_for_target(_, pk):
+def download_lightcurve_data_for_target(request, pk):
 
     with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
         tmp_path = tmp.name
 
-    qs = GalacticTarget.objects.filter(id=pk)
-    target = qs[0]
+    target = get_object_or_404(
+        targets_for_user(request.user, Target.objects.all(), "view_target"),
+        pk=pk,
+    )
+    safe_name = re.sub(r"[^A-Za-z0-9_.-]", "_", target.name)
 
     red_data = PhotometryReducedDatum.objects.filter(target=target).order_by(
         "timestamp"
@@ -521,7 +527,7 @@ def download_lightcurve_data_for_target(_, pk):
     try:
         with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as zf:
             for data_id, lc in datasets.items():
-                file_path = target.name + "_" + data_id + ".txt"
+                file_path = safe_name + "_" + data_id + ".txt"
                 file_contents = ""
                 file_contents += "# JD   mag   mag_error  dataset_ID\n"
                 for i in range(0, len(lc), 1):
@@ -537,7 +543,6 @@ def download_lightcurve_data_for_target(_, pk):
                     )
                 zf.writestr(file_path, file_contents)
 
-        safe_name = re.sub(r"[^A-Za-z0-9_.-]", "_", target.name)
         response = FileResponse(
             open(tmp_path, "rb"),  # noqa: SIM115
             as_attachment=True,
