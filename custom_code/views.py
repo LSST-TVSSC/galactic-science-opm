@@ -10,6 +10,7 @@ import numpy as np
 from astropy.time import Time
 from astropy.utils.iers import conf
 from django.conf import settings
+from django.contrib.auth import constant_time_compare
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core import management
@@ -570,14 +571,13 @@ def flush_and_seed(request):
     if not settings.TESTING:
         raise Http404()
 
-    if (
-        request.headers.get("X-Test-Auth") != env("TEST_ENDPOINT_SECRET")
-        or env("TEST_ENDPOINT_SECRET") is None
+    if env("TEST_ENDPOINT_SECRET") is None or not constant_time_compare(
+        request.headers.get("X-Test-Auth"), env("TEST_ENDPOINT_SECRET")
     ):
+        print(request.headers.get("X-Test-Auth"))
+        print(env("TEST_ENDPOINT_SECRET"))
         raise Http404()
 
-    _ = management.call_command("flush", "--noinput")
-    _ = management.call_command("migrate", "--noinput")
     _ = management.call_command("seed_e2e_data")
     return JsonResponse({"status": "seeding_done"}, status=201)
 

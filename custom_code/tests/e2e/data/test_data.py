@@ -1,7 +1,11 @@
 import os
 
-VALID_USER_CREDENTIALS = ("max", "1234!!!!")
-VALID_ADMIN_CREDENTIALS = ("admin", "1234")
+from dotenv import load_dotenv
+
+load_dotenv()
+
+VALID_USER_CREDENTIALS = ("max", os.getenv("E2E_USER_PASSWORD"))
+VALID_ADMIN_CREDENTIALS = ("admin", os.getenv("E2E_ADMIN_PASSWORD"))
 
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
