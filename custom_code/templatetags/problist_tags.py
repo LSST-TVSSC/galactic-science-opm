@@ -1,6 +1,6 @@
 from astropy.time import Time
 from django import template
-from django.utils.safestring import mark_safe
+from django.forms.utils import format_html_join
 
 from custom_code.target_models import MicrolensingParameterModel
 
@@ -27,6 +27,7 @@ def make_target_tags_list(target):
     )
 
     t0 = tE = None
+    err_tE = None
     if params is not None:
         if params.t0 is not None:
             t0 = params.t0 + 2450000.0
@@ -62,21 +63,8 @@ def target_tags_list(target):
 @register.simple_tag
 def target_tags_elements(target):
     tags = make_target_tags_list(target)
-    elements = []
-
-    bad_tags = ("bogus",)
-    for tag in tags:
-        if tag["class"] in bad_tags:
-            elements.append(
-                f"<div title='{tag['text']}' class='target-tag bad'>{tag['class']}</div>"
-            )
-        elif tag["class"] == "active":
-            elements.append(
-                f"<div title='{tag['text']}' class='target-tag' style='background-color: orange; color: white; border-color: orange;'>{tag['class']}</div>"
-            )
-        else:
-            elements.append(
-                f"<div title='{tag['text']}' class='target-tag' >{tag['class']}</div>"
-            )
-
-    return mark_safe("".join(elements))
+    return format_html_join(
+        "",
+        '<div title="{}" class="target-tag {}">{}</div>',
+        ((t["text"], "bad" if t["class"] == "bogus" else "", t["class"]) for t in tags),
+    )

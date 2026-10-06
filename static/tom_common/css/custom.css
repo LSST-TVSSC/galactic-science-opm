@@ -629,4 +629,8 @@ tbody + tbody {
   background: var(--uni-hd-seal-outline-600);
   color: var(--uni-hd-seal-000);
 }
+.active .target-tag {
+  background: orange;
+  color: white;
+}
 
