@@ -21,6 +21,8 @@ from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import Http404, get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 from tom_dataproducts.models import PhotometryReducedDatum
 from tom_dataproducts.sharing import get_sharing_destination_options
@@ -567,6 +569,8 @@ def health(_request):
     return JsonResponse({"status": "healthy"}, status=200)
 
 
+@csrf_exempt
+@require_POST
 def flush_and_seed(request):
     """
     FOR TESTING ONLY!
@@ -579,8 +583,6 @@ def flush_and_seed(request):
     if env("TEST_ENDPOINT_SECRET") is None or not constant_time_compare(
         request.headers.get("X-Test-Auth"), env("TEST_ENDPOINT_SECRET")
     ):
-        print(request.headers.get("X-Test-Auth"))
-        print(env("TEST_ENDPOINT_SECRET"))
         raise Http404()
 
     _ = management.call_command("seed_e2e_data")

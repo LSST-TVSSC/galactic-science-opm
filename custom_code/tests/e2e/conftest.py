@@ -14,8 +14,8 @@ def flush_db_and_seed_e2e_data():
     Will fail if endpoint is not available.
     """
     BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
-    response = requests.get(
-        BASE_URL + ("/flush_and_seed"),
+    response = requests.post(
+        BASE_URL + ("/flush_and_seed/"),
         headers={"X-Test-Auth": os.getenv("TEST_ENDPOINT_SECRET", None)},
     )
     if response.status_code != 201:
