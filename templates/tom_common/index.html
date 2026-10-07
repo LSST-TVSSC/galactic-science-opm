@@ -191,6 +191,109 @@
           {% endif %}
         </div>
       </section>
+      <div class="row justify-content-center">
+    <div class="col mb-4">
+
+      <section class="top-targets top-targets--compact_binaries">
+
+        <header>
+          <div class="section-title">Top {{featured_targets2 | length}} compact binaries targets of <a href="/targets">{{ total_amount_of_targets2 }}</a></div>
+          <div class="links">
+            <a target="_blank" rel="noopener noreferrer" href="{% url 'compact_binaries_rescaled_prob_view' %}" class="btn btn-sm btn-primary">
+              View ranked Compact Binaries (2026)
+            </a>
+          </div>
+        </header>
+
+        <div class="wrapper">
+          {% if featured_targets2 %}
+            {% for target in featured_targets2 %}
+              <article class="opm-card" data-testid="featured-target-element">
+                <div class="target-finder-image">
+                  {% galactic_thumb_info target 400 0.045 as thumb %}
+                  {% if thumb.url %}
+                    <a href="{% url 'targets:detail' target.pk %}" data-testid="galactic_thumbnail">
+                      <div class="gs-opm-thumb">
+                        <img src="{{ thumb.url }}"
+                              alt="Finder chart for {{ target.name }}"
+                              width="120" height="120">
+
+                        <div class="gs-opm-thumb-circle"></div>
+
+                        <div class="gs-opm-thumb-fov">
+                          FoV {{ thumb.fov_arcmin }}′
+                        </div>
+                      </div>
+                    </a>
+                  {% else %}
+                    <p class="">
+                      No finder chart available
+                    </p>
+                  {% endif %}
+                </div>
+                <div class="target-data">
+                  <header>
+                    <div class="target-rank">
+                      <div class="rank-icon">#</div>
+                      <div class="rank-number">{{ forloop.counter }}</div>
+                    </div>
+                    <div class="target-name">
+                      <a href="{% url 'targets:detail' target.pk %}">{{ target.name }}</a>
+                    </div>
+                  </header>
+                  <section>
+                    <div class="data-list">
+                      <div class="data-wrapper">
+                        <div class="data-label">RA</div>
+                        <div class="data-value">{{ target.ra }}</div>
+                      </div>
+                      <div class="data-wrapper">
+                        <div class="data-label">Dec</div>
+                        <div class="data-value">{{ target.dec }}</div>
+                      </div>
+                      {% if target.classification %}
+                        <div class="data-wrapper">
+                          <div class="data-label">Class</div>
+                          <div class="data-value">{{ target.classification }}</div>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </section>
+                  <footer>
+                    <div class="broker-links">
+                      {% broker_target_url 'fink' target as fink_url %}
+                      {% broker_target_url 'alerce' target as alerce_url %}
+                      {% broker_target_url 'antares' target as antares_url %}
+
+                      <a href="{{ fink_url }}"
+                         target="_blank" rel="noopener"
+                         title="Open Fink for {{ target.name }}">
+                        Fink
+                      </a>
+
+                      <a href="{{ alerce_url }}"
+                         target="_blank" rel="noopener"
+                         title="Open ALeRCE for {{ target.name }}">
+                        ALeRCE
+                      </a>
+
+                      <a href="{{ antares_url }}"
+                         target="_blank" rel="noopener"
+                         title="Open ANTARES for {{ target.name }}">
+                        ANTARES
+                      </a>
+                  </div>
+                  </footer>
+                </div>
+              </article>
+            {% endfor %}
+          {% else %}
+            <p class="mb-0 text-muted">
+              No interesting targets available at the moment.
+            </p>
+          {% endif %}
+        </div>
+      </section>
 
 </div> <!-- /container -->
 </div>

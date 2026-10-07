@@ -409,6 +409,31 @@ class HomeView(TemplateView):
         ).count()
         context["featured_targets"] = featured[:AMOUNT_OF_FEATURED_TARGETS]
         context["total_amount_of_targets"] = total
+
+        distinct_ids2 = (
+            CompactBinariesRadarData.objects.order_by("target_id", "-updated_at")
+            .distinct("target_id")
+            .filter(
+                Q(target__name__icontains=f"ZTF{current_year[2:]}")
+                | Q(target__name__icontains="LSST")
+            )
+            .filter(target__known_variability=NOT_IN_ANY_CATALOG)
+            .filter(average_master_probability__gt=0.0)
+        )
+        prio_ids2 = (
+            CompactBinariesRadarData.objects.filter(id__in=distinct_ids2)
+            .order_by("-average_master_probability")
+            .values_list("target_id", flat=True)
+            .distinct()[:AMOUNT_OF_FEATURED_TARGETS]
+        )
+
+        target_map2 = GalacticTarget.objects.in_bulk(prio_ids2)
+        featured2 = [target_map2[i] for i in prio_ids2 if i in target_map2]
+        total2 = GalacticTarget.objects.filter(
+            Q(name__icontains=f"ZTF{current_year[2:]}") | Q(name__icontains="LSST"),
+        ).count()
+        context["featured_targets2"] = featured2[:AMOUNT_OF_FEATURED_TARGETS]
+        context["total_amount_of_targets2"] = total2
         return context
 
 
