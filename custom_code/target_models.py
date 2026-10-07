@@ -313,3 +313,38 @@ class MicrolensingRadarData(models.Model):
 
     class Meta:
         get_latest_by = "updated_at"
+
+
+class CompactBinariesRadarData(models.Model):
+    """
+    Class for radar plot model Data to store the rescaled probabilities, can be averaged and
+    displayed in a plotly radar plot
+
+    metric_probability_ratio ratio/(1+ratio) where ratio p_microlensing/p_all_others
+    metric_nsquare float Rescaled rank from Gaia Nsquare map
+    metric_bogus float Real bogus probability, tbd
+    """
+
+    target = models.ForeignKey(
+        GalacticTarget,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="compact_binaries_classification_radar_parameters",
+    )
+    metric_nsquare = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    metric_probability_ratio = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    metric_bogus = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)], default=0.0
+    )
+    average_master_probability = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)]
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        get_latest_by = "updated_at"

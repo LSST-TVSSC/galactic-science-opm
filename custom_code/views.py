@@ -6,6 +6,7 @@ from datetime import timedelta
 
 import numpy as np
 from astropy.time import Time
+from astropy.utils.iers import conf
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import management
@@ -23,7 +24,6 @@ from tom_targets.forms import TargetShareForm
 from tom_targets.models import TargetName
 from tom_targets.views import TargetDetailView, TargetShareView
 
-from astropy.utils.iers import conf
 conf.auto_max_age = None
 
 from custom_code.target_models import (
