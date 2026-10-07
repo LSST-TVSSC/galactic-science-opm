@@ -28,6 +28,7 @@ conf.auto_max_age = None
 
 from custom_code.target_models import (
     Classification,
+    CompactBinariesRadarData,
     GalacticTarget,
     MicrolensingParameterModel,
     MicrolensingRadarData,
@@ -116,6 +117,94 @@ def microlensing_rescaled_prob_view_ztf25(request):
         return render(request, "custom_code/ztf_2025_and_before.html", context)
     except ObjectDoesNotExist:
         return render(request, "custom_code/ztf_2025_and_before.html", context)
+
+
+def compact_binaries_rescaled_prob_view(request):
+
+    def get_latest_photometry(target):
+        prd = (
+            PhotometryReducedDatum.objects.filter(target=target)
+            .order_by("-timestamp")
+            .first()
+        )
+        if prd:
+            return prd.brightness, prd.bandpass
+        return None, None
+
+    def calculate_metadata(queryset):
+        """Prepare age for easier ranking"""
+        processed_list = []
+        for obj in queryset:
+            age_days = (timezone.now() - obj.target.created).days
+            latest_mag, latest_band = get_latest_photometry(obj.target)
+            processed_list.append(
+                {
+                    "object": obj,
+                    "age_days": age_days,
+                    "latest_mag": latest_mag,
+                    "latest_band": latest_band,
+                }
+            )
+        return processed_list
+
+    current_year = str(datetime.datetime.now(tz=datetime.timezone.utc).date().year)
+    distinct_ids = (
+        CompactBinariesRadarData.objects.order_by("target_id", "-updated_at")
+        .distinct("target_id")
+        .filter(target__name__icontains=f"ZTF{current_year[2:]}")
+        .filter(average_master_probability__gt=0.0)
+        .exclude(target__known_variability__icontains="queried")
+    )
+    compact_binaries_objects = (
+        CompactBinariesRadarData.objects.filter(id__in=distinct_ids)
+        .order_by("-average_master_probability")
+        .distinct()[:70]
+    )
+
+    distinct_ids_queried = (
+        MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
+        .distinct("target_id")
+        .filter(
+            Q(target__name__icontains=f"ZTF{current_year[2:]}")
+            | Q(target__name__icontains=f"OGLE-{current_year}")
+        )
+        .filter(average_master_probability__gt=0.0)
+        .filter(target__known_variability__icontains="queried")
+    )
+
+    compact_binaries_objects_queried = (
+        CompactBinariesRadarData.objects.filter(id__in=distinct_ids_queried)
+        .order_by("-average_master_probability")
+        .distinct()[:100]
+    )
+
+    distinct_ids_queried_lsst = (
+        CompactBinariesRadarData.objects.order_by("target_id", "-updated_at")
+        .distinct("target_id")
+        .filter(target__name__icontains="LSST")
+        .filter(average_master_probability__gt=0.0)
+        .filter(target__known_variability__icontains="queried")
+    )
+    compact_binaries_objects_queried_lsst = (
+        CompactBinariesRadarData.objects.filter(id__in=distinct_ids_queried_lsst)
+        .order_by("-average_master_probability")
+        .distinct()[:10]
+    )
+
+    context = {
+        "compact_binaries_objects": calculate_metadata(compact_binaries_objects),
+        "compact_binaries_objects_queried": calculate_metadata(
+            compact_binaries_objects_queried
+        ),
+        "compact_binaries_objects_queried_lsst": calculate_metadata(
+            compact_binaries_objects_queried_lsst
+        ),
+    }
+
+    try:
+        return render(request, "custom_code/compact_binaries_prob_list.html", context)
+    except ObjectDoesNotExist:
+        return render(request, "custom_code/compact_binaries_prob_list.html", context)
 
 
 def microlensing_rescaled_prob_view(request):
