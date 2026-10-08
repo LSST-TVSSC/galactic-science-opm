@@ -171,7 +171,7 @@ def compact_binaries_rescaled_prob_view(request):
     )
 
     distinct_ids_queried = (
-        MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
+        CompactBinariesRadarData.objects.order_by("target_id", "-updated_at")
         .distinct("target_id")
         .filter(
             Q(target__name__icontains=f"ZTF{current_year[2:]}")
