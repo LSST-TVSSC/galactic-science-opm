@@ -1,29 +1,38 @@
 import datetime
+import json
 import os
+import re
 import tempfile
 import zipfile
 from datetime import timedelta
 
 import numpy as np
 from astropy.time import Time
+from astropy.utils.iers import conf
 from django.conf import settings
+from django.contrib.auth import constant_time_compare
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import OperationalError, connection, connections
 from django.db.models import Q
 from django.http import FileResponse, HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import Http404, get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 from tom_dataproducts.models import PhotometryReducedDatum
 from tom_dataproducts.sharing import get_sharing_destination_options
 from tom_targets.forms import TargetShareForm
-from tom_targets.models import TargetName
+from tom_targets.models import Target, TargetName
+from tom_targets.permissions import targets_for_user
 from tom_targets.views import TargetDetailView, TargetShareView
 
-from astropy.utils.iers import conf
+from galactic_science_opm.settings import env
+
 conf.auto_max_age = None
 
 from custom_code.target_models import (
@@ -357,10 +366,14 @@ class GsoOpmTargetShareView(TargetShareView):
 # mhundertmark: Comprehensive DE, MCMC and model comparison script tbd
 
 
-def download_pylima_script(_, pk):
-    qs = GalacticTarget.objects.filter(id=pk)
-    target = qs[0]
-    script_content = f"""# Automatically generated pyLIMA script for target {target.name}
+@login_required
+def download_pylima_script(request, pk):
+    target = get_object_or_404(
+        targets_for_user(request.user, Target.objects.all(), "view_target"),
+        pk=pk,
+    )
+    safe_name = re.sub(r"[^A-Za-z0-9_.-]", "_", target.name)
+    script_content = f"""# Automatically generated pyLIMA script for target {safe_name}
 # Created: {datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}
 # Target ID: {target.id}
 
@@ -374,85 +387,88 @@ from pyLIMA import event, telescopes
 from pyLIMA.fits import TRF_fit
 from pyLIMA.models import PSPL_model
 
-zip_path = f"lightcurves_export_{target.name}.zip"
-with tempfile.TemporaryDirectory(prefix="lc_") as tmpdir:
-    with zipfile.ZipFile(zip_path, "r") as zip_ref:
-        zip_ref.extractall(tmpdir)
+def run_fit():
+    zip_path = {json.dumps(f"lightcurves_export_{safe_name}.zip")}
+    with tempfile.TemporaryDirectory(prefix="lc_") as tmpdir:
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            zip_ref.extractall(tmpdir)
 
-    all_files = [f for f in os.listdir(tmpdir) if f.endswith((".dat", ".txt"))]
-    if not all_files:
-        raise FileNotFoundError("No .dat or .txt files found in the zip archive")
-    # Create event
-    your_event = event.Event(ra={target.ra},dec={target.dec})
-    your_event.name = "PSPL OPM Event {target.name}"
-    nmax = 0
-    for data_file in all_files:
-        # Load data as strings
-        data = np.genfromtxt(os.path.join(tmpdir, data_file), comments="#", dtype=str)
+        all_files = [f for f in os.listdir(tmpdir) if f.endswith((".dat", ".txt"))]
+        if not all_files:
+            raise FileNotFoundError("No .dat or .txt files found in the zip archive")
+        # Create event
+        your_event = event.Event(ra={target.ra},dec={target.dec})
+        your_event.name = {json.dumps(f"PSPL OPM Event {safe_name}")}
+        nmax = 0
+        for data_file in all_files:
+            # Load data as strings
+            data = np.genfromtxt(os.path.join(tmpdir, data_file), comments="#", dtype=str)
 
-        # Extract passband
-        passband = str(data[0, 3])
+            # Extract passband
+            passband = str(data[0, 3])
 
-        if "_" in passband:
-            telescope_name, camera_filter = passband.rsplit("_", 1)
-            telescope_name = f"{{telescope_name}}{{camera_filter}}"
-        else:
-            telescope_name = passband
-            camera_filter = "unknown"
+            if "_" in passband:
+                telescope_name, camera_filter = passband.rsplit("_", 1)
+                telescope_name = f"{{telescope_name}}{{camera_filter}}"
+            else:
+                telescope_name = passband
+                camera_filter = "unknown"
 
-        # Convert first three columns to float
-        lightcurve_data = np.column_stack(
-            [
-                data[:, 0].astype(float),
-                data[:, 1].astype(float),
-                data[:, 2].astype(float),
-            ]
+            # Convert first three columns to float
+            lightcurve_data = np.column_stack(
+                [
+                    data[:, 0].astype(float),
+                    data[:, 1].astype(float),
+                    data[:, 2].astype(float),
+                ]
+            )
+            # Create telescope
+            telescope = telescopes.Telescope(
+                name=telescope_name,
+                camera_filter=camera_filter,
+                lightcurve=lightcurve_data,
+                lightcurve_names=["time", "mag", "err_mag"],
+                lightcurve_units=["JD", "mag", "mag"],
+            )
+
+            if len(lightcurve_data) > 3:
+                your_event.telescopes.append(telescope)
+            if len(lightcurve_data) > nmax:
+                nmax = len(lightcurve_data)
+                survey = telescope_name
+
+        your_event.find_survey(survey)
+        results = []
+        # Create PSPL model
+        pspl = PSPL_model.PSPLmodel(
+            your_event, parallax=["None", 2460000.0], blend_flux_parameter="noblend"
         )
-        # Create telescope
-        telescope = telescopes.Telescope(
-            name=telescope_name,
-            camera_filter=camera_filter,
-            lightcurve=lightcurve_data,
-            lightcurve_names=["time", "mag", "err_mag"],
-            lightcurve_units=["JD", "mag", "mag"],
+        my_fit = TRF_fit.TRFfit(pspl)
+        my_fit.fit()
+        my_fit.fit_outputs()
+        pspl = PSPL_model.PSPLmodel(
+            your_event, parallax=["None", 2460000.0], blend_flux_parameter="ftotal"
         )
-
-        if len(lightcurve_data) > 3:
-            your_event.telescopes.append(telescope)
-        if len(lightcurve_data) > nmax:
-            nmax = len(lightcurve_data)
-            survey = telescope_name
-
-    your_event.find_survey(survey)
-    results = []
-    # Create PSPL model
-    pspl = PSPL_model.PSPLmodel(
-        your_event, parallax=["None", 2460000.0], blend_flux_parameter="noblend"
-    )
-    my_fit = TRF_fit.TRFfit(pspl)
-    my_fit.fit()
-    my_fit.fit_outputs()
-    pspl = PSPL_model.PSPLmodel(
-        your_event, parallax=["None", 2460000.0], blend_flux_parameter="ftotal"
-    )
-    my_fit = TRF_fit.TRFfit(pspl)
-    guessed_parameters = my_fit.initial_guess()
-    my_fit.fit()
-    pspl = PSPL_model.PSPLmodel(
-        your_event,
-        parallax=["Annual", guessed_parameters[0]],
-        blend_flux_parameter="ftotal",
-    )
-    my_fit = TRF_fit.TRFfit(pspl)
-    my_fit.fit()
-    my_fit.fit_outputs()
-    my_fit.fit_outputs(bokeh_plot=True)
-    plt.show()
+        my_fit = TRF_fit.TRFfit(pspl)
+        guessed_parameters = my_fit.initial_guess()
+        my_fit.fit()
+        pspl = PSPL_model.PSPLmodel(
+            your_event,
+            parallax=["Annual", guessed_parameters[0]],
+            blend_flux_parameter="ftotal",
+        )
+        my_fit = TRF_fit.TRFfit(pspl)
+        my_fit.fit()
+        my_fit.fit_outputs()
+        my_fit.fit_outputs(bokeh_plot=True)
+        plt.show()
+if __name__ == "__main__":
+    run_fit()
 """
     # Create response with file download headers
     response = HttpResponse(script_content, content_type="text/x-python")
     response["Content-Disposition"] = (
-        f'attachment; filename="observe_{target.id}_{target.name}.py"'
+        f'attachment; filename="observe_{target.id}_{safe_name}.py"'
     )
     return response
 
@@ -493,13 +509,17 @@ def repackage_lightcurves(qs):
 
 # mkistner: the export part was adapted from here:
 # https://github.com/LCOGT/mop/blob/600eed8c6d420c709a13bb2310e6310e9248a2b7/mop/management/commands/download_event_lc_data.py
-def download_lightcurve_data_for_target(_, pk):
+@login_required
+def download_lightcurve_data_for_target(request, pk):
 
     with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp:
         tmp_path = tmp.name
 
-    qs = GalacticTarget.objects.filter(id=pk)
-    target = qs[0]
+    target = get_object_or_404(
+        targets_for_user(request.user, Target.objects.all(), "view_target"),
+        pk=pk,
+    )
+    safe_name = re.sub(r"[^A-Za-z0-9_.-]", "_", target.name)
 
     red_data = PhotometryReducedDatum.objects.filter(target=target).order_by(
         "timestamp"
@@ -509,7 +529,7 @@ def download_lightcurve_data_for_target(_, pk):
     try:
         with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as zf:
             for data_id, lc in datasets.items():
-                file_path = target.name + "_" + data_id + ".txt"
+                file_path = safe_name + "_" + data_id + ".txt"
                 file_contents = ""
                 file_contents += "# JD   mag   mag_error  dataset_ID\n"
                 for i in range(0, len(lc), 1):
@@ -528,7 +548,7 @@ def download_lightcurve_data_for_target(_, pk):
         response = FileResponse(
             open(tmp_path, "rb"),  # noqa: SIM115
             as_attachment=True,
-            filename=f"lightcurves_export_{target.name}.zip",
+            filename=f"lightcurves_export_{safe_name}.zip",
         )
         response["Content-Type"] = "application/zip"
         return response
@@ -549,14 +569,22 @@ def health(_request):
     return JsonResponse({"status": "healthy"}, status=200)
 
 
-def flush_and_seed(_request):
+@csrf_exempt
+@require_POST
+def flush_and_seed(request):
     """
     FOR TESTING ONLY!
     This endpoint flushes the database and imports test data.
     It is only added to urlpatterns if SETTINGS.TESTING is True.
     """
-    _ = management.call_command("flush", "--noinput")
-    _ = management.call_command("migrate", "--noinput")
+    if not settings.TESTING:
+        raise Http404()
+
+    if env("TEST_ENDPOINT_SECRET") is None or not constant_time_compare(
+        request.headers.get("X-Test-Auth"), env("TEST_ENDPOINT_SECRET")
+    ):
+        raise Http404()
+
     _ = management.call_command("seed_e2e_data")
     return JsonResponse({"status": "seeding_done"}, status=201)
 

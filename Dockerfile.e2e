@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     
 RUN pip install --upgrade pip
 
-RUN pip install pytest-playwright pytest-asyncio
+RUN pip install pytest-playwright pytest-asyncio python-dotenv
 RUN playwright install --with-deps
 
 COPY . .  

@@ -1,48 +1,39 @@
-import json
-import os
-from os import path, remove
+from os import path
 
+from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core import management
 from django.core.management.base import BaseCommand
 from django.test import Client
 from django.urls import reverse
 
-from galactic_science_opm.settings import BASE_DIR
-
-BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
+from galactic_science_opm.settings import BASE_DIR, env
 
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
 
-        with open(
-            path.join(BASE_DIR, "test_data", "db_out_full.json"),
-            encoding="utf-8",
-        ) as f:
-            read_data = f.read()
+        if not settings.TESTING:
+            raise management.CommandError(
+                "seed_e2e_data may only run in the test environment"
+            )
 
-        as_json = json.loads(read_data)
-        for entry in as_json:
-            if entry["model"] != "tom_targets.basetarget":
-                continue
+        missing = [v for v in ("E2E_ADMIN_PASSWORD", "E2E_USER_PASSWORD") if not env(v)]
+        if missing:
+            raise management.CommandError(
+                f"Missing environment variables: {', '.join(missing)}"
+            )
 
-            # just to demonstrate how to change seed data before importing it.
-            entry["fields"]["name"] += ""
-
-        with open(
-            path.join(BASE_DIR, "test_data", "temp_seed_out.json"),
-            encoding="utf-8",
-            mode="w+",
-        ) as f:
-            f.write(json.dumps(as_json))
-
-        _ = management.call_command("loaddata", "test_data/temp_seed_out.json")
-
-        remove(path.join(BASE_DIR, "test_data", "temp_seed_out.json"))
+        _ = management.call_command("flush", "--noinput")
+        _ = management.call_command("migrate", "--noinput")
+        _ = management.call_command(
+            "loaddata", path.join(BASE_DIR, "test_data", "db_out_full.json")
+        )
 
         superuser = User.objects.create_superuser(
-            username="admin", password="1234", email="admin@example.com"
+            username="admin",
+            password=env("E2E_ADMIN_PASSWORD"),
+            email="admin@example.com",
         )
 
         public_group = Group.objects.create(name="Public")
@@ -53,14 +44,14 @@ class Command(BaseCommand):
 
 
 def register_test_user(username, group):
-
+    USER_PW = env("E2E_USER_PASSWORD")
     user_data = {
         "username": username,
         "first_name": "m",
         "last_name": "k",
         "email": "mk@example.com",
-        "password1": "1234!!!!",
-        "password2": "1234!!!!",
+        "password1": USER_PW,
+        "password2": USER_PW,
         "groups": [group.id],
     }
 
@@ -79,7 +70,7 @@ def register_test_user(username, group):
 
     client = Client()
     _ = client.post(
-        BASE_URL + reverse("registration:register"),
+        reverse("registration:register"),
         data=user_form_data,
     )
     user = User.objects.get(username=user_data["username"])
@@ -93,8 +84,8 @@ def approve_user(superuser, user_to_approve, users_group):
         "profile-MIN_NUM_FORMS": ["0"],
         "profile-MAX_NUM_FORMS": ["1"],
         "profile-0-affiliation": ["qa"],
-        "profile-0-id": ["3"],
-        "profile-0-user": ["3"],
+        "profile-0-id": [str(user_to_approve.profile.id)],
+        "profile-0-user": [str(user_to_approve.id)],
     }
     user_data_super = {
         "username": "max",
@@ -110,6 +101,6 @@ def approve_user(superuser, user_to_approve, users_group):
     client = Client()
     client.force_login(superuser)
     _ = client.post(
-        BASE_URL + reverse("registration:approve", kwargs={"pk": user_to_approve.id}),
+        reverse("registration:approve", kwargs={"pk": user_to_approve.id}),
         data=user_form_data_super,
     )
