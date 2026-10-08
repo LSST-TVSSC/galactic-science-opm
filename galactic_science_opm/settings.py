@@ -21,6 +21,8 @@ import environ
 astropy.utils.iers.conf.auto_download = False
 
 env = environ.Env(DJANGO_DEBUG=(bool, False))
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env("DJANGO_DEBUG")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,12 +33,10 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "DJANGO_SECRET_KEY", default="7jj1ni6=mw867=jwr1(cr64()cdcj(igmj^@=7bc_s#xpwf8$m"
-)
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DJANGO_DEBUG", default=False)
+SECRET_KEY = env("DJANGO_SECRET_KEY")
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+TEST_ENDPOINT_SECRET = env("TEST_ENDPOINT_SECRET", default=None)
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGIN", default=[])
@@ -146,8 +146,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.getenv("DB_NAME", "galactic_science_opm"),
-        "USER": os.getenv("DB_USER", "opm"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "opm"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("DB_HOST", "127.0.0.1"),
         "PORT": "5432",
     },
@@ -419,7 +419,9 @@ HINTS_ENABLED = False
 HINT_LEVEL = 20
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": [],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly"
+    ],
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
@@ -463,8 +465,3 @@ DATA_SHARING = {
         "PASSWORD": os.getenv("MOP_TOM_PASSWORD"),
     }
 }
-
-try:
-    from local_settings import *
-except ImportError:
-    pass

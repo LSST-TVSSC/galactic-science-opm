@@ -115,7 +115,7 @@ def test_shows_top_targets_in_descending_order(page: Page):
         )
         expect(all_targets_link).to_be_visible()
         expect(all_targets_link).to_have_attribute(
-            "href", "/custom_code/prob_list.html"
+            "href", "/ranked-microlensing-targets/"
         )
 
         # footer
