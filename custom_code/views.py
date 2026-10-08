@@ -167,7 +167,7 @@ def compact_binaries_rescaled_prob_view(request):
     compact_binaries_objects = (
         CompactBinariesRadarData.objects.filter(id__in=distinct_ids)
         .order_by("-average_master_probability")
-        .distinct()[:70]
+        .distinct()[:100]
     )
 
     distinct_ids_queried = (

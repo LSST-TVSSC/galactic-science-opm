@@ -1,5 +1,9 @@
 from custom_code.match_managers import validators
-from custom_code.target_models import GalacticTarget, MicrolensingRadarData
+from custom_code.target_models import (
+    CompactBinariesRadarData,
+    GalacticTarget,
+    MicrolensingRadarData,
+)
 from custom_code.utils.catalog_requests import NOT_IN_ANY_CATALOG
 
 
@@ -70,8 +74,22 @@ class TargetCreator:
             .order_by("-average_master_probability")
             .distinct()[:amount_of_targets]
         )
+        distinct_ids2 = (
+            CompactBinariesRadarData.objects.order_by("target_id", "-updated_at")
+            .distinct("target_id")
+            .filter(target__name__icontains=survey)
+            .filter(average_master_probability__gt=0.0)
+        )
+        qs2 = (
+            CompactBinariesRadarData.objects.filter(id__in=distinct_ids2)
+            .order_by("-average_master_probability")
+            .distinct()[:amount_of_targets]
+        )
         priority_targets = [
             GalacticTarget.objects.filter(name__icontains=target.target.name).last()
             for target in qs
+        ] + [
+            GalacticTarget.objects.filter(name__icontains=target.target.name).last()
+            for target in qs2
         ]
         return priority_targets
