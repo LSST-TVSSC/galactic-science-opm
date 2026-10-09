@@ -91,7 +91,10 @@ class AlerceZtfLightcurvesPipeline:
                 x for x in targets_needing_photometry if event_name in x.name
             ]
 
-        PRIO_COUNT = 50
+        PRIO_COUNT = 150
+        # mhundertmark: needs to match at least the public list with and without variables
+        # future handling: add to settings e.g. env.int("PRIO_COUNT", default=100)
+        # issue: compact binary targest have high priority even if they are known variables
         priority_targets = self.target_creator.get_priority_targets(PRIO_COUNT, survey)
         targets_needing_photometry = targets_needing_photometry + priority_targets
 
