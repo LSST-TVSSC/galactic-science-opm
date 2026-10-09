@@ -178,7 +178,10 @@ def compact_binaries_rescaled_prob_view(request):
             | Q(target__name__icontains=f"OGLE-{current_year}")
         )
         .filter(average_master_probability__gt=0.0)
-        .filter(target__known_variability__icontains="queried")
+        .filter(
+            Q(target__known_variability__icontains="queried")
+            | Q(target__known_variability__icontains="UG")
+        )
     )
 
     compact_binaries_objects_queried = (
@@ -192,7 +195,10 @@ def compact_binaries_rescaled_prob_view(request):
         .distinct("target_id")
         .filter(target__name__icontains="LSST")
         .filter(average_master_probability__gt=0.0)
-        .filter(target__known_variability__icontains="queried")
+        .filter(
+            Q(target__known_variability__icontains="queried")
+            | Q(target__known_variability__icontains="UG")
+        )
     )
     compact_binaries_objects_queried_lsst = (
         CompactBinariesRadarData.objects.filter(id__in=distinct_ids_queried_lsst)
