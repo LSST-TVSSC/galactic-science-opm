@@ -7,17 +7,8 @@ from custom_code.target_models import MicrolensingParameterModel
 register = template.Library()
 
 
-def make_target_tags_list(target):
+def make_active_tag(target):
     tags = []
-    DAYS_CUTOFF = 5
-
-    if target["age_days"] < DAYS_CUTOFF:
-        tags.append(
-            {"class": "new", "text": f"Created less than {DAYS_CUTOFF} days ago"}
-        )
-
-    if target["object"].metric_bogus > 0.6:
-        tags.append({"class": "bogus", "text": "bogus metric > 0.6"})
     target_radar = target["object"].target
     params = (
         MicrolensingParameterModel.objects.filter(target=target_radar)
@@ -53,18 +44,36 @@ def make_target_tags_list(target):
     return tags
 
 
+def make_target_tags_list(target, target_class):
+    tags = []
+    DAYS_CUTOFF = 5
+
+    if target["age_days"] < DAYS_CUTOFF:
+        tags.append(
+            {"class": "new", "text": f"Created less than {DAYS_CUTOFF} days ago"}
+        )
+
+    if target["object"].metric_bogus > 0.6:
+        tags.append({"class": "bogus", "text": "bogus metric > 0.6"})
+
+    if target_class == "microlensing":
+        tags = tags + make_active_tag(target)
+
+    return tags
+
+
 @register.simple_tag
-def target_tags_list(target):
-    tags = make_target_tags_list(target)
+def target_tags_list(target, target_class):
+    tags = make_target_tags_list(target, target_class)
     just_classes = [tag["class"] for tag in tags]
     return " ".join(just_classes)
 
 
 @register.simple_tag
-def target_tags_elements(target):
-    tags = make_target_tags_list(target)
+def target_tags_elements(target, target_class):
+    tags = make_target_tags_list(target, target_class)
     return format_html_join(
         "",
         '<div title="{}" class="target-tag {}">{}</div>',
-        ((t["text"], "bad" if t["class"] == "bogus" else "", t["class"]) for t in tags),
+        ((t["text"], t["class"], t["class"]) for t in tags),
     )

@@ -32,6 +32,8 @@ def run_ztf26():
         ["./manage.py", "run_rtmodel_fits", "LSST"],
         ["./manage.py", "run_probability_rescaling", "ZTF"],
         ["./manage.py", "run_probability_rescaling", "LSST"],
+        ["./manage.py", "run_probability_rescaling_compact_binaries", "ZTF"],
+        ["./manage.py", "run_probability_rescaling_compact_binaries", "LSST"],
         ["./manage.py", "populate_vizier_seds", "ZTF", "--priority-limit", "100"],
         ["./manage.py", "populate_vizier_seds", "LSST", "--priority-limit", "100"],
     ]

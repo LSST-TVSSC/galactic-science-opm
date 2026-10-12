@@ -1,7 +1,14 @@
+import datetime
+
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 
 from custom_code.brokers import alerce_ztf
-from custom_code.target_models import GalacticTarget, MicrolensingRadarData
+from custom_code.target_models import (
+    CompactBinariesRadarData,
+    GalacticTarget,
+    MicrolensingRadarData,
+)
 
 
 class Command(BaseCommand):
@@ -21,6 +28,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         print("Starting ALeRCE photometry ingest")
+        current_year = str(datetime.datetime.now(tz=datetime.timezone.utc).date().year)
         Alerce = alerce_ztf.ALERCEBroker()
         full_phot = False
         if options["phot"] == str(True):
@@ -46,17 +54,46 @@ class Command(BaseCommand):
             + " target(s) from ALeRCE"
         )
         print("Completed run of ALeRCE event ingest")
-        print("Update photometry of 50 priority targets")
+        print("Update photometry of 70 priority targets - Microlensing")
         distinct_ids = (
             MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
             .distinct("target_id")
+            .filter(
+                Q(target__name__icontains=f"ZTF{current_year[2:]}")
+                | Q(target__name__icontains="LSST")
+            )
             .filter(target__name__icontains="ZTF")
+            .filter(target__known_variability__icontains="queried")
             .filter(average_master_probability__gt=0.0)
         )
         qs = (
             MicrolensingRadarData.objects.filter(id__in=distinct_ids)
             .order_by("-average_master_probability")
-            .distinct()[:50]
+            .distinct()[:100]
+        )
+        priority_targets = [
+            GalacticTarget.objects.filter(name__icontains=target.target.name).last()
+            for target in qs
+        ]
+        try:
+            Alerce.find_and_ingest_photometry(priority_targets)
+        except Exception as e:
+            print(f"Unexpected exception {e}")
+        print("Update photometry of 70 priority targets - Compact Binaries")
+        distinct_ids = (
+            CompactBinariesRadarData.objects.order_by("target_id", "-updated_at")
+            .distinct("target_id")
+            .filter(
+                Q(target__name__icontains=f"ZTF{current_year[2:]}")
+                | Q(target__name__icontains="LSST")
+            )
+            .filter(target__known_variability__icontains="queried")
+            .filter(average_master_probability__gt=0.0)
+        )
+        qs = (
+            CompactBinariesRadarData.objects.filter(id__in=distinct_ids)
+            .order_by("-average_master_probability")
+            .distinct()[100]
         )
         priority_targets = [
             GalacticTarget.objects.filter(name__icontains=target.target.name).last()
