@@ -75,5 +75,5 @@ def target_tags_elements(target, target_class):
     return format_html_join(
         "",
         '<div title="{}" class="target-tag {}">{}</div>',
-        ((t["text"], "bad" if t["class"] == "bogus" else "", t["class"]) for t in tags),
+        ((t["text"], t["class"], t["class"]) for t in tags),
     )
