@@ -2,6 +2,7 @@ from django import template
 from django.core.exceptions import ObjectDoesNotExist
 
 from custom_code.target_models import (
+    CompactBinariesRadarData,
     MicrolensingParameterModel,
     MicrolensingRadarData,
 )
@@ -21,5 +22,13 @@ def microlensing_parameters_by_name(name):
 def microlensing_radar_by_name(name):
     try:
         return MicrolensingRadarData.objects.filter(target=name).latest()
+    except ObjectDoesNotExist:
+        return None
+
+
+@register.filter
+def compact_binaries_radar_by_name(name):
+    try:
+        return CompactBinariesRadarData.objects.filter(target=name).latest()
     except ObjectDoesNotExist:
         return None
