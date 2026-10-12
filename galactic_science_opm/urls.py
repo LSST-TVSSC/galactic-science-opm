@@ -52,7 +52,7 @@ urlpatterns = [
         name="microlensing_rescaled_prob_view",
     ),
     path(
-        "custom_code/compact_binaries_prob_list.html",
+        "ranked-compact-binaries-list",
         views.compact_binaries_rescaled_prob_view,
         name="compact_binaries_rescaled_prob_view",
     ),
