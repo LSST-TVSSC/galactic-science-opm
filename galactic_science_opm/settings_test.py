@@ -5,3 +5,4 @@ from .settings import *
 TESTING = True
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+TOM_TERMS_OF_SERVICE_VERSION = None

@@ -16,6 +16,7 @@ import tempfile
 
 import astropy.utils.iers
 import environ
+from tom_common.default_settings import *
 
 # Disable downloading the IERS-A data over network
 astropy.utils.iers.conf.auto_download = False
@@ -48,34 +49,7 @@ ANTARES_SECRET = env("ANTARES_SECRET", default=False)
 
 TOM_NAME = "galactic_science_opm"
 
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "django.contrib.sites",
-    "django_extensions",
-    "django_tasks",
-    "django_tasks.backends.database",
-    "guardian",
-    "tom_common",
-    "django_comments",
-    "django_bootstrap5",
-    "crispy_bootstrap5",
-    "crispy_forms",
-    "rest_framework",
-    "rest_framework.authtoken",
-    "django_filters",
-    "django_gravatar",
-    "django_htmx",
-    "tom_targets",
-    "tom_alerts",
-    "tom_catalogs",
-    "tom_observations",
-    "tom_dataproducts",
-    "tom_registration",
+INSTALLED_APPS = TOMTOOLKIT_INSTALLED_APPS + [
     "custom_code",
     "radar_plots",
     "sed_plots",
@@ -84,20 +58,8 @@ INSTALLED_APPS = [
 
 SITE_ID = 1
 
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
+MIDDLEWARE = TOMTOOLKIT_MIDDLEWARE + [
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django_htmx.middleware.HtmxMiddleware",
-    "tom_common.middleware.Raise403Middleware",
-    "tom_common.middleware.ExternalServiceMiddleware",
-    "tom_common.middleware.AuthStrategyMiddleware",
-    "tom_registration.middleware.RedirectAuthenticatedUsersFromRegisterMiddleware",
 ]
 
 ROOT_URLCONF = "galactic_science_opm.urls"
@@ -181,12 +143,9 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = TOMTOOLKIT_AUTHENTICATION_BACKENDS + [
     "django.contrib.auth.backends.ModelBackend",
-    # we're using open registration for now, but when that changes, you'll need this:
-    # 'django.contrib.auth.backends.AllowAllUsersModelBackend',
-    "guardian.backends.ObjectPermissionBackend",
-)
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
@@ -258,32 +217,9 @@ TARGET_MODEL_CLASS = "custom_code.target_models.GalacticTarget"
 # }
 MATCH_MANAGERS = {}
 
-TOM_REGISTRATION = {
-    "REGISTRATION_AUTHENTICATION_BACKEND": "django.contrib.auth.backends.ModelBackend",
-    # we're using open registration for now, but when that changes, you'll need this:
-    # 'REGISTRATION_AUTHENTICATION_BACKEND': 'django.contrib.auth.backends.AllowAllUsersModelBackend',
-    "REGISTRATION_REDIRECT_PATTERN": "home",
-    "REGISTRATION_STRATEGY": "approval_required",  # ['open', 'approval_required']
-    "SEND_APPROVAL_EMAILS": False,  # Optional email behavior if `REGISTRATION_STRATEGY = 'approval_required'`, default is False
-    "APPROVAL_SUBJECT": f"Your {TOM_NAME} registration has been approved!",  # Optional subject line of approval email, (Default Shown)
-    "APPROVAL_MESSAGE": f'Your {TOM_NAME} registration has been approved. You can log in <a href="mytom.com/login">here</a>.',  # Optional html-enabled body for approval email, (Default Shown)
-}
-
-# NOTE to Markus et al.: when we move to 'approval_required' REGISTRATION_STRATEGY, the following configuration
-# should be uncommented and configured.
-
-# MANAGERS = [('Manager1', 'manager@my_tom.com')]  # List of managers who should receive registration emails
-# EMAIL_SUBJECT_PREFIX = f'[{TOM_NAME}]'  # Optional prefix for all approval requests to managers
-# EMAIL_HOST = 'smtp.gmail.com'   # SMTP server for sending emails (this example is for gmail)
-# EMAIL_PORT = 587  # Port for the SMTP server
-# EMAIL_HOST_USER = 'my_tom@gmail.com'  # Email address for the account sending emails
-# EMAIL_HOST_PASSWORD = '******************'  # Password for the account sending emails (app password for gmail)
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_USE_TLS = True  # this is needed for gmail, other services may vary
-# EMAIL_USE_SSL = False  # this is needed for gmail, other services may vary
-# SERVER_EMAIL = "my_tom@email.com"  # Email address used as the "from" address if EMAIL_HOST_USER is not needed
-
-
+ACCOUNT_SIGNUP_REDIRECT_URL = "home"
+TOM_REGISTRATION_STRATEGY = "approval_required"
+TOM_TERMS_OF_SERVICE_VERSION = "2026-10-01"
 FACILITIES = {
     "LCO": {
         "portal_url": "https://observe.lco.global",
