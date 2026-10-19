@@ -70,7 +70,7 @@ def register_test_user(username, group):
 
     client = Client()
     _ = client.post(
-        reverse("registration:register"),
+        reverse("account_signup"),
         data=user_form_data,
     )
     user = User.objects.get(username=user_data["username"])
@@ -101,6 +101,6 @@ def approve_user(superuser, user_to_approve, users_group):
     client = Client()
     client.force_login(superuser)
     _ = client.post(
-        reverse("registration:approve", kwargs={"pk": user_to_approve.id}),
+        reverse("user-approve", kwargs={"pk": user_to_approve.id}),
         data=user_form_data_super,
     )

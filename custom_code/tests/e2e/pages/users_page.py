@@ -12,7 +12,7 @@ class UsersPage:
     def login(self, username, password):
         self.page.get_by_placeholder("Username").fill(username)
         self.page.get_by_placeholder("Password").fill(password)
-        self.page.get_by_role("button", name="Login").click()
+        self.page.get_by_role("button", name="Sign In").click()
 
     def logout(self):
         logout_button = self._get_logout_button()
@@ -34,7 +34,11 @@ class UsersPage:
         expect(logout_button).not_to_be_visible()
 
     def get_pending_users_table(self):
-        return self.page.get_by_test_id("pending-users")
+        pending_users_container = self.page.get_by_role(
+            "columnheader", name="Approve"
+        ).locator("xpath=../../..")
+
+        return pending_users_container
 
     # These are very brittle...
     def get_groups_table(self):
@@ -79,16 +83,15 @@ class UsersPage:
         self.page.get_by_placeholder("Last name").fill(last_name)
         self.page.get_by_placeholder("Email").fill(email)
         self.page.get_by_placeholder("Password", exact=True).fill(password)
-        self.page.get_by_placeholder("Password confirmation").fill(password_confirm)
+        self.page.get_by_placeholder("Password (again)").fill(password_confirm)
         self.page.get_by_placeholder("Affiliation").fill(affiliation)
-        self.page.get_by_role("button", name="Register").click()
+        self.page.get_by_role("button", name="Sign Up").click()
 
     def approve(self, username):
         self.page.get_by_role("link", name="Users").click()
         table = self.get_pending_users_table()
         row = table.get_by_role("cell", name=username).locator("xpath=..")
-        row.get_by_role("link", name="Approve").click()
-        self.page.get_by_role("button", name="Approve").click()
+        row.get_by_role("button", name="Approve").click()
 
     def delete_pending_user(self, username):
         self.page.get_by_role("link", name="Users").click()

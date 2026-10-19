@@ -26,7 +26,7 @@ def test_unauthorized_user_can_not_view_page(page: Page):
     users_page = UsersPage(page, BASE_URL)
     users_page.open_it()
 
-    expect(page).to_have_title(re.compile(r".*Login"))
+    expect(page).to_have_title(re.compile(r".*Sign In"))
 
 
 # This is a feature by tomtoolkit and we don't override the templates,
@@ -40,9 +40,11 @@ def test_authorized_user_can_see_own_profile(page: Page):
     users_page.login(*VALID_USER_CREDENTIALS)
 
     users_page.open_profile(USER_NAME)
+    # mkistner: This gets the parent container. This is very brittle but
+    # I would have to override toms template to add a test-id.
+    user_detail_container = page.get_by_text("User Info").locator("xpath=../../..")
 
-    profile_content = page.locator(".container .card")
-    expect(profile_content).to_contain_text(re.compile(rf".*{USER_NAME}"))
+    expect(user_detail_container).to_contain_text(re.compile(rf".*{USER_NAME}"))
 
 
 def test_authorized_user_can_see_own_data_in_active_users(page: Page):

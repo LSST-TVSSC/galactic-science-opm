@@ -193,9 +193,35 @@ body {
 
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-size: unset;
+  font-weight: unset;
+}
+
+h1 {
+  font-size: var(--font-size-600);
+}
+h2 {
+  font-size: var(--font-size-500);
+}
+h3 {
+  font-size: var(--font-size-400);
+}
+h4 {
+  font-size: var(--font-size-300);
+  font-weight: 600;
+}
+
+
 * {
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
+}
+
+.prose p {
+  line-height: 2;
+  font-size: var(--font-size-200);
+  max-width: 50ch;
 }
 
 .navbar {
@@ -336,7 +362,6 @@ td, th {
 }
 
 .section-title {
-  font-weight: var(--font-size-800);  
   margin-block: var(--spacing-100) var(--spacing-025);
 }
 
@@ -630,3 +655,7 @@ tbody + tbody {
   color: var(--uni-hd-seal-000);
 }
 
+.form-label {
+  font-size: var(--font-size-200);
+  color: var(--gso-color-secondary);
+}

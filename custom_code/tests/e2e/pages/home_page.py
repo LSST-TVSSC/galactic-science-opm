@@ -15,10 +15,10 @@ class HomePage:
 
     def login(self, username, password):
         self.page.get_by_text("Login").click()
-        expect(self.page).to_have_title(re.compile(r".*Login"))
+        expect(self.page).to_have_title(re.compile(r".*Sign In"))
         self.page.get_by_placeholder("Username").fill(username)
         self.page.get_by_placeholder("Password").fill(password)
-        self.page.get_by_role("button", name="Login").click()
+        self.page.get_by_role("button", name="Sign In").click()
 
     def register(
         self,

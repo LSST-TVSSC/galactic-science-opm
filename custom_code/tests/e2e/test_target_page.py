@@ -20,7 +20,7 @@ def test_unauthorized_user_can_not_visit(page: Page):
         "You do not have permission to access this page. "
         "Please login as a user with the correct permissions or contact your PI."
     )
-    expect(page).to_have_title(re.compile(r".*Login"))
+    expect(page).to_have_title(re.compile(r".*Sign In"))
 
     hint = page.get_by_text(hint_text)
     expect(hint).to_be_visible()

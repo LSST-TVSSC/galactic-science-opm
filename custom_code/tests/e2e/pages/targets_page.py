@@ -16,7 +16,7 @@ class TargetsPage:
         targets_table_container.get_by_role("link", name="login").click()
         self.page.get_by_placeholder("Username").fill(username)
         self.page.get_by_placeholder("Password").fill(password)
-        self.page.get_by_role("button", name="Login").click()
+        self.page.get_by_role("button", name="Sign In").click()
 
     def filter(self, search_term):
         self.page.get_by_role("textbox", name="Name", exact=True).fill(search_term)
