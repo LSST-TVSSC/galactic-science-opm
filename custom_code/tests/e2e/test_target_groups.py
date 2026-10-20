@@ -22,7 +22,7 @@ def test_unauthorized_user_can_not_create_target_groups(page: Page):
     target_grouping_page.open_it()
     target_grouping_page.open_creation_page()
 
-    expect(page).to_have_title(re.compile(r".*Login"))
+    expect(page).to_have_title(re.compile(r".*Sign In"))
 
 
 def test_authorized_user_can_see_no_content_fallback(page: Page):

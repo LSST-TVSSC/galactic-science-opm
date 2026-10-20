@@ -18,7 +18,7 @@ def test_alerts_page_is_not_available_to_anonymous_user(page: Page):
     alerts_page = AlertsPage(page, BASE_URL)
     alerts_page.open_it()
 
-    expect(page).to_have_title(re.compile(r".*Login"))
+    expect(page).to_have_title(re.compile(r".*Sign In"))
 
 
 @pytest.mark.skip(reason="Alerts page was removed in 3.0.0alpha11")

@@ -30,10 +30,9 @@ dependencies = [
     "gevent>=25.9.1,<26.0.0",
     "tom-alertstreams>=1.0.2,<2.0.0",
     "tom-fink>=0.7.6",
-   # "tom-hermes>=0.1.10", # there is currently no compatible version for latest alpha
-    "tom-registration>=1.0.2,<2.0.0",
+    # "tom-hermes>=0.1.10", # there is currently no compatible version for latest alpha
     "tom-tns>=0.3.2,<1.0.0",
-    # mkistner: this was pinned because runrtmodelfits was stuck after upgrading
+    # mkistner: RTModel was pinned because runrtmodelfits was stuck after upgrading
     "RTModel<=3.3",
     "joblib>=1.5.3",
     "scikit-learn>=1.6",

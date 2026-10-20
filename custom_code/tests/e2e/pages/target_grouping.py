@@ -21,7 +21,7 @@ class TargetGroupingPage:
         self.page.get_by_role("link", name="Login").click()
         self.page.get_by_role("textbox", name="Username").fill(username)
         self.page.get_by_role("textbox", name="Password").fill(password)
-        self.page.get_by_role("button", name="Login").click()
+        self.page.get_by_role("button", name="Sign In").click()
         self.page.goto(f"{self.base_url}/targets/targetgrouping/")
 
     def open_creation_page(self):

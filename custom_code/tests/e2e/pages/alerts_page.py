@@ -14,7 +14,7 @@ class AlertsPage:
     def login(self, username, password):
         self.page.get_by_placeholder("Username").fill(username)
         self.page.get_by_placeholder("Password").fill(password)
-        self.page.get_by_role("button", name="Login").click()
+        self.page.get_by_role("button", name="Sign In").click()
 
     def get_query_table(self):
         # This is very brittle. But I don't think I can easily add a testid here.

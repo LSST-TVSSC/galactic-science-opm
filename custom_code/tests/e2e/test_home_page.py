@@ -24,18 +24,20 @@ def test_unknown_user_can_not_login(page: Page):
     home_page = HomePage(page, BASE_URL)
     home_page.open_it()
     home_page.login("foo", "bad")
-    expect(page).to_have_title(re.compile(r".*Login"))
-    hint_text = "Please enter a correct username and password. Note that both fields may be case-sensitive."
-    expect(page.get_by_text("Please enter a correct")).to_contain_text(hint_text)
+    expect(page).to_have_title(re.compile(r".*Sign In"))
+    hint_text = "The username and/or password you specified are not correct."
+    expect(page.get_by_text("The username and")).to_contain_text(hint_text)
 
 
 def test_user_can_register(page: Page):
     home_page = HomePage(page, BASE_URL)
     home_page.open_it()
     home_page.register(**REGISTERABLE_USER)
-    expect(page).to_have_title(re.compile(r".*Home"))
-    hint_text = "Your request to register has been submitted to the administrators."
-    expect(page.get_by_text("Your request to register has")).to_contain_text(hint_text)
+    expect(page).to_have_title(re.compile(r".*Account Pending Approval"))
+    hint_text = "Your account is awaiting approval by this TOM's administrators. You will be able to log in once it has been approved. If this is taking longer than expected, contact the administrators of this TOM. "
+    expect(page.get_by_text("Your account is awaiting approval")).to_contain_text(
+        hint_text
+    )
 
 
 def test_existing_user_can_not_register(page: Page):
@@ -44,7 +46,7 @@ def test_existing_user_can_not_register(page: Page):
     home_page.open_it()
     home_page.register(**{**REGISTERABLE_USER, "username": USERNAME_OF_SEEDED_USER})
 
-    expect(page).to_have_title(re.compile(r".*Sign up"))
+    expect(page).to_have_title(re.compile(r".*Signup"))
     hint_text = "A user with that username already exists."
     expect(page.get_by_text(hint_text)).to_be_visible()
 
@@ -55,7 +57,7 @@ def test_user_with_too_short_password_can_not_register(page: Page):
     home_page.register(
         **{**REGISTERABLE_USER, "password": "1", "password_confirm": "1"}
     )
-    expect(page).to_have_title(re.compile(r".*Sign up"))
+    expect(page).to_have_title(re.compile(r".*Signup"))
     hint_text = "This password is too short. It must contain at least 8 characters."
     expect(page.get_by_text(hint_text)).to_be_visible()
 
@@ -65,7 +67,7 @@ def test_user_with_invalid_user_name_can_not_register_dollar(page: Page):
     home_page = HomePage(page, BASE_URL)
     home_page.open_it()
     home_page.register(**{**REGISTERABLE_USER, "username": "$"})
-    expect(page).to_have_title(re.compile(r".*Sign up"))
+    expect(page).to_have_title(re.compile(r".*Signup"))
     hint_text = "Enter a valid username. This value may contain only letters, numbers, and @/./+/-/_ characters."
     expect(page.get_by_text(hint_text)).to_be_visible()
 
