@@ -47,6 +47,7 @@ dependencies = [
     "ruff (>=0.16.7,<0.17.0)",
     "pre-commit (>=4.6.2,<5.0.0)",
     "diff-cover (>=10.5.1,<11.0.0)",
+    "certifi (>=2026.10.19)",
 ]
 
 [build-system]
