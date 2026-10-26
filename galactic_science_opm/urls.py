@@ -57,6 +57,11 @@ urlpatterns = [
         name="compact_binaries_rescaled_prob_view",
     ),
     path(
+        "custom_code/new_and_active_targets.html",
+        views.new_and_active_targets,
+        name="new_and_active_targets",
+    ),
+    path(
         "custom_code/ztf_2025_and_before.html",
         views.microlensing_rescaled_prob_view_ztf25,
         name="microlensing_rescaled_prob_view_ztf25",
