@@ -86,6 +86,53 @@ def microlensing_prob_view(request):
         )
 
 
+def new_and_active_targets(request):
+
+    def calculate_metadata(queryset):
+        """Prepare age for easier ranking"""
+        processed_list = []
+        for obj in queryset:
+            age_days = (timezone.now() - obj.target.created).days
+            processed_list.append(
+                {
+                    "object": obj,
+                    "age_days": age_days,
+                }
+            )
+        return processed_list
+
+    current_year = str(datetime.datetime.now(tz=datetime.timezone.utc).date().year)
+    forteen_days_ago = timezone.now() - datetime.timedelta(days=14)
+
+    distinct_ids_queried = (
+        MicrolensingRadarData.objects.order_by("target_id", "-updated_at")
+        .distinct("target_id")
+        .filter(
+            Q(target__name__icontains=f"ZTF{current_year[2:]}")
+            | Q(target__name__icontains="LSST")
+        )
+        .filter(average_master_probability__gt=0.0)
+        .filter(target__known_variability__icontains="queried")
+        .filter(target__created__gte=forteen_days_ago)
+    )
+    microlensing_objects_queried = (
+        MicrolensingRadarData.objects.filter(id__in=distinct_ids_queried)
+        .order_by("-average_master_probability")
+        .distinct()
+    )[:200]
+
+    context = {
+        "microlensing_objects_queried": calculate_metadata(
+            microlensing_objects_queried
+        ),
+    }
+
+    try:
+        return render(request, "custom_code/new_and_active_targets.html", context)
+    except ObjectDoesNotExist:
+        return render(request, "custom_code/new_and_active_targets.html", context)
+
+
 def microlensing_rescaled_prob_view_ztf25(request):
 
     def calculate_metadata(queryset):
