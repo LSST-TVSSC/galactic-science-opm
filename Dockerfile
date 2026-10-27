@@ -27,15 +27,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip && \
-    # mkistner: This had to be pinned, because builds were failing on my machine
-    # starting 2026-09-21, see the following link where the changes were made
-    # which introduced the bug:
-    # https://github.com/pypa/virtualenv/commit/fc2f35f51d563c495564f4709ec1a22f0c686352
-    # see file src/virtualenv/activation/cshell/__init__.py: deactivate.csh 
-    # was not there before and now it is. The error I saw referenced this 
-    # file and said it was missing. Pinning should keep this from happening.
-    # But this should be looked into again from time to time.
-    pip install "virtualenv==21.7.14" && \
+    pip install "virtualenv" && \
     pip install "poetry >=2.0,<3.0"
 
 COPY pyproject.toml poetry.lock /galactic_science_opm/
