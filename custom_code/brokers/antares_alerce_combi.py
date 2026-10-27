@@ -109,15 +109,17 @@ class ANTARESBroker(GenericBroker):
             return [], []
 
         for locus in locus_list:
-            if locus.properties["survey"]["lsst"]["dia_object_id"] != []:
-                event_name = (
-                    f"LSST_{locus.properties['survey']['lsst']['dia_object_id'][0]}"
-                )
-            elif locus.properties["survey"]["ztf"]["id"] != []:
-                event_name = locus.properties["survey"]["ztf"]["id"][0]
-                if not "ZTF26" in event_name and all_years == False:
-                    print(f"Skipping {event_name}")
-                    continue
+            if "lsst" in locus.properties["survey"]:
+                if locus.properties["survey"]["lsst"]["dia_object_id"] != []:
+                    event_name = (
+                        f"LSST_{locus.properties['survey']['lsst']['dia_object_id'][0]}"
+                    )
+            elif "ztf" in locus.properties["survey"]:
+                if locus.properties["survey"]["ztf"]["id"] != []:
+                    event_name = locus.properties["survey"]["ztf"]["id"][0]
+                    if not "ZTF26" in event_name and all_years == False:
+                        print(f"Skipping {event_name}")
+                        continue
             else:
                 event_name = locus.locus_id
 
