@@ -9,7 +9,7 @@ class TargetsPage:
         self.base_url = base_url
 
     def open_it(self):
-        self.page.goto(f"{self.base_url}/targets/")
+        self.page.goto(f"{self.base_url}/targets/", wait_until="domcontentloaded")
 
     def login(self, username, password):
         targets_table_container = self.page.get_by_test_id("targets-table")

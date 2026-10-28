@@ -21,6 +21,11 @@ TOP_TARGETS = (
         "pk": 4,
     },
     {
+        "name": "LSST_133721466018857001",
+        "coordinates": (1.0, 1.0),
+        "pk": 48,
+    },
+    {
         "name": "ZTF26aajaofr",
         "coordinates": (274.50615820669293, -3.998751150664676),
         "pk": 6,

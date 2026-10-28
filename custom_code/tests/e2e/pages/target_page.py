@@ -10,7 +10,9 @@ class TargetPage:
         self.target_pk = target_pk
 
     def open_it(self):
-        self.page.goto(f"{self.base_url}/targets/{self.target_pk}")
+        self.page.goto(
+            f"{self.base_url}/targets/{self.target_pk}", wait_until="domcontentloaded"
+        )
 
     def login(self, username, password):
         self.page.get_by_placeholder("Username").fill(username)
