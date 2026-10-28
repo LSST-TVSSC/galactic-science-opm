@@ -104,7 +104,7 @@ class ANTARESBroker(GenericBroker):
         visit_map = config.nvisits_10yrs_map
         list_of_targets = []
         new_targets = []
-
+        event_name = None
         if not locus_list:
             return [], []
 
@@ -133,6 +133,8 @@ class ANTARESBroker(GenericBroker):
                     print(f"No known aliases, exception {e}")
             else:
                 known_aliases = []
+            if event_name is None:
+                continue
             qs = GalacticTarget.objects.filter(name=event_name)
             if len(qs) == 0:
                 s = SkyCoord(
