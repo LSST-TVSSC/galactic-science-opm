@@ -9,7 +9,9 @@ class TargetGroupingPage:
         self.base_url = base_url
 
     def open_it(self):
-        self.page.goto(f"{self.base_url}/targets/targetgrouping/")
+        self.page.goto(
+            f"{self.base_url}/targets/targetgrouping/", wait_until="domcontentloaded"
+        )
 
     def go_to_targets_page(self):
         targets_page = TargetsPage(self.page, self.base_url)
@@ -17,12 +19,16 @@ class TargetGroupingPage:
         return targets_page
 
     def login(self, username, password):
-        self.page.goto(f"{self.base_url}/targets/targetgrouping/")
+        self.page.goto(
+            f"{self.base_url}/targets/targetgrouping/", wait_until="domcontentloaded"
+        )
         self.page.get_by_role("link", name="Login").click()
         self.page.get_by_role("textbox", name="Username").fill(username)
         self.page.get_by_role("textbox", name="Password").fill(password)
         self.page.get_by_role("button", name="Sign In").click()
-        self.page.goto(f"{self.base_url}/targets/targetgrouping/")
+        self.page.goto(
+            f"{self.base_url}/targets/targetgrouping/", wait_until="domcontentloaded"
+        )
 
     def open_creation_page(self):
         self.page.get_by_role("link", name="Create New Grouping").click()

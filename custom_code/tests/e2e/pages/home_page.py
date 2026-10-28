@@ -11,7 +11,7 @@ class HomePage:
         self.base_url = base_url
 
     def open_it(self):
-        self.page.goto(f"{self.base_url}/")
+        self.page.goto(f"{self.base_url}/", wait_until="domcontentloaded")
 
     def login(self, username, password):
         self.page.get_by_text("Login").click()

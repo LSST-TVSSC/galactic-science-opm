@@ -317,6 +317,7 @@ def microlensing_rescaled_prob_view(request):
         .filter(
             Q(target__name__icontains=f"ZTF{current_year[2:]}")
             | Q(target__name__icontains=f"OGLE-{current_year}")
+            | Q(target__name__icontains="LSST")
         )
         .filter(average_master_probability__gt=0.0)
         .filter(target__known_variability__icontains="queried")
