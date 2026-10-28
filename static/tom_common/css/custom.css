@@ -659,3 +659,9 @@ tbody + tbody {
   font-size: var(--font-size-200);
   color: var(--gso-color-secondary);
 }
+
+.table-title {
+  font-size: var(--font-size-400);
+  margin-block: var(--space-300) var(--space-025);
+  font-weight: 500;
+}
