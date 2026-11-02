@@ -1,3 +1,4 @@
+import csv
 import datetime
 import json
 import os
@@ -5,20 +6,24 @@ import re
 import tempfile
 import zipfile
 from datetime import timedelta
+from io import StringIO
 
 import numpy as np
 from astropy.time import Time
 from astropy.utils.iers import conf
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import constant_time_compare
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group, User
 from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import OperationalError, connection, connections
 from django.db.models import Q
 from django.http import FileResponse, HttpResponse, JsonResponse
-from django.shortcuts import Http404, get_object_or_404, render
+from django.shortcuts import Http404, get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
@@ -37,6 +42,8 @@ conf.auto_max_age = None
 
 from custom_code.target_models import (
     Classification,
+    ClassificationGeneralized,
+    ClassificationSource,
     CompactBinariesRadarData,
     GalacticTarget,
     MicrolensingParameterModel,
@@ -722,6 +729,174 @@ def download_lightcurve_data_for_target(request, pk):
         return response
     finally:
         os.unlink(tmp_path)
+
+
+def custom_import_targets(target_stream):
+    """
+    mkistner: This was adapted from tom_targets/utils.py import_targets
+
+    Imports a set of targets into the TOM and saves them to the database.
+
+    :param target_stream: String buffer of targets
+    :type target_stream: StringIO
+
+    :returns: dictionary of successfully imported targets, as well errors
+    :rtype: dict
+    """
+    targetreader = csv.DictReader(target_stream, dialect=csv.excel)
+    targets = []
+    errors = []
+
+    supported_fields = (
+        "name",
+        "name2",
+        "type",
+        "ra",
+        "dec",
+        "groups",
+        "probability",
+        "class_name",
+        "classifier_version",
+        "expected_visits",
+        "target_type",
+    )
+
+    base_target_fields = [field.name for field in Target._meta.get_fields()]
+    for index, row in enumerate(targetreader):
+        # filter out empty values in base fields, otherwise converting empty
+        # string to float will throw error
+        row = {
+            k: v for (k, v) in row.items() if not (k in base_target_fields and not v)
+        }
+        target_extra_fields = []
+        target_names = []
+        group_names = []
+        target_fields = {}
+
+        probability = None
+        class_name = None
+        classifier_version = None
+        expected_visits = None
+        target_type = None
+
+        for k in row:
+            if k != "name" and k.startswith("name"):
+                target_names.append(row[k])
+            elif k == "groups":
+                groups = row[k].split(",")
+                for group in groups:
+                    group_names.append(group.strip())
+            elif k in base_target_fields:
+                target_fields[k] = row[k]
+            elif k not in supported_fields:
+                target_extra_fields.append((k, row[k]))
+
+            if k == "probability":
+                probability = row[k]
+            elif k == "class_name":
+                class_name = row[k]
+            elif k == "classifier_version":
+                classifier_version = row[k]
+            elif k == "expected_visits":
+                expected_visits = row[k]
+            elif k == "target_type":
+                target_type = row[k]
+
+        try:
+            target = Target.objects.create(**target_fields)
+            for name in target_names:
+                if name:
+                    TargetName.objects.create(target=target, name=name)
+            targets.append(target)
+            for group in group_names:
+                try:
+                    group_instance = Group.objects.get(name=group)
+                    target.give_user_access(group_instance)
+                except Group.DoesNotExist:
+                    pass
+            if (
+                probability
+                and class_name
+                and classifier_version
+                and expected_visits
+                and target_type
+            ):
+                classification_name = "n.a."
+                target_type__pretty = "tbd"
+
+                if target_type == "microlensing":
+                    classification_name = "microlensing"
+                    target_type__pretty = "Microlensing candidate"
+                    _ = MicrolensingRadarData.objects.create(
+                        target=target, average_master_probability=probability
+                    )
+                elif target_type == "compact_binary":
+                    classification_name = "compact_binary"
+                    target_type__pretty = "CV/Nova candidate"
+                    _ = CompactBinariesRadarData.objects.create(
+                        target=target, average_master_probability=probability
+                    )
+                target.target_type = target_type__pretty
+                target.save()
+
+                classification_source, _created_source = (
+                    ClassificationSource.objects.get_or_create(
+                        classification_origin="uploaded",
+                        classifier_name="uploaded",
+                        class_name=class_name,
+                        classifier_version=classifier_version,
+                    )
+                )
+                try:
+                    classification = ClassificationGeneralized.objects.get(
+                        target=target,
+                        source=classification_source,
+                        name=classification_name,
+                    )
+                    classification.probability = probability
+                    classification.save()
+                except ClassificationGeneralized.DoesNotExist:
+                    classification = ClassificationGeneralized.objects.create(
+                        target=target,
+                        source=classification_source,
+                        name=classification_name,
+                        probability=probability,
+                    )
+
+        except Exception as e:
+            error = f"Error on line {index + 2}: {e!s}"
+            errors.append(error)
+
+    return {"targets": targets, "errors": errors}
+
+
+class GsoOpmTargetImportView(LoginRequiredMixin, TemplateView):
+    """
+    mkistner: This was adapted from tom_targets/views.py TargetImportView
+    View that handles the import of targets from a CSV. Requires authentication.
+    """
+
+    template_name = "tom_targets/target_import.html"
+
+    def import_targets(self, csv_data):
+        return custom_import_targets(csv_data)
+
+    def post(self, request):
+        """
+        Handles the POST requests to this view. Creates a StringIO object and passes it to ``import_targets``.
+
+        :param request: the request object passed to this view
+        :type request: HTTPRequest
+        """
+        csv_file = request.FILES["target_csv"]
+        csv_stream = StringIO(csv_file.read().decode("utf-8"), newline=None)
+        result = self.import_targets(csv_stream)
+        for target in result["targets"]:
+            target.give_user_access(request.user)
+        messages.success(request, "Targets created: {}".format(len(result["targets"])))
+        for error in result["errors"]:
+            messages.warning(request, error)
+        return redirect(reverse("tom_targets:list"))
 
 
 def health(_request):

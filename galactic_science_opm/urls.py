@@ -19,7 +19,12 @@ from django.conf.urls.static import static
 from django.urls import include, path
 
 from custom_code import views
-from custom_code.views import GsoOpmTargetDetailView, GsoOpmTargetShareView, HomeView
+from custom_code.views import (
+    GsoOpmTargetDetailView,
+    GsoOpmTargetImportView,
+    GsoOpmTargetShareView,
+    HomeView,
+)
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
@@ -84,6 +89,7 @@ urlpatterns = [
         views.download_pylima_script,
         name="download_pylima_script",
     ),
+    path("import_targets", GsoOpmTargetImportView.as_view(), name="import_targets"),
 ]
 
 if settings.DEBUG:
