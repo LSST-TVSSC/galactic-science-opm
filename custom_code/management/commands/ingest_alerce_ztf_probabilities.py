@@ -47,6 +47,7 @@ class Command(BaseCommand):
                 f"Check lc_classifier_BHRF_forced_phot microlensing probability for event {target.name}"
             )
             alerce = Alerce()
+            antares_probability = 0.0
             try:
                 if "ZTF" in "".join([x for x in target.names if "ZTF" in x]):
                     target_name_ztf = next(x for x in target.names if "ZTF" in x)
@@ -61,7 +62,6 @@ class Command(BaseCommand):
                             ]
                         else:
                             antares_version = "0.0"
-                        antares_probability = 0.0
                         chi2_red_keys = [
                             antares_locus.properties[x]
                             for x in antares_locus.properties
