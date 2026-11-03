@@ -401,3 +401,7 @@ DATA_SHARING = {
         "PASSWORD": os.getenv("MOP_TOM_PASSWORD"),
     }
 }
+
+SILENCED_SYSTEM_CHECKS = [
+    "tom_common.W002"  # this informs about the missing E-Mail backend
+]
