@@ -747,6 +747,8 @@ def custom_import_targets(target_stream):
     targets = []
     errors = []
 
+    class CsvImportError(Exception): ...
+
     supported_fields = (
         "name",
         "name2",
@@ -779,15 +781,19 @@ def custom_import_targets(target_stream):
         expected_visits = None
         target_type = None
 
+        has_found_header = False
+
         for k in row:
             if k != "name" and k.startswith("name"):
                 target_names.append(row[k])
             elif k == "groups":
                 groups = row[k].split(",")
+                has_found_header = True
                 for group in groups:
                     group_names.append(group.strip())
             elif k in base_target_fields:
                 target_fields[k] = row[k]
+                has_found_header = True
             elif k not in supported_fields:
                 target_extra_fields.append((k, row[k]))
 
@@ -803,6 +809,10 @@ def custom_import_targets(target_stream):
                 target_type = row[k]
 
         try:
+            if not has_found_header:
+                raise CsvImportError(
+                    "Missing header in csv file. Please check the example file, adapt your file accordingly and try again."
+                )
             target = Target.objects.create(**target_fields)
             for name in target_names:
                 if name:
@@ -864,8 +874,13 @@ def custom_import_targets(target_stream):
                     )
 
         except Exception as e:
-            error = f"Error on line {index + 2}: {e!s}"
-            errors.append(error)
+            if not has_found_header:
+                error = str(e)
+                errors.append(error)
+                break
+            else:
+                error = f"Error on line {index + 2}: {e!s}"
+                errors.append(error)
 
     return {"targets": targets, "errors": errors}
 
