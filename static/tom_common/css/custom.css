@@ -218,7 +218,7 @@ h4 {
   -moz-osx-font-smoothing:grayscale;
 }
 
-.prose p {
+.prose p, .prose {
   line-height: 2;
   font-size: var(--font-size-200);
   max-width: 50ch;
