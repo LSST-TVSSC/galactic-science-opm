@@ -3,8 +3,12 @@
 <div data-testid="classifications-tab">
    <h4>Classifications</h4>
 
-   <plotly-chart-element id="microlensing_radar_chart">
+   <plotly-chart-element id="radar_chart">
+     {% if "microlensing" in target.target_type|lower %}
         {% microlensing_radar target %}
+     {% elif "cv/nova" in target.target_type|lower %}
+        {% compact_binary_radar target %}
+      {% endif %}      
     </plotly-chart-element>
    
     <p>
@@ -36,7 +40,7 @@
             </thead>
             <tbody>
                 <tr>
-                  {% with target|microlensing_radar_by_name as filtered_parameters %}
+                  {% with target|radardata_by_name as filtered_parameters %}
                     <td>{{ filtered_parameters.average_master_probability|floatformat:3 }}</td>
                     <td>{{ filtered_parameters.metric_nsquare|floatformat:3 }}</td>
                     <td>{{ filtered_parameters.metric_alerce|floatformat:3 }}</td>

@@ -20,22 +20,22 @@
     {% endif%}
     {% if key == 'expected_visits' %}
       <dt class="">LSST xobs (10 yrs) </dt>
-      <dd class="">{{ value }}</dd>
+      <dd class="">{{ value|default:"-"}}</dd>
     {% endif%}
     {% if key == 'known_extragalactic' %}
       <dt class="">Extragalactic</dt>
-      <dd class="">{{ value }}</dd>
+      <dd class="">{{ value|default:"-"}}</dd>
     {% endif%}
         {% if key == 'known_variability' %}
       <dt class="">Variability Flags</dt>
-      <dd class="">{{ value }}</dd>
+      <dd class="">{{ value|default:"-" }}</dd>
     {% endif%}
   {% endfor %}
   
 <dt class="">Class ALeRCE BHRF/LSST stamp</dt>
 <dd class="" >{{target.target_type}}</dd>
 <dt class="">Probability rescaled</dt>
-{% with target|microlensing_radar_by_name as filtered_parameters %} 
+{% with target|radardata_by_name as filtered_parameters %} 
 <dd class="" >{{filtered_parameters.average_master_probability|floatformat:3}}</dd>
 {% endwith %}
 </dl>

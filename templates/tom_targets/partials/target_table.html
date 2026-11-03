@@ -41,13 +41,6 @@
         {% if authenticated %}
             {% if empty_database and not query_string %}
                 There are no targets in the database.
-                You might want to <a href="{% url 'tom_targets:create' %}">create a target manually</a>,
-                <a href="{% url 'tom_alerts:list' %}">import one from an alert broker</a>
-                or
-                <form method="POST" action="{% url 'tom_targets:seed' %}" class="d-inline">
-                {% csrf_token %}
-                <button class="btn btn-outline-primary" type="submit">add the Messier catalog</button>
-                </form>
             {% else %}
                 No targets match those filters.
             {% endif %}
