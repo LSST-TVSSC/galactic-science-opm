@@ -39,9 +39,9 @@ def compact_binaries_radar_by_name(name):
 def radardata_by_name(name):
     try:
         target = GalacticTarget.objects.get(name=name)
-        if target.target_type == "Microlensing candidate":
-            return MicrolensingRadarData.objects.filter(target=name).latest()
-        elif target.target_type == "CV/Nova candidate":
+        if target.target_type == "CV/Nova candidate":
             return CompactBinariesRadarData.objects.filter(target=name).latest()
+        else:
+            return MicrolensingRadarData.objects.filter(target=name).latest()
     except ObjectDoesNotExist:
         return None

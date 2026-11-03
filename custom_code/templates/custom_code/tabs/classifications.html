@@ -4,10 +4,10 @@
    <h4>Classifications</h4>
 
    <plotly-chart-element id="radar_chart">
-     {% if "microlensing" in target.target_type|lower %}
-        {% microlensing_radar target %}
-     {% elif "cv/nova" in target.target_type|lower %}
+     {% if "cv/nova" in target.target_type|lower %}
         {% compact_binary_radar target %}
+     {% else %}
+        {% microlensing_radar target %}
       {% endif %}      
     </plotly-chart-element>
    
