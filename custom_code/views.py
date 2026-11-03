@@ -119,7 +119,6 @@ def new_and_active_targets(request):
             | Q(target__name__icontains="LSST")
         )
         .filter(average_master_probability__gt=0.0)
-        .filter(target__known_variability__icontains="queried")
         .filter(target__created__gte=forteen_days_ago)
     )
     microlensing_objects_queried = (
