@@ -109,6 +109,7 @@ def custom_import_targets(target_stream):
             elif k == "target_type":
                 target_type = row[k]
 
+        has_looped_once = True
         try:
             if not has_found_header or not row:
                 raise CsvImportError(
