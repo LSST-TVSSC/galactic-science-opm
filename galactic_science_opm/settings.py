@@ -54,6 +54,7 @@ INSTALLED_APPS = TOMTOOLKIT_INSTALLED_APPS + [
     "radar_plots",
     "sed_plots",
     "earth_visibility_plot",
+    "django_celery_results",
 ]
 
 SITE_ID = 1
@@ -405,3 +406,12 @@ DATA_SHARING = {
 SILENCED_SYSTEM_CHECKS = [
     "tom_common.W002"  # this informs about the missing E-Mail backend
 ]
+CELERY_BROKER_URL = f"amqp://{os.getenv('RABBITMQ_USER')}:{os.getenv('RABBITMQ_PASSWORD')}@{os.getenv('RABBITMQ_HOST')}:5672"
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_PUBLISH_RETRY = True
+CELERY_RESULT_EXTENDED = True
+# This needs to be set, because rabbitmq changed its behavior regarding non
+# exclusiv queues. See here: https://github.com/celery/celery/pull/10290
+CELERY_CONTROL_QUEUE_EXCLUSIVE = True
+CELERY_EVENT_QUEUE_EXCLUSIVE = True
