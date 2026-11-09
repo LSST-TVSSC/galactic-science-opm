@@ -13,7 +13,7 @@ from django.apps import apps
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import IntegrityError, transaction
 from tom_alerts.alerts import GenericBroker, GenericQueryForm
-from tom_dataproducts.models import PhotometryReducedDatum, ReducedDatum
+from tom_dataproducts.models import PhotometryReducedDatum
 
 from custom_code.match_managers import validators
 from custom_code.target_models import GalacticTarget
@@ -500,13 +500,15 @@ class ANTARESBroker(GenericBroker):
                     }
                     try:
                         with transaction.atomic():
-                            _rd, _created = ReducedDatum.objects.update_or_create(
-                                timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                value=datum,
-                                source_name="ALERCE",
-                                source_location=target.name,
-                                data_type="photometry",
-                                target=target,
+                            _rd, _created = (
+                                PhotometryReducedDatum.objects.update_or_create(
+                                    timestamp=jd.to_datetime(timezone=TimezoneInfo()),
+                                    value=datum,
+                                    source_name="ALERCE",
+                                    source_location=target.name,
+                                    data_type="photometry",
+                                    target=target,
+                                )
                             )
 
                     except MultipleObjectsReturned:
