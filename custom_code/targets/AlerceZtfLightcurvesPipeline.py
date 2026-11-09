@@ -61,8 +61,12 @@ class AlerceZtfLightcurvesPipeline:
 
             # fetch and update glade info
             glade_info = self.glade_api_client.check_glade_plus_for_targets(new_targets)
-            self.target_creator.update_known_extragalactic(new_targets, glade_info)
-            self.logger("success", "Targets received glade info.")
+
+            if glade_info is None:
+                self.logger("error", "No glade info to process.")
+            else:
+                self.target_creator.update_known_extragalactic(new_targets, glade_info)
+                self.logger("success", "Targets received glade info.")
 
             # fetch and update expected visits for new targets
             visits_info = self.visits_api_client.get_expected_visits_for_targets(
@@ -77,8 +81,13 @@ class AlerceZtfLightcurvesPipeline:
                     new_targets
                 )
             )
-            self.target_creator.update_known_variability(new_targets, variability_info)
-            self.logger("success", "Targets received variability info.")
+            if variability_info is None:
+                self.logger("error", "No variability info to process.")
+            else:
+                self.target_creator.update_known_variability(
+                    new_targets, variability_info
+                )
+                self.logger("success", "Targets received variability info.")
 
         targets_needing_photometry = new_targets
 

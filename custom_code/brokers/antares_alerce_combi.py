@@ -106,6 +106,8 @@ class ANTARESBroker(GenericBroker):
         list_of_targets = []
         new_targets = []
         event_name = None
+        processed_target_names = []
+        vizier_api_down = False
         if not locus_list:
             return [], []
 
@@ -136,6 +138,13 @@ class ANTARESBroker(GenericBroker):
                 known_aliases = []
             if event_name is None:
                 continue
+
+            # Check for duplicates in locus_list
+            if event_name in processed_target_names:
+                print(f"already processed {event_name}, skipping...")
+                continue
+            processed_target_names.append(event_name)
+
             qs = GalacticTarget.objects.filter(name=event_name)
             if len(qs) == 0:
                 s = SkyCoord(
@@ -176,7 +185,6 @@ class ANTARESBroker(GenericBroker):
                             permissions=GalacticTarget.Permissions.PUBLIC
                         )
                     try:
-                        result = get_glade_plus_count(s)
                         with transaction.atomic():
                             pixel_index = hp.ang2pix(
                                 128, target.ra, target.dec, lonlat=True, nest=True
@@ -184,14 +192,18 @@ class ANTARESBroker(GenericBroker):
                             filtered_target.update(
                                 expected_visits=visit_map[pixel_index]
                             )
-                            if result > 0:
-                                filtered_target.update(
-                                    known_extragalactic=GalacticTarget.CatalogFlag.IN_GLADE_PLUS
-                                )
-                            elif result == 0:
-                                filtered_target.update(
-                                    known_extragalactic=GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS
-                                )
+                            if not vizier_api_down:
+                                result = get_glade_plus_count(s)
+                                if result > 0:
+                                    filtered_target.update(
+                                        known_extragalactic=GalacticTarget.CatalogFlag.IN_GLADE_PLUS
+                                    )
+                                elif result == 0:
+                                    filtered_target.update(
+                                        known_extragalactic=GalacticTarget.CatalogFlag.NOT_IN_GLADE_PLUS
+                                    )
+                                elif result == -2:
+                                    vizier_api_down = True
                     except:
                         print(
                             "Expected visits or GLADE+ check failed for " + target.name
@@ -199,19 +211,26 @@ class ANTARESBroker(GenericBroker):
 
                     try:
                         if "ZTF" in target.name or "LSST_" in target.name:
-                            result_var_vizier = get_var_star_variability_analysis(
-                                target.ra, target.dec
-                            )
-                            if re.match(r"^Error Vizier query", result_var_vizier):
-                                pass
-                            elif result_var_vizier != "":
-                                filtered_target.update(
-                                    known_variability=result_var_vizier
+                            if not vizier_api_down:
+                                result_var_vizier = get_var_star_variability_analysis(
+                                    target.ra, target.dec
                                 )
+                                if result == -2:
+                                    vizier_api_down = True
+                                elif re.match(
+                                    r"^Error Vizier query", result_var_vizier
+                                ):
+                                    pass
+                                elif result_var_vizier != "":
+                                    filtered_target.update(
+                                        known_variability=result_var_vizier
+                                    )
+                                else:
+                                    filtered_target.update(
+                                        known_variability=NOT_IN_ANY_CATALOG
+                                    )
                             else:
-                                filtered_target.update(
-                                    known_variability=NOT_IN_ANY_CATALOG
-                                )
+                                pass
                     except:
                         print("Vizier query failed for " + target.name)
 
@@ -503,10 +522,11 @@ class ANTARESBroker(GenericBroker):
                             _rd, _created = (
                                 PhotometryReducedDatum.objects.update_or_create(
                                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                    value=datum,
+                                    brightness=datum["magnitude"],
+                                    brightness_error=datum["error"],
+                                    bandpass=datum["filter"],
                                     source_name="ALERCE",
                                     source_location=target.name,
-                                    data_type="photometry",
                                     target=target,
                                 )
                             )
