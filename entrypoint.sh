@@ -8,6 +8,7 @@ fi
 
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
+python manage.py migrate django_celery_results
 
 if [ "$LOCAL" = "1" ]; then
     echo "Running local setup"
