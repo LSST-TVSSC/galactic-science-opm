@@ -488,6 +488,8 @@ class ANTARESBroker(GenericBroker):
                 jd = Time(row["mjd"], format="mjd", scale="utc")
                 jd.to_datetime(timezone=TimezoneInfo())
                 # does not match what we see on ALeRCE
+                if row["scienceFlux"] <= 0.0:
+                    continue
                 if not pd.isna(-2.5 * log10(row["scienceFlux"]) + 31.4):
                     datum = {
                         "magnitude": -2.5 * log10(row["scienceFlux"]) + 31.4,
