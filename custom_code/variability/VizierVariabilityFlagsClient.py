@@ -18,8 +18,12 @@ class VizierVariabilityFlagsClient(VariabilityFlagsClient):
                 flags = []
                 success = True
             else:
-                if re.match(r"^Error Vizier query", result):
-                    pass
+                if result == -2:
+                    # -2 means timeout from vizier, so further tries
+                    # are not needed
+                    return None
+                elif re.match(r"^Error Vizier query", result):
+                    print(result)
                 else:
                     flags = result.split(",")
                     success = True

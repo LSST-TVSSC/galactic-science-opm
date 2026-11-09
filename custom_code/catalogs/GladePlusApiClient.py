@@ -20,6 +20,9 @@ class GladeClientApi(ExtragalacticInfoApi):
                 results[target.name] = self._make_glade_info(
                     success=False, name=name, count=0
                 )
+            elif result == -2:
+                # -2 means timeout, so further tries wont help
+                return None
             else:
                 results[target.name] = self._make_glade_info(
                     success=True, name=name, count=result

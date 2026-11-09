@@ -9,6 +9,7 @@ from astropy.coordinates import Angle, SkyCoord
 from astropy.table import Table
 from astropy.time import Time
 from astroquery.vizier import Vizier
+from requests.exceptions import ConnectTimeout
 
 # Where to find the VIZIER API
 VIZIER_SED_API_URL = "https://vizier.cds.unistra.fr/viz-bin/sed"
@@ -21,7 +22,7 @@ def get_glade_plus_count(coords):
     """
     Queries GLADE+ galaxy catalog VII/281 for given skzycoord
     Returns the number of rows in the result table,
-    or -1.
+    or -1 on unknown exception and -2 on connection timeouts.
     """
     radius = Angle(1.5 / 60.0 / 60.0, "deg")
     try:
@@ -32,7 +33,13 @@ def get_glade_plus_count(coords):
         if not result or len(result) == 0:
             return 0
         return len(result[0])
-    except:
+    except ConnectTimeout as e:
+        print("Timeout fetching Glade+ count")
+        print(e)
+        return -2
+    except Exception as e:
+        print("Unhandled exception fetching Glade+ count")
+        print(e)
         return -1
 
 
@@ -70,7 +77,12 @@ def get_var_star_variability_analysis(ra, dec, radius_arcsec=3):
 
     try:
         results = VIZIER.query_region(coords, radius=radius)
+    except ConnectTimeout as e:
+        print("Timeout fetching variability info")
+        print(e)
+        return -2
     except Exception as e:
+        print("Unhandled exception in fetching variability info")
         return f"Error Vizier query: {e}"
 
     if not results:
