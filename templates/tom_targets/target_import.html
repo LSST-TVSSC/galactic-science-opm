@@ -23,7 +23,20 @@
     might take some time.
     </p>
   </div>
-  <form method="POST" action="{% url 'import_targets' %}" enctype="multipart/form-data">
+    <h4>Latest tasks</h4>
+    {% if tasks %}
+      <table class="table table-dark table-striped">
+        <thead><tr><th>ID</th><th>Created</th><th>Status</th><th>Errors</th></tr></thead>
+        <tbody>
+          {% for task in tasks %}
+          <tr><td>{{task.id}}</td><td>{{task.created}}</td><td>{{task.status}}</td><td>{{task.errors}}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No tasks in the last 10 minutes</p>
+    {% endif %}
+  <form method="POST" action="{% url 'import_target_list' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <input type="file" name="target_csv">
     <input type="submit" value="Upload" class="btn btn-primary">
