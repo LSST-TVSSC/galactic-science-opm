@@ -106,6 +106,7 @@ class ANTARESBroker(GenericBroker):
         list_of_targets = []
         new_targets = []
         event_name = None
+        processed_target_names = []
         if not locus_list:
             return [], []
 
@@ -136,6 +137,13 @@ class ANTARESBroker(GenericBroker):
                 known_aliases = []
             if event_name is None:
                 continue
+
+            # Check for duplicates in locus_list
+            if event_name in processed_target_names:
+                print(f"already processed {event_name}, skipping...")
+                continue
+            processed_target_names.append(event_name)
+
             qs = GalacticTarget.objects.filter(name=event_name)
             if len(qs) == 0:
                 s = SkyCoord(
