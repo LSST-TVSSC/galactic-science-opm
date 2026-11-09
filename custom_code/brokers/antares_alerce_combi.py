@@ -503,10 +503,11 @@ class ANTARESBroker(GenericBroker):
                             _rd, _created = (
                                 PhotometryReducedDatum.objects.update_or_create(
                                     timestamp=jd.to_datetime(timezone=TimezoneInfo()),
-                                    value=datum,
+                                    brightness=datum["magnitude"],
+                                    brightness_error=datum["error"],
+                                    bandpass=datum["filter"],
                                     source_name="ALERCE",
                                     source_location=target.name,
-                                    data_type="photometry",
                                     target=target,
                                 )
                             )
