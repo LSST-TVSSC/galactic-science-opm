@@ -47,7 +47,12 @@ class Command(BaseCommand):
         survey = options["survey"]
 
         def logger(style, message):
-            self.stdout.write(self.style.SUCCESS(message))
+            if style == "success":
+                self.stdout.write(self.style.SUCCESS(message))
+            elif style == "error":
+                self.stdout.write(self.style.ERROR(message))
+            else:
+                self.stdout.write(self.style.ERROR(message))
 
         pipeline = AlerceZtfLightcurvesPipeline(
             target_api_client=AlerceApiClient(),
