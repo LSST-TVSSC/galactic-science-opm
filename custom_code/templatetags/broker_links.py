@@ -112,8 +112,8 @@ def broker_alias_url(broker_key, ztf_alias):
     ----------
     broker : str
         Short broker key, e.g. "fink", "alerce", "antares".
-    target : object
-        Target instance, expected to have at least .name and possibly .ra/.dec.
+    ztf_alias : str
+        Alias of the target
 
     """
 
