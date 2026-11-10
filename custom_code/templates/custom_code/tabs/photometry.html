@@ -1,27 +1,29 @@
-{% load dataproduct_extras %}
+{% load dataproduct_extras broker_links %}
+
+{% broker_target_url 'fink' target as fink_url %}
+{% broker_target_url 'alerce' target as alerce_url %}
+{% broker_target_url 'antares' target as antares_url %}
+
 <div data-testid="photometry-tab">
   <plotly-chart-element id="photometry_chart">
     {% photometry_for_target target None None %}
   </plotly-chart-element>
-  {% if "lsst" in target.name|lower %}
-    <a href="https://antares.noirlab.edu/loci/lookup/{{target.name|slice:'5:'}}" class="btn btn-primary" role="button"
+  {% if antares_url  %}
+    <a href="{{ antares_url }}" class="btn btn-primary" role="button"
       target="_blank">ANTARES</a>
+  {% endif %}
+  {% if alerce_url  %}
     <a 
-      href="https://lsst.alerce.online/object/{{ target.name|slugify|slice:'5:' }}?oid={{ target.name|slugify|slice:'5:' }}&survey=lsst&page=1" 
+      href="{{ alerce_url }}" 
       class="btn btn-primary" 
+      target="_blank"
       role="button">
         ALeRCE
     </a>
   {% endif %}
-  {% if "ztf" in target.name|lower %}
-    <a href="https://alerce.online/object/{{target.name}}" class="btn btn-primary" role="button"
-      target="_blank">
-        ALeRCE
-    </a>
-  {% endif %}
-  {% if "ztf" in target.name|lower %}
-    <a href="https://ztf.fink-portal.org/{{target.name}}" class="btn btn-primary"
-      role="button" target="_blank">fink</a>
+  {% if fink_url  %}
+    <a href="{{ fink_url }}" class="btn btn-primary"
+       role="button" target="_blank">fink</a>
   {% endif %}
   <a href="https://vizier.cds.unistra.fr/cgi-bin/VizieR?-source=gaia-dr3&-c={{target.ra}},{{target.dec}}&-c.rs=1"
     target="_blank" class="btn btn-primary" role="button">Vizier Gaia DR3</a>

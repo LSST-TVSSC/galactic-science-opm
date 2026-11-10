@@ -1,5 +1,5 @@
 {% extends 'tom_common/base.html' %}
-{% load static  problist_tags %}
+{% load static  problist_tags broker_links %}
 {% block content %}
 
     <style>
@@ -53,11 +53,21 @@
                         <tbody>
                             {% for item in microlensing_objects_ogle_ztf %}
                                 {% with model=item.object %}
+                                    {% broker_alias_url 'fink' model.ztf_alias as fink_url %}
+                                    {% broker_alias_url 'alerce' model.ztf_alias as alerce_url %}
+                                    {% broker_alias_url 'antares' model.ztf_alias as antares_url %}
                                     <tr class="{% target_tags_list item "microlensing" %}">
-                                        <td> <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
-                                            <a href="https://alerce.online/object/{{model.ztf_alias}}">ALeRCE</a>
-                                            <a href="https://ztf.fink-portal.org/{{model.ztf_alias}}">fink</a>
-                                            <a href="https://antares.noirlab.edu/loci/lookup/{{model.ztf_alias}}">ANTARES</a>
+                                        <td> 
+                                            <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
+                                            {% if alerce_url %}
+                                              <a href="{{ alerce_url }}">ALeRCE</a>
+                                            {% endif %}
+                                            {% if fink_url %}
+                                              <a href="{{fink_url}}">fink</a>
+                                            {% endif %}
+                                            {% if antares_url %}
+                                              <a href="{{antares_url}}">ANTARES</a>
+                                            {% endif %}
                                         </td>
                                         <td>{% target_tags_elements item "microlensing" %}</td>
                                         <td>{% if item.latest_mag %}{{ item.latest_mag|floatformat:2 }} ({{ item.latest_band }}){% else %}NA{% endif %}</td>
@@ -114,13 +124,23 @@
                         <tbody>
                             {% for item in microlensing_objects_queried %}
                                 {% with model=item.object %}
+
+                                    {% broker_target_url 'fink' model.target as fink_url %}
+                                    {% broker_target_url 'alerce' model.target as alerce_url %}
+                                    {% broker_target_url 'antares' model.target as antares_url %}
+
                                     <tr class="{% target_tags_list item "microlensing" %}">
-                                        <td> <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
-                                            <a href="https://alerce.online/object/{{model.target}}">ALeRCE</a>
-                                            {% if "ztf" in model.target|lower %}
-                                                <a href="https://ztf.fink-portal.org/{{model.target}}">fink</a>
+                                        <td>
+                                          <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
+                                            {% if alerce_url %}
+                                              <a href="{{ alerce_url }}">ALeRCE</a>
                                             {% endif %}
-                                            <a href="https://antares.noirlab.edu/loci/lookup/{{model.target}}">ANTARES</a>
+                                            {% if fink_url %}
+                                              <a href="{{fink_url}}">fink</a>
+                                            {% endif %}
+                                            {% if antares_url %}
+                                              <a href="{{antares_url}}">ANTARES</a>
+                                            {% endif %}
                                         </td>
                                         <td>{% target_tags_elements item "microlensing" %}</td>
                                         <td>{% if item.latest_mag %}{{ item.latest_mag|floatformat:2 }} ({{ item.latest_band }}){% else %}NA{% endif %}</td>
@@ -177,13 +197,23 @@
 
                             {% for item in microlensing_objects %}
                                 {% with model=item.object %}
+
+                                    {% broker_target_url 'fink' model.target as fink_url %}
+                                    {% broker_target_url 'alerce' model.target as alerce_url %}
+                                    {% broker_target_url 'antares' model.target as antares_url %}
+
                                     <tr class="{% target_tags_list item "microlensing" %}">
-                                        <td> <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
-                                            <a href="https://alerce.online/object/{{model.target}}">ALeRCE</a>
-                                            {% if "ztf" in model.target|lower %}
-                                                <a href="https://ztf.fink-portal.org/{{model.target}}">fink</a>
+                                        <td> 
+                                          <a href="{% url 'targets:detail' model.target.pk %}">{{ model.target }}</a> <br>
+                                            {% if alerce_url %}
+                                              <a href="{{ alerce_url }}">ALeRCE</a>
                                             {% endif %}
-                                            <a href="https://antares.noirlab.edu/loci/lookup/{{model.target}}">ANTARES</a>
+                                            {% if fink_url %}
+                                              <a href="{{fink_url}}">fink</a>
+                                            {% endif %}
+                                            {% if antares_url %}
+                                              <a href="{{antares_url}}">ANTARES</a>
+                                            {% endif %}
                                         </td>
                                         <td>{% target_tags_elements item "microlensing" %}</td>
                                         <td>{% if item.latest_mag %}{{ item.latest_mag|floatformat:2 }} ({{ item.latest_band }}){% else %}NA{% endif %}</td>
