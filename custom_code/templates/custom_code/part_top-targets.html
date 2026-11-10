@@ -70,23 +70,29 @@
             {% broker_target_url 'alerce' target as alerce_url %}
             {% broker_target_url 'antares' target as antares_url %}
 
-            <a href="{{ fink_url }}"
-               target="_blank" rel="noopener"
-               title="Open Fink for {{ target.name }}">
-              Fink
-            </a>
+            {% if fink_url  %}
+              <a href="{{ fink_url }}"
+                 target="_blank" rel="noopener"
+                 title="Open Fink for {{ target.name }}">
+                Fink
+              </a>
+            {% endif %}
 
-            <a href="{{ alerce_url }}"
-               target="_blank" rel="noopener"
-               title="Open ALeRCE for {{ target.name }}">
-              ALeRCE
-            </a>
+            {% if alerce_url  %}
+              <a href="{{ alerce_url }}"
+                 target="_blank" rel="noopener"
+                 title="Open ALeRCE for {{ target.name }}">
+                ALeRCE
+              </a>
+            {% endif %}
 
-            <a href="{{ antares_url }}"
-               target="_blank" rel="noopener"
-               title="Open ANTARES for {{ target.name }}">
-              ANTARES
-            </a>
+            {% if antares_url  %}
+              <a href="{{ antares_url }}"
+                 target="_blank" rel="noopener"
+                 title="Open ANTARES for {{ target.name }}">
+                ANTARES
+              </a>
+            {% endif %}
         </div>
         </footer>
       </div>
