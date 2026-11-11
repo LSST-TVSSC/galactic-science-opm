@@ -3,7 +3,11 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 from alerce.core import Alerce
-from antares_client.search import get_by_lsst_dia_object_id, get_by_ztf_object_id
+from antares_client.search import (
+    get_by_id,
+    get_by_lsst_dia_object_id,
+    search,
+)
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import Q
@@ -42,12 +46,36 @@ class Command(BaseCommand):
             print("Neither new nor modified targets to check were found. Stopping.")
             return
 
+        def search_antares_for_ztf_target(ztf_object_id):
+            locus = next(
+                search(
+                    {
+                        "query": {
+                            "bool": {
+                                "filter": {
+                                    "query_string": {
+                                        "query": f"*{ztf_object_id}*",
+                                        "fields": ["properties.survey.ztf.id"],
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ),
+                None,
+            )
+            if not locus:
+                return None
+            return get_by_id(locus_id=locus.locus_id)
+
         for target in new_or_modified_targets:
             print(
                 f"Check lc_classifier_BHRF_forced_phot microlensing probability for event {target.name}"
             )
             alerce = Alerce()
             antares_probability = 0.0
+            chi2_red_keys = []
+            antares_version = "0.0"
             try:
                 if "ZTF" in "".join([x for x in target.names if "ZTF" in x]):
                     target_name_ztf = next(x for x in target.names if "ZTF" in x)
@@ -55,18 +83,32 @@ class Command(BaseCommand):
                         target_name_ztf, survey="ztf"
                     )
                     try:
-                        antares_locus = get_by_ztf_object_id(str(target_name_ztf))
-                        if "feature_antares_devkit_version" in antares_locus.properties:
-                            antares_version = antares_locus.properties[
-                                "feature_antares_devkit_version"
-                            ]
+                        # @todo: mkistner: there seems to be a problem
+                        # with get_by_ztf_object_id right now, in that
+                        # it does not return a locus, eventhough Antares
+                        # has data on the target.
+                        # I copied the code to search_antares_for_ztf_target but
+                        # used the query that the WebUI uses and it does return
+                        # a locus for the searched id
+                        antares_locus = search_antares_for_ztf_target(
+                            str(target_name_ztf)
+                        )
+                        # antares_locus = get_by_ztf_object_id(str(target_name_ztf))
+                        if antares_locus is None:
+                            print(f"Could not find locus data for {target_name_ztf}.")
                         else:
-                            antares_version = "0.0"
-                        chi2_red_keys = [
-                            antares_locus.properties[x]
-                            for x in antares_locus.properties
-                            if "chi2" in x and "microlensing" in x
-                        ]
+                            if (
+                                "feature_antares_devkit_version"
+                                in antares_locus.properties
+                            ):
+                                antares_version = antares_locus.properties[
+                                    "feature_antares_devkit_version"
+                                ]
+                                chi2_red_keys = [
+                                    antares_locus.properties[x]
+                                    for x in antares_locus.properties
+                                    if "chi2" in x and "microlensing" in x
+                                ]
                         if len(chi2_red_keys) > 0:
                             print(chi2_red_keys, target)
                             antares_probability = np.mean(chi2_red_keys)
