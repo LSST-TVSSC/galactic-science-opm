@@ -178,7 +178,7 @@ class Command(BaseCommand):
                     | Q(photometryreduceddatum__timestamp__gte=time_window)
                 )
                 .filter(name__icontains=str(options["event"]))
-                .filter(known_variability__icontains="queried")
+                #                .filter(known_variability__icontains="queried") # MHu: temporary skipped as vizier is unavailable
                 .distinct()
             )
             distinct_ids = (
