@@ -34,6 +34,35 @@ services:
     volumes:
       - ${OPM_PSQL_VOLUME}:/var/lib/postgresql/data
 
+  rabbitmq:
+      container_name: rabbitmq
+      build:
+        context: .
+        dockerfile: Dockerfile_rabbitmq
+      environment:
+        RABBITMQ_USER: ${RABBITMQ_USER}
+        RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+        RABBITMQ_PID_FILE: /var/lib/rabbitmq/mnesia/rabbitmq
+      volumes:
+        - ./data_rabbit/:/var/lib/rabbitmq/
+        - ./conf_rabbit/:/etc/rabbitmq/
+        - ./log_rabbit/:/var/log/rabbitmq
+      restart: unless-stopped
+      command: /rabbitmq_entrypoint.sh
+
+  worker:
+      build:
+        context: .
+        dockerfile: Dockerfile_celery_worker
+      command: celery -A galactic_science_opm worker -l INFO
+      environment:
+        DB_HOST: galactic-science-opm-db
+        DB_NAME: galactic_science_opm
+        DB_USER: ${PSQL_USER}
+        DB_PASSWORD: ${PSQL_PASS}
+      depends_on:
+        - rabbitmq
+
 ## # The db_worker management command comes with the django-task INSTALLED_APP.
 ## # This is for running long-running task in the background. For example, to 
 ## # gather forced photometry.

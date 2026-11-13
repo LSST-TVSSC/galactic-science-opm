@@ -35,6 +35,9 @@ urlpatterns = [
     ),
     path("targets/<int:pk>/share/", GsoOpmTargetShareView.as_view(), name="share"),
     path("sed-plots/", include("sed_plots.urls")),
+    path(
+        "targets/import/", GsoOpmTargetImportView.as_view(), name="import_target_list"
+    ),
     path("", include("tom_common.urls")),
     path(
         "custom_code/prob_list_lsst.html",
@@ -94,7 +97,6 @@ urlpatterns = [
         views.download_pylima_script,
         name="download_pylima_script",
     ),
-    path("import_targets", GsoOpmTargetImportView.as_view(), name="import_targets"),
 ]
 
 if settings.DEBUG:

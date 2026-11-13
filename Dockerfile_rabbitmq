@@ -1,0 +1,6 @@
+FROM rabbitmq:4.4.0-management
+
+ADD rabbitmq_entrypoint.sh /rabbitmq_entrypoint.sh
+RUN chmod +x /rabbitmq_entrypoint.sh
+
+CMD ["/rabbitmq_entrypoint.sh"]
