@@ -500,6 +500,9 @@ td, th {
 .gs-opm-thumb img {
   width: 100%;
   height: auto;
+  display: block;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 img {

@@ -6,17 +6,21 @@
         {% galactic_thumb_info target 400 0.045 as thumb %}
         {% if thumb.url %}
           <a href="{% url 'targets:detail' target.pk %}" data-testid="galactic_thumbnail">
-            <div class="gs-opm-thumb">
-              <img src="{{ thumb.url }}"
-                    alt="Finder chart for {{ target.name }}"
-                    width="120" height="120">
+              <finder-chart-element>
+                <div class="gs-opm-thumb">
+                  <img src="{{ thumb.url }}"
+                      width="120" height="120"
+                      alt="Finder chart for {{ target.name }}"
+                      style="background-image: url({{thumb.placeholder}});"
+                      loading="lazy">
 
-              <div class="gs-opm-thumb-circle"></div>
+                  <div class="gs-opm-thumb-circle"></div>
 
-              <div class="gs-opm-thumb-fov">
-                FoV {{ thumb.fov_arcmin }}′
-              </div>
-            </div>
+                  <div class="gs-opm-thumb-fov">
+                    FoV {{ thumb.fov_arcmin }}′
+                  </div>
+                </div>
+              </finder-chart-element>
           </a>
         {% else %}
           <p class="">
