@@ -1,6 +1,6 @@
 {% extends 'tom_common/base.html' %}
 {% load static comments targets_extras observation_extras dataproduct_extras %}
-{% load tom_common_extras galactic_thumbs broker_links parameter_tags %}
+{% load tom_common_extras galactic_thumbs broker_links parameter_tags vite %}
 {% block title %}Home{% endblock %}
 {% block content %}
 <div class="gs-opm-home">
@@ -117,6 +117,7 @@
       </section>
 
     </div> <!-- /container -->
+    <script type="module" src="{% vite_asset 'src/pages/home.ts' %}"></script>
 </div>
 {% endblock %}
 

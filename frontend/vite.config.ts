@@ -11,6 +11,7 @@ export default defineConfig({
         target_detail: "src/pages/target-detail.ts",
         target_list: "src/pages/target-list.ts",
         observations: "src/pages/observations.ts",
+        home: "src/pages/home.ts",
       },
     },
   },
