@@ -42,16 +42,19 @@ BROKER_LINKS = (
         "name": "ANTARES",
         "title": "Open ANTARES for {}",
         "href": "https://antares.noirlab.edu/loci/lookup/{}",
+        "href_lsst": "https://antares.noirlab.edu/loci/lookup/{}",
     },
     {
         "name": "ALeRCE",
         "title": "Open ALeRCE for {}",
         "href": "https://alerce.online/object/{}",
+        "href_lsst": "https://lsst.alerce.online/object/{}?oid={}&survey=lsst&page=1",
     },
     {
         "name": "Fink",
         "title": "Open Fink for {}",
         "href": "https://ztf.fink-portal.org/{}",
+        "href_lsst": "https://ztf.fink-portal.org/{}",
     },
 )
 

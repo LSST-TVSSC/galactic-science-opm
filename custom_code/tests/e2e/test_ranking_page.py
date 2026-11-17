@@ -205,6 +205,7 @@ def test_should_render_all_tables_correctly(page: Page):
                 is_lsst = False
                 if "LSST" in str(field):
                     target_name, _, _ = field.split(r"\s+")
+                    target_name = target_name[5:]
                     is_lsst = True
                 else:
                     target_name, _, _, _ = field.split(r"\s+")
@@ -212,13 +213,20 @@ def test_should_render_all_tables_correctly(page: Page):
                 target_link = cell.get_by_role("link", name=target_name)
                 expect(target_link).to_have_attribute("href", f"/targets/{pk}/")
                 for link in BROKER_LINKS:
+                    href = link["href"]
+                    target_link = cell.get_by_role("link", name=link["name"])
                     # There is no fink link for lsst targets
                     if is_lsst and link["name"] == "Fink":
                         continue
-                    target_link = cell.get_by_role("link", name=link["name"])
-                    expect(target_link).to_have_attribute(
-                        "href", link["href"].format(target_name)
-                    )
+                    if is_lsst:
+                        href = link["href_lsst"]
+                        expect(target_link).to_have_attribute(
+                            "href", href.format(target_name, target_name)
+                        )
+                    else:
+                        expect(target_link).to_have_attribute(
+                            "href", href.format(target_name, target_name)
+                        )
 
     # third table
     expected_rows = (
@@ -284,6 +292,7 @@ def test_should_render_all_tables_correctly(page: Page):
                 is_lsst = False
                 if "LSST" in str(field):
                     target_name, _, _ = field.split(r"\s+")
+                    target_name = target_name[5:]
                     is_lsst = True
                 else:
                     target_name, _, _, _ = field.split(r"\s+")
