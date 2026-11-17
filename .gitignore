@@ -146,3 +146,6 @@ node_modules
 # converage reports 
 report.md
 report.html
+
+# mac files
+.DS_Store
