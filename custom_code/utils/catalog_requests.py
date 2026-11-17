@@ -39,6 +39,7 @@ def get_glade_plus_count(coords):
         return -2
     except Exception as e:
         print("Unhandled exception fetching Glade+ count")
+        print(e.__class__.__name__)
         print(e)
         return -1
 
@@ -83,6 +84,8 @@ def get_var_star_variability_analysis(ra, dec, radius_arcsec=3):
         return -2
     except Exception as e:
         print("Unhandled exception in fetching variability info")
+        print(e.__class__.__name__)
+        print(e)
         return f"Error Vizier query: {e}"
 
     if not results:

@@ -37,7 +37,7 @@ class AlerceZtfLightcurvesPipeline:
         # get target candidates for all classes (currently probably Microlensing and CV/Nova)
         target_candidates = []
         for class_name in CLASS_NAMES:
-            target_candidates_for_class = (
+            target_candidates_for_class, error = (
                 self.target_api_client.fetch_potential_targets(
                     survey=SURVEY,
                     class_name=class_name,
@@ -45,7 +45,14 @@ class AlerceZtfLightcurvesPipeline:
                     start_date=START_DATE,
                 )
             )
-            target_candidates += target_candidates_for_class
+            if error is not None:
+                self.logger(
+                    "error",
+                    f"Encountered error fetching targets for class {class_name}",
+                )
+                self.logger("error", str(error))
+            else:
+                target_candidates += target_candidates_for_class
         self.logger("success", f"Found {len(target_candidates)} potential targets.")
 
         # create targets from candidates
@@ -109,19 +116,28 @@ class AlerceZtfLightcurvesPipeline:
 
         # fetch photometry for relevant targets
         if targets_needing_photometry:
-            photometry_data = self.photometry_api_client.fetch_photometry_for_targets(
-                targets_needing_photometry, survey=SURVEY
+            photometry_data, error = (
+                self.photometry_api_client.fetch_photometry_for_targets(
+                    targets_needing_photometry, survey=SURVEY
+                )
             )
-            self.logger(
-                "success",
-                f"Photometry fetched for {len(targets_needing_photometry)} targets. ",
-            )
+            if error is not None:
+                self.logger(
+                    "error",
+                    "Encountered problem while fetching photometry",
+                )
+                self.logger("error", error)
+            else:
+                self.logger(
+                    "success",
+                    f"Photometry fetched for {len(targets_needing_photometry)} targets. ",
+                )
 
             # create photometry
-            errors, _ = self.photometry_creator.create_photometry_for_targets(
-                photometry_data
-            )
-            for error in errors:
-                self.logger("error", str(error))
-
-            self.logger("success", "Photometry for targets created")
+            if photometry_data:
+                errors, _ = self.photometry_creator.create_photometry_for_targets(
+                    photometry_data
+                )
+                for error in errors:
+                    self.logger("error", str(error))
+                self.logger("success", "Photometry for targets created")

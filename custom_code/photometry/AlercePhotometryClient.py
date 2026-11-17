@@ -15,15 +15,21 @@ class AlercePhotometryClient(PhotometryApiClient):
         filter_definition = {1: "ZTF_g", 2: "ZTF_r", 3: "ZTF_i"}
         for target in targets:
             ALERCE_name = target.name
-            detections_photometry = alerce.query_detections(
-                ALERCE_name, format="pandas", survey=survey
-            )
+            try:
+                detections_photometry = alerce.query_detections(
+                    ALERCE_name, format="pandas", survey=survey
+                )
+            except Exception as e:
+                return [], str(e)
 
             # remove multiple detections
             detections_photometry = detections_photometry.drop_duplicates(subset="mjd")
-            forced_photometry = alerce.query_forced_photometry(
-                ALERCE_name, format="pandas", survey=survey
-            )
+            try:
+                forced_photometry = alerce.query_forced_photometry(
+                    ALERCE_name, format="pandas", survey=survey
+                )
+            except Exception as e:
+                return [], str(e)
 
             # iterate over detections and make candidates
             for i, row in detections_photometry.iterrows():
@@ -61,4 +67,4 @@ class AlercePhotometryClient(PhotometryApiClient):
                     )
                     results.append(candidate)
 
-        return results
+        return results, None
