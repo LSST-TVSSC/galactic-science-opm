@@ -44,12 +44,15 @@ class AlerceApiClient(TargetApiClient):
     def fetch_potential_targets(self, class_name, survey, start_date, since_n_days):
         converted_results = []
 
-        results = self._fetch_alerts(
-            survey="ztf",
-            class_name=class_name,
-            days=since_n_days,
-            start_date=start_date,
-        )
+        try:
+            results = self._fetch_alerts(
+                survey="ztf",
+                class_name=class_name,
+                days=since_n_days,
+                start_date=start_date,
+            )
+        except Exception as e:
+            return [], e
 
         for _, result in results.iterrows():
             converted_results.append(
@@ -63,4 +66,4 @@ class AlerceApiClient(TargetApiClient):
                 }
             )
 
-        return converted_results
+        return converted_results, None
