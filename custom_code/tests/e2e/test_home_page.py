@@ -86,8 +86,8 @@ def test_shows_top_targets_in_descending_order(page: Page):
             target_data["pk"],
         )
         target = featured_targets.filter(has_text=re.compile(rf".*{target_name}.*"))
-
-        expect(target).to_contain_text(target_name)
+        is_lsst = bool("lsst" in str(target_name).lower())
+        expect(target).to_contain_text(str(target_name))
 
         ra, dec = coordinates
         expect(target).to_contain_text(f"RA {ra}")
@@ -107,9 +107,21 @@ def test_shows_top_targets_in_descending_order(page: Page):
 
         for link_data in BROKER_LINKS:
             title, href = link_data["title"], link_data["href"]
+            actual_target_name = target_name
+
+            if is_lsst and link_data["name"] == "Fink":
+                continue
             link = target.get_by_title(title.format(target_name))
             expect(link).to_be_visible()
-            expect(link).to_have_attribute("href", href.format(target_name))
+
+            if is_lsst:
+                href = link_data["href_lsst"]
+                actual_target_name = str(target_name)[5:]
+                expect(link).to_have_attribute(
+                    "href", href.format(actual_target_name, actual_target_name)
+                )
+            else:
+                expect(link).to_have_attribute("href", href.format(actual_target_name))
 
         # all targets link
         all_targets_link = page.get_by_role(
