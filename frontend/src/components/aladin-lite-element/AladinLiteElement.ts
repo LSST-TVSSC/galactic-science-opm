@@ -81,10 +81,6 @@ export class AladinLiteElement extends LitElement {
       --border-size: 2px;
       --valid-color: green;
       --error-color: red;
-
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-image: url(${unsafeCSS(placeholder)});
       position: relative;
     }
 
@@ -95,6 +91,7 @@ export class AladinLiteElement extends LitElement {
       display: flex;
       align-items: center;
       justify-content: center;
+      pointer-events: none;
     }
 
     input,
@@ -113,6 +110,9 @@ export class AladinLiteElement extends LitElement {
       flex: auto;
       width: 100%;
       height: 100%;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-image: url(${unsafeCSS(placeholder)});
     }
 
     .inline-flex {
