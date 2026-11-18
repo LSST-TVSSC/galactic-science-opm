@@ -1,32 +1,15 @@
-{% load tom_common_extras galactic_thumbs broker_links parameter_tags %}
+{% load tom_common_extras galactic_thumbs broker_links parameter_tags targets_extras %}
 {% if featured_targets %}
   {% for target in featured_targets %}
     <article class="opm-card" data-testid="featured-target-element">
       <div class="target-finder-image">
-        {% galactic_thumb_info target 400 0.045 as thumb %}
-        {% if thumb.url %}
-          <a href="{% url 'targets:detail' target.pk %}" data-testid="galactic_thumbnail">
-              <finder-chart-element>
-                <div class="gs-opm-thumb">
-                  <img src="{{ thumb.url }}"
-                      width="120" height="120"
-                      alt="Finder chart for {{ target.name }}"
-                      style="background-image: url({{thumb.placeholder}});"
-                      loading="lazy">
-
-                  <div class="gs-opm-thumb-circle"></div>
-
-                  <div class="gs-opm-thumb-fov">
-                    FoV {{ thumb.fov_arcmin }}′
-                  </div>
-                </div>
-              </finder-chart-element>
-          </a>
-        {% else %}
-          <p class="">
-            No finder chart available
-          </p>
-        {% endif %}
+        <aladin-lite-element
+          style="height: 172px;"
+          ra="{{ target.ra }}"
+          dec="{{ target.dec }}"
+          targetname="{{ target.name }}"
+          aladincontrols="none"
+        ></aladin-lite-element>
       </div>
       <div class="target-data">
         <header>

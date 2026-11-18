@@ -1,7 +1,8 @@
-import { html, css, LitElement, type PropertyValues } from "lit";
+import { html, css, LitElement, type PropertyValues, unsafeCSS } from "lit";
 import { property } from "lit/decorators.js";
 import type { LoadingIndicatorElement } from "../loading-indicator-element/LoadingIndicatorElement";
 import "../loading-indicator-element/loading-indicator-element"
+import { placeholder } from "../finder-chart-element/placeholder";
 
 // The AladinLite API does not provide a way to draw arbitrary text at an arbitrary location in an overlay layer.
 // This implements the methods necessary to do so when provided as an input to layer.add(). This approach was
@@ -80,6 +81,20 @@ export class AladinLiteElement extends LitElement {
       --border-size: 2px;
       --valid-color: green;
       --error-color: red;
+
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-image: url(${unsafeCSS(placeholder)});
+      position: relative;
+    }
+
+    loading-indicator-element {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     input,
@@ -212,6 +227,9 @@ export class AladinLiteElement extends LitElement {
   dec: number = 0;
 
   @property()
+  fov: number = 0.045;
+
+  @property()
   targetName: string = "N.A.";
 
   @property({ attribute: true })
@@ -220,12 +238,37 @@ export class AladinLiteElement extends LitElement {
   @property({ attribute: true })
   showScaleBar = false;
 
+  @property({ type: Boolean })
+  showControls = false;
+
+  /*
+  * This controls if aladin's own controls are rendered.
+  * Currently, it will either render all or none, if "none" was chosen.
+  */
+  @property()
+  aladinControls = "full";
+
   private init = false;
   private wasInView = false;
   private annotationLayer: any;
 
   initialize() {
-    console.log("initializing...")
+    let options = {}
+    if (this.aladinControls = "none") {
+      options = {
+        ...options, 
+        showZoomControl: false,
+        showLayersControl: false,
+        showFullscreenControl: false, 
+        showStatusBar: false,
+        showFrame: false,
+        showFov: false,
+        showCooLocation: false,
+        showProjectionControl: false,
+        showCatalog: false,
+        showCooGrid: false
+      }
+    }
     import("aladin-lite").then((A) => {
       this.A = A.default;
       this.A.init.then(() => {
@@ -236,13 +279,14 @@ export class AladinLiteElement extends LitElement {
         this.aladin = this.A.aladin(
           wrapper,
           {
-            survey: "P/DSS2/color",
-            fov: this.getFovAsDegreesFromForm(),
+            survey: "https://skies.esac.esa.int/DSSColor",
+            fov: this.fov,
             showReticle: false,
             target: `${this.ra} ${this.dec}`,
             showGotoControl: false,
             showZoomControl: false,
             log: false,
+            ...options
           },
         );
         // mkistner: This is a check to see if aladin is ready. There does not seem to
@@ -481,6 +525,9 @@ export class AladinLiteElement extends LitElement {
     return html`
       <loading-indicator-element></loading-indicator-element>
       <slot></slot>
+      ${!this.showControls
+        ? ""
+        : html`
       <div id="chart-form-div">
         <div id="chart-form" class="inline-flex gap-s align-fe p-b-s">
           <div class="input-label-wrapper">
@@ -556,7 +603,7 @@ export class AladinLiteElement extends LitElement {
             Save Image
           </button>
         </div>
-      </div>
+      </div>`}
     `;
   }
 }
