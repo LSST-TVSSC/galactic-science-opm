@@ -5,12 +5,12 @@ import healpy as hp
 import requests
 from astropy.coordinates import SkyCoord
 from astropy.time import Time
-from astroquery.vizier import Vizier
 from django.apps import apps
 from django.db import transaction
 
 from custom_code.match_managers import validators
 from custom_code.target_models import GalacticTarget
+from custom_code.utils.catalog_requests import create_vizier_instance
 
 OGLE_URL = "https://www.astrouw.edu.pl/ogle/ogle4/ews"
 KMTNET_URL = "https://kmtnet.kasi.re.kr/ulens/event/{year}/listpage.dat"
@@ -183,7 +183,7 @@ class MicrolensingCoordsBroker:
         )
         events = {}
 
-        v = Vizier(columns=["**"], row_limit=-1)
+        v = create_vizier_instance(columns=["**"], row_limit=-1)
         catalogs = v.get_catalogs(VIZIER_CATALOGS[survey])
         if len(catalogs) == 0:
             print(f"{survey}: no catalog data retrieved")

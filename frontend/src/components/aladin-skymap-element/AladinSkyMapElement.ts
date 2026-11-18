@@ -92,7 +92,7 @@ export class AladinSkymapElement extends LitElement {
         this.aladin = this.A.aladin(
           this.shadowRoot?.querySelector("#aladin-div"),
           {
-            survey: "P/DSS2/color",
+            survey: "https://skies.esac.esa.int/DSSColor",
             fov: this.fov,
             projection: this.projection,
             showReticle: false,

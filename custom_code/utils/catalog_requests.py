@@ -12,10 +12,17 @@ from astroquery.vizier import Vizier
 from requests.exceptions import ConnectTimeout
 
 # Where to find the VIZIER API
-VIZIER_SED_API_URL = "https://vizier.cds.unistra.fr/viz-bin/sed"
-VIZIER_SED_VIEWER_URL = "https://vizier.cds.unistra.fr/vizier/sed/"
+VIZIER_BASE_URL = "vizier.cfa.harvard.edu"
+VIZIER_SED_API_URL = f"http://{VIZIER_BASE_URL}/viz-bin/sed"
+VIZIER_SED_VIEWER_URL = f"http://{VIZIER_BASE_URL}/vizier/sed/"
 
 NOT_IN_ANY_CATALOG = "None, queried"
+
+
+def create_vizier_instance(**kwargs):
+    merged = {"vizier_server": VIZIER_BASE_URL, **kwargs}
+    vizier = Vizier(**merged)
+    return vizier
 
 
 def get_glade_plus_count(coords):
@@ -26,7 +33,7 @@ def get_glade_plus_count(coords):
     """
     radius = Angle(1.5 / 60.0 / 60.0, "deg")
     try:
-        vizier = Vizier()
+        vizier = create_vizier_instance()
         result = vizier.query_region(
             coords, radius=radius, catalog="VII/281", cache=False
         )
@@ -64,7 +71,7 @@ def get_var_star_variability_analysis(ra, dec, radius_arcsec=3):
     """
 
     try:
-        VIZIER = Vizier(ucd="src.var", columns=["*"])
+        VIZIER = create_vizier_instance(ucd="src.var", columns=["*"])
         VIZIER.ROW_LIMIT = -1
     except Exception as e:
         print(f"Error initializing Vizier: {e}")
