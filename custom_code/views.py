@@ -1,4 +1,3 @@
-import csv
 import datetime
 import json
 import os
@@ -16,7 +15,7 @@ from django.contrib import messages
 from django.contrib.auth import constant_time_compare
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.core import management
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import OperationalError, connection, connections
@@ -25,10 +24,12 @@ from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import Http404, get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import format_html
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
+from django_celery_results.models import TaskResult
 from tom_dataproducts.models import PhotometryReducedDatum
 from tom_dataproducts.sharing import get_sharing_destination_options
 from tom_targets.forms import TargetShareForm
@@ -36,14 +37,13 @@ from tom_targets.models import Target, TargetName
 from tom_targets.permissions import targets_for_user
 from tom_targets.views import TargetDetailView, TargetShareView
 
+from custom_code.tasks import upload_csv
 from galactic_science_opm.settings import env
 
 conf.auto_max_age = None
 
 from custom_code.target_models import (
     Classification,
-    ClassificationGeneralized,
-    ClassificationSource,
     CompactBinariesRadarData,
     GalacticTarget,
     MicrolensingParameterModel,
@@ -730,160 +730,6 @@ def download_lightcurve_data_for_target(request, pk):
         os.unlink(tmp_path)
 
 
-def custom_import_targets(target_stream):
-    """
-    mkistner: This was adapted from tom_targets/utils.py import_targets
-
-    Imports a set of targets into the TOM and saves them to the database.
-
-    :param target_stream: String buffer of targets
-    :type target_stream: StringIO
-
-    :returns: dictionary of successfully imported targets, as well errors
-    :rtype: dict
-    """
-    targetreader = csv.DictReader(target_stream, dialect=csv.excel)
-    targets = []
-    errors = []
-
-    class CsvImportError(Exception): ...
-
-    supported_fields = (
-        "name",
-        "name2",
-        "type",
-        "ra",
-        "dec",
-        "groups",
-        "probability",
-        "class_name",
-        "classifier_version",
-        "expected_visits",
-        "target_type",
-    )
-
-    base_target_fields = [field.name for field in Target._meta.get_fields()]
-    for index, row in enumerate(targetreader):
-        # filter out empty values in base fields, otherwise converting empty
-        # string to float will throw error
-        row = {
-            k: v for (k, v) in row.items() if not (k in base_target_fields and not v)
-        }
-        target_extra_fields = []
-        target_names = []
-        group_names = []
-        target_fields = {}
-
-        probability = None
-        class_name = None
-        classifier_version = None
-        expected_visits = None
-        target_type = None
-
-        has_found_header = False
-
-        for k in row:
-            if k != "name" and k.startswith("name"):
-                target_names.append(row[k])
-            elif k == "groups":
-                groups = row[k].split(",")
-                has_found_header = True
-                for group in groups:
-                    group_names.append(group.strip())
-            elif k in base_target_fields:
-                target_fields[k] = row[k]
-                has_found_header = True
-            elif k not in supported_fields:
-                target_extra_fields.append((k, row[k]))
-
-            if k == "probability":
-                probability = row[k]
-            elif k == "class_name":
-                class_name = row[k]
-            elif k == "classifier_version":
-                classifier_version = row[k]
-            elif k == "expected_visits":
-                expected_visits = row[k]
-            elif k == "target_type":
-                target_type = row[k]
-
-        try:
-            if not has_found_header:
-                raise CsvImportError(
-                    "Missing header in csv file. Please check the example file, adapt your file accordingly and try again."
-                )
-            target = Target.objects.create(**target_fields)
-            for name in target_names:
-                if name:
-                    TargetName.objects.create(target=target, name=name)
-            targets.append(target)
-            for group in group_names:
-                try:
-                    group_instance = Group.objects.get(name=group)
-                    target.give_user_access(group_instance)
-                except Group.DoesNotExist:
-                    pass
-            if (
-                probability
-                and class_name
-                and classifier_version
-                and expected_visits
-                and target_type
-            ):
-                classification_name = "n.a."
-                target_type__pretty = "tbd"
-
-                if target_type == "microlensing":
-                    classification_name = "microlensing"
-                    target_type__pretty = "Microlensing candidate"
-                    _ = MicrolensingRadarData.objects.create(
-                        target=target, average_master_probability=probability
-                    )
-                elif target_type == "compact_binary":
-                    classification_name = "compact_binary"
-                    target_type__pretty = "CV/Nova candidate"
-                    _ = CompactBinariesRadarData.objects.create(
-                        target=target, average_master_probability=probability
-                    )
-                target.target_type = target_type__pretty
-                target.save()
-
-                classification_source, _created_source = (
-                    ClassificationSource.objects.get_or_create(
-                        classification_origin="uploaded",
-                        classifier_name="uploaded",
-                        class_name=class_name,
-                        classifier_version=classifier_version,
-                    )
-                )
-                try:
-                    classification = ClassificationGeneralized.objects.get(
-                        target=target,
-                        source=classification_source,
-                        name=classification_name,
-                    )
-                    classification.probability = probability
-                    classification.save()
-                except ClassificationGeneralized.DoesNotExist:
-                    classification = ClassificationGeneralized.objects.create(
-                        target=target,
-                        source=classification_source,
-                        name=classification_name,
-                        probability=probability,
-                    )
-
-        except Exception as e:
-            if not has_found_header:
-                error = str(e)
-                errors.append(error)
-                break
-            else:
-                error = f"Error on line {index + 2}: {e!s}"
-                errors.append(error)
-
-    return {"targets": targets, "errors": errors}
-
-
 class GsoOpmTargetImportView(LoginRequiredMixin, TemplateView):
     """
     mkistner: This was adapted from tom_targets/views.py TargetImportView
@@ -892,8 +738,28 @@ class GsoOpmTargetImportView(LoginRequiredMixin, TemplateView):
 
     template_name = "tom_targets/target_import.html"
 
-    def import_targets(self, csv_data):
-        return custom_import_targets(csv_data)
+    def import_targets(self, csv_data, user):
+        res = upload_csv.delay(csv_data, user)
+        return res
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        time_threshold = datetime.datetime.now(datetime.timezone.utc) - timedelta(
+            minutes=10
+        )
+        all_tasks = TaskResult.objects.filter(date_created__gte=time_threshold)
+        tasks_info = [
+            {
+                "id": task.task_id,
+                "created": task.date_created,
+                "status": task.status,
+                "errors": json.loads(task.result or "{}").get("errors", []),
+            }
+            for task in all_tasks
+        ]
+        context["tasks"] = tasks_info
+
+        return context
 
     def post(self, request):
         """
@@ -904,12 +770,18 @@ class GsoOpmTargetImportView(LoginRequiredMixin, TemplateView):
         """
         csv_file = request.FILES["target_csv"]
         csv_stream = StringIO(csv_file.read().decode("utf-8"), newline=None)
-        result = self.import_targets(csv_stream)
-        for target in result["targets"]:
-            target.give_user_access(request.user)
-        messages.success(request, "Targets created: {}".format(len(result["targets"])))
-        for error in result["errors"]:
-            messages.warning(request, error)
+        csv_as_string = csv_stream.read()
+        data = {"data": csv_as_string}
+        task_id = self.import_targets(data, request.user.id)
+        messages.success(
+            request,
+            format_html(
+                "Your upload is running with ID {}. You can check <a href='{}'>{}</a> for its status.",
+                task_id,
+                reverse("import_target_list"),
+                "here",
+            ),
+        )
         return redirect(reverse("tom_targets:list"))
 
 
