@@ -55,6 +55,7 @@ services:
         context: .
         dockerfile: Dockerfile_celery_worker
       command: celery -A galactic_science_opm worker -l INFO
+      restart: unless-stopped
       environment:
         DB_HOST: galactic-science-opm-db
         DB_NAME: galactic_science_opm
