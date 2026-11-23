@@ -19,6 +19,9 @@ start-prod:
 start-prod-build:
   docker compose -f compose.base.yaml -f compose.prod.yaml up -d --build
 
+log-prod:
+  docker compose -f compose.base.yaml -f compose.prod.yaml logs -f
+
 stop-prod:
   docker compose -f compose.base.yaml -f compose.prod.yaml down
 
