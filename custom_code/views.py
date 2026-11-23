@@ -745,7 +745,7 @@ class GsoOpmTargetImportView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         time_threshold = datetime.datetime.now(datetime.timezone.utc) - timedelta(
-            minutes=10
+            minutes=60
         )
         all_tasks = TaskResult.objects.filter(date_created__gte=time_threshold)
         tasks_info = [

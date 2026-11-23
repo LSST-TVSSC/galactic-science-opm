@@ -34,7 +34,7 @@
         </tbody>
       </table>
     {% else %}
-      <p>No tasks in the last 10 minutes</p>
+      <p>No tasks in the last 60 minutes</p>
     {% endif %}
   <form method="POST" action="{% url 'import_target_list' %}" enctype="multipart/form-data">
     {% csrf_token %}
