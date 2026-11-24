@@ -1,4 +1,4 @@
-{% load tom_common_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags vite %}
+{% load tom_common_extras dataservices_extras targets_extras observation_extras dataproduct_extras static cache parameter_tags vite %}
 {% load earth_visibility_plot_tags %}
 {% load custom_observation_extras %}
 <div data-testid="exchange-tab">
@@ -6,8 +6,15 @@
         
         <div>
           <a class="btn btn-outline-secondary" href="/download-data/lightcurves/{{target.id}}">Download lightcurve data for target</a>
-          <a class="btn btn-outline-secondary" href="{% url 'download_pylima_script' target.id %}">Download pyLIMA PSPL script for target (experimental)</a>
+          <a class="btn btn-outline-secondary" href="{% url 'download_pylima_script' target.id %}">Download pyLIMA PSPL script for target</a>
           {% target_buttons target %}
+          {% if user.is_authenticated %}
+            <hr>
+            {% query_single_target_data_service object %}
+            <hr>
+          {% endif %}
+
+
         </div>
          <plotly-chart-element id="earth_visibility_plot">
             {% earth_visibility_plot target %}

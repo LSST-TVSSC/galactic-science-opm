@@ -249,6 +249,22 @@ FACILITIES = {
     },
 }
 
+SINGLE_TARGET_DATA_SERVICES = {
+    "ATLAS": {
+        "class": "tom_dataproducts.single_target_data_service.atlas.AtlasForcedPhotometryService",
+        "url": "https://fallingstar-data.com/forcedphot",
+        "api_key": os.getenv(
+            "ATLAS_FORCED_PHOTOMETRY_API_KEY", "your atlas account api token"
+        ),
+    },
+    "PANSTARRS": {
+        "class": "tom_dataproducts.single_target_data_service.panstarrs_service.panstarrs.PanstarrsSingleTargetDataService",
+        "url": "https://catalogs.mast.stsci.edu/api/v0.1/panstarrs",  # MAST Base URL
+        # MAST_API_TOKEN is not required for public data
+        "api_key": os.getenv("MAST_API_TOKEN", "MAST_API_TOKEN not set"),
+    },
+}
+
 # Define the valid data product types for your TOM.
 # This is a dictionary of tuples to be used as ChoiceField options, with the first element being the type and the
 # second being the display name.
@@ -260,12 +276,16 @@ DATA_PRODUCT_TYPES = {
     "spectroscopy": ("spectroscopy", "Spectroscopy"),
     "image_file": ("image_file", "Image File"),
     "sed": ("sed", "SED"),
+    "atlas_photometry": ("atlas_photometry", "Atlas Photometry"),
+    "panstarrs_photometry": ("panstarrs_photometry", "PanSTARRS Photometry"),
 }
 
 DATA_PROCESSORS = {
     "photometry": "tom_dataproducts.processors.photometry_processor.PhotometryProcessor",
     "spectroscopy": "tom_dataproducts.processors.spectroscopy_processor.SpectroscopyProcessor",
     "sed": "custom_code.processors.vizier_sed_processor.VizierSEDProcessor",
+    "atlas_photometry": "tom_dataproducts.processors.atlas_processor.AtlasProcessor",
+    "panstarrs_photometry": "tom_dataproducts.processors.panstarrs_processor.PanstarrsProcessor",
 }
 
 TOM_FACILITY_CLASSES = [
