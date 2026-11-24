@@ -35,7 +35,6 @@ services:
       - ${OPM_PSQL_VOLUME}:/var/lib/postgresql/data
 
   rabbitmq:
-      container_name: rabbitmq
       build:
         context: .
         dockerfile: Dockerfile_rabbitmq
