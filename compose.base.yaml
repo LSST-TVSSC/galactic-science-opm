@@ -43,9 +43,7 @@ services:
         RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
         RABBITMQ_PID_FILE: /var/lib/rabbitmq/mnesia/rabbitmq
       volumes:
-        - ./data_rabbit:/var/lib/rabbitmq
         - ./conf_rabbit:/etc/rabbitmq
-        - ./log_rabbit:/var/log/rabbitmq
       restart: unless-stopped
       command: /rabbitmq_entrypoint.sh
 
