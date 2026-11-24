@@ -551,6 +551,7 @@ def download_pylima_script(request, pk):
 # Created: {datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")}
 # Target ID: {target.id}
 
+import io
 import os
 import tempfile
 import zipfile
@@ -576,7 +577,10 @@ def run_fit():
         nmax = 0
         for data_file in all_files:
             # Load data as strings
-            data = np.genfromtxt(os.path.join(tmpdir, data_file), comments="#", dtype=str)
+            path = os.path.join(tmpdir, data_file)
+            with open(path) as ftmp:
+                content = ''.join(l for l in ftmp if 'None' not in l)
+            data = np.genfromtxt(io.StringIO(content), comments='#', dtype=str, ndmin=2)
 
             # Extract passband
             passband = str(data[0, 3])
@@ -619,13 +623,38 @@ def run_fit():
         )
         my_fit = TRF_fit.TRFfit(pspl)
         my_fit.fit()
-        my_fit.fit_outputs()
         pspl = PSPL_model.PSPLmodel(
             your_event, parallax=["None", 2460000.0], blend_flux_parameter="ftotal"
         )
         my_fit = TRF_fit.TRFfit(pspl)
         guessed_parameters = my_fit.initial_guess()
         my_fit.fit()
+        my_fit.fit_outputs(bokeh_plot=True)
+        plt.show()
+        print(f"{{'Telescope':<20}} {{'Chi2_red':>10}} {{'Rescale':>8}} {{'N_used':>7}} {{'N_total':>8}} (static)")
+        for tel in your_event.telescopes:
+            pars = my_fit.model.compute_pyLIMA_parameters(
+                my_fit.fit_results["best_model"]
+            )
+            my_fit.model.model_magnification(tel, pars)
+            mu_per_tel = my_fit.model.model_magnification(tel, pars)
+            flux = my_fit.model.compute_the_microlensing_model(tel, pars)[
+                "photometry"
+            ]
+            flux_obs = np.array(tel.lightcurve["flux"])
+            resi_manual = flux - flux_obs
+            err_flux = np.array(tel.lightcurve["err_flux"])
+            resi_normalized_squared = resi_manual**2 / err_flux**2
+            mask_4_sigma = np.abs(
+                resi_normalized_squared - np.median(resi_normalized_squared)
+            ) < 4.0 * 1.48 * np.median(
+                np.abs(resi_normalized_squared - np.median(resi_normalized_squared))
+            )
+            n_data = len(err_flux[mask_4_sigma])
+            n_pars = 3 + 2  # 3 PSPL static + 2 per dataset
+            n_dof = n_data - n_pars
+            chi2_red = resi_normalized_squared[mask_4_sigma].sum() / n_dof
+            print(f"{{tel.name:<20}} {{chi2_red:>10.3f}} {{chi2_red**0.5:>8.3f}} {{n_data:>7d}} {{len(err_flux):>8d}}")
         pspl = PSPL_model.PSPLmodel(
             your_event,
             parallax=["Annual", guessed_parameters[0]],
@@ -633,9 +662,6 @@ def run_fit():
         )
         my_fit = TRF_fit.TRFfit(pspl)
         my_fit.fit()
-        my_fit.fit_outputs()
-        my_fit.fit_outputs(bokeh_plot=True)
-        plt.show()
 if __name__ == "__main__":
     run_fit()
 """
